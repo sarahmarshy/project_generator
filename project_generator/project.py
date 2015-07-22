@@ -141,9 +141,9 @@ class Project:
                         self.project['include_files'].append(os.path.normpath(include_file))
                     dir_path = os.path.dirname(include_file)
                 else:
-                    # its a directory
+                    # its a director
                     dir_path = include_file
-                if not os.path.dirname(include_file) in self.project['includes']:
+                if not os.path.normpath(dir_path) in self.project['includes']:
                     self.project['includes'].append(os.path.normpath(dir_path))
 
     def _process_source_files(self, files, group_name):
@@ -178,7 +178,6 @@ class Project:
 
     def export(self, tool, copy):
         """ Exports a project """
-
         tools = []
         if not tool:
             tools = self.project['tools_supported']

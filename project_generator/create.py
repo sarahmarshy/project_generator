@@ -24,7 +24,7 @@ def _scan(section, root, directory, extensions, is_path):
                 if ext in extensions:
                     if section == "sources":
                         dir = directory.split(os.path.sep)[-1] if dirpath == directory else dirpath.replace(directory,'').split(os.path.sep)[1]
-                        if dir in data_dict:
+                        if dir in data_dict and relpath not in data_dict[dir]:
                             data_dict[dir].append(relpath)
                         else:
                             data_dict[dir] = [(relpath)]

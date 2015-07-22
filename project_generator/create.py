@@ -13,7 +13,7 @@ def _determine_tool(linker_ext):
             return "iar_arm"
 
 
-def _scan(section, root, directory, extensions, is_path):
+def _scan(section, root, directory, extensions):
         if section == "sources":
             data_dict = {}
         else:
@@ -34,7 +34,7 @@ def _scan(section, root, directory, extensions, is_path):
                         for i in range(1, len(dirs)+1):
                             data_dict.append(os.path.sep.join(dirs[:i]))
                     else:
-                        data_dict.append(relpath if is_path else os.path.join(relpath, filename))
+                        data_dict.append(relpath)
         if section == "sources":
             return data_dict
         l = list(set(data_dict))
@@ -59,40 +59,39 @@ def _generate_file(filename,root,directory,data):
             f.write(yaml.dump(data, default_flow_style=False))
 
 
-def create_yaml(root, directory, project_name, board, list_sources):
+def create_yaml(root, directory, project_name, board):
         common_section = {
-            'linker_file': [False, FILES_EXTENSIONS['linker_file']],
-            'sources': [False, FILES_EXTENSIONS['source_files_c'] + FILES_EXTENSIONS['source_files_cpp'] +
+            'linker_file': FILES_EXTENSIONS['linker_file'],
+            'sources': FILES_EXTENSIONS['source_files_c'] + FILES_EXTENSIONS['source_files_cpp'] +
                         FILES_EXTENSIONS['source_files_s'] + FILES_EXTENSIONS['source_files_obj'] +
-                        FILES_EXTENSIONS['source_files_lib']],
-            'includes': [True, FILES_EXTENSIONS['includes']],
-            'target': [False, []],
+                        FILES_EXTENSIONS['source_files_lib'],
+            'includes': FILES_EXTENSIONS['includes'],
+            'target': [],
         }
-        projects = {
+        projects_yaml = {
             'projects': {
                 project_name: ['project.yaml']
             }
         }
 
-        data = {
+        project_yaml = {
             'common': {},
             'tool_specific': {}
         }
 
         for section in common_section:
-            if len(common_section[section][1]) > 0:
-                data['common'][section] = _scan(section, root, directory,common_section[section][1],common_section[section][0])
+            if len(common_section[section]) > 0:
+                project_yaml['common'][section] = _scan(section, root, directory,common_section[section])
 
-        data['common']['target'] = []
-        data['common']['target'].append(board)
-        tool = _determine_tool(str(data['common']['linker_file']).split('.')[-1])
-        data['tool_specific'] = {
+        project_yaml['common']['target'] = [board]
+        tool = _determine_tool(str(project_yaml['common']['linker_file']).split('.')[-1])
+        project_yaml['tool_specific'] = {
             tool: {
-                'linker_file': data['common']['linker_file']
+                'linker_file': project_yaml['common']['linker_file']
             }
         }
-        _generate_file("projects.yaml", root, directory, projects)
-        _generate_file("project.yaml", root, directory, data)
+        _generate_file("projects.yaml", root, directory, projects_yaml)
+        _generate_file("project.yaml", root, directory, project_yaml)
 
 
 

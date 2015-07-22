@@ -21,15 +21,6 @@ from .tool import ToolsSupported
 from .util import *
 from .settings import *
 
-FILES_EXTENSIONS = {
-    'includes': ['h', 'hpp', 'inc'],
-    'source_files_s': ['s'],
-    'source_files_c': ['c'],
-    'source_files_cpp': ['cpp', 'cc'],
-    'source_files_lib': ['lib', 'ar', 'a'],
-    'source_files_obj': ['o', 'obj'],
-    'linker_file': ['sct', 'ld', 'lin', 'icf'],
-}
 class Project:
 
     """represents a project, which can be formed of many yaml files"""

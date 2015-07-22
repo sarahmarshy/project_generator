@@ -23,23 +23,16 @@ help = 'Export a project record'
 def run(args):
     if os.path.exists(args.file):
         project = Project(args.file)
-
-        if args.project:
-            project.export(args.tool, args.copy)
-
-            if args.build:
-                project.build(args.tool)
-        else:
-            logging.warning("Specify which project to generate.")
+        project.export(args.tool, args.copy)
     else:
         # not project known by pgen
         logging.warning("%s not found." % args.file)
+    if args.build:
+        project.export(args.tool, args.copy)
 
 def setup(subparser):
     subparser.add_argument(
         "-f", "--file", help="YAML projects file", default='projects.yaml')
-    subparser.add_argument(
-        "-p", "--project", help="Project to be generated")
     subparser.add_argument(
         "-t", "--tool", help="Create project files for provided tool (uvision by default)")
     subparser.add_argument(

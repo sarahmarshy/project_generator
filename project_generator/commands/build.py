@@ -25,11 +25,8 @@ def run(args):
     if os.path.exists(args.file):
         # known project from records
         project = Project(args.file)
-        if args.project:
-            project.export(args.tool, False)
-            project.build(args.tool)
-        else:
-            logging.warning("Specify which project to build.")
+        project.export(args.tool, False)
+        project.build(args.tool)
     else:
         # not project known by pgen
         logging.warning("%s not found." % args.file)
@@ -37,7 +34,6 @@ def run(args):
 def setup(subparser):
     subparser.add_argument(
         "-f", "--file", help="YAML projects file", default='projects.yaml')
-    subparser.add_argument("-p", "--project", help="Name of the project to build")
     subparser.add_argument(
         "-t", "--tool", help="Build a project files for provided tool")
     subparser.add_argument(

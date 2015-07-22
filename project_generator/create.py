@@ -1,6 +1,6 @@
 import os
 import yaml
-from .project import FILES_EXTENSIONS
+from .util import FILES_EXTENSIONS
 import logging
 
 def _determine_tool(linker_ext):
@@ -25,9 +25,9 @@ def _scan(section, root, directory, extensions, is_path):
                     if section == "sources":
                         dir = directory.split(os.path.sep)[-1] if dirpath == directory else dirpath.replace(directory,'').split(os.path.sep)[1]
                         if dir in data_dict:
-                            data_dict[dir].append(os.path.join(relpath, filename))
+                            data_dict[dir].append(relpath)
                         else:
-                            data_dict[dir] = [(os.path.join(relpath, filename))]
+                            data_dict[dir] = [(relpath)]
                     elif section == 'includes':
                         dirs = relpath.split(os.path.sep)
                         for i in range(1, len(dirs)+1):

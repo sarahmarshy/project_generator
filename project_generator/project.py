@@ -12,8 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import os
-import shutil
+
 import logging
 
 from collections import defaultdict
@@ -24,7 +23,7 @@ from .settings import *
 class Project:
 
     """represents a project, which can be formed of many yaml files"""
-    def __init__(self, projects_file='projects.yaml'):
+    def __init__(self, projects_file='projects.yaml', name = ''):
         if type(projects_file) is not dict:
             try:
                 with open(projects_file, 'rt') as f:
@@ -38,12 +37,20 @@ class Project:
         if 'settings' in self.projects_dict:
             self.settings.update(self.projects_dict['settings'])
 
-        self.name = ''
+        self.name = name
         project_dicts = {}
         if 'projects' in self.projects_dict:
-            for name, records in self.projects_dict['projects'].items():
-                self.name = name
-                project_dicts = load_yaml_records(uniqify(flatten(records)))
+            if len(self.projects_dict['projects'].keys()) > 1:
+                if name == '':
+                    raise RuntimeError("You must specify a project name when using a multi-project yaml file.")
+                elif name not in self.projects_dict['projects'].keys():
+                    raise RuntimeError("You specified an invalid project name.")
+                else:
+                    records = self.projects_dict['projects'][name]
+                    project_dicts = load_yaml_records(uniqify(flatten(records)))
+            else:
+                for name, records in self.projects_dict['projects'].items():
+                    project_dicts = load_yaml_records(uniqify(flatten(records)))
         else:
             logging.debug("No projects found in the main record file.")
 

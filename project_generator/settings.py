@@ -21,7 +21,7 @@ GCC_BIN_PATH
 """
 
 import os
-
+from collections import defaultdict
 from os.path import expanduser, normpath, join, pardir, sep
 
 

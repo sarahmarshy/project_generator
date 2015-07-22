@@ -141,7 +141,7 @@ class Project:
                         self.project['include_files'].append(os.path.normpath(include_file))
                     dir_path = os.path.dirname(include_file)
                 else:
-                    # its a director
+                    # its a directory
                     dir_path = include_file
                 if not os.path.normpath(dir_path) in self.project['includes']:
                     self.project['includes'].append(os.path.normpath(dir_path))
@@ -189,8 +189,6 @@ class Project:
             exporter = ToolsSupported().get_value(export_tool, 'exporter')
 
             self.customize_project_for_tool(export_tool)
-            self._set_output_dir_path(export_tool, '')
-            self._set_output_dir()
             if copy:
                 self.copy_sources_to_generated_destination()
 
@@ -228,10 +226,6 @@ class Project:
         count = path.count(os.sep) + 1
 
         return (os.sep.join('..' for _ in range(count)) + os.sep), count
-
-    def _set_output_dir(self):
-        path = self.project['output_dir']['path']
-        self.project['output_dir']['rel_path'], self.project['output_dir']['rel_count'] = self._generate_output_dir(path)
 
     def source_of_type(self, filetype):
         """return a dictionary of groups and the sources of a specified type within them"""
@@ -288,6 +282,7 @@ class Project:
         self.project['template'] = toolchain_specific_settings.template or [
                 tool_settings.template for tool_settings in tool_specific_settings if tool_settings.template]
 
+        self._set_output_dir_path(tool, '')
         if len(self.project['linker_file']) == 0 and self.project['output_type'] == 'exe':
             raise RuntimeError("Executable - no linker command found.")
 
@@ -306,10 +301,10 @@ class Project:
             'tool': tool,
             'target': self.project['target']
         })
-
-
         # TODO (matthewelse): make this return a value directly
         self.project['output_dir']['path'] = os.path.normpath(location)
+        path = self.project['output_dir']['path']
+        self.project['output_dir']['rel_path'], self.project['output_dir']['rel_count'] = self._generate_output_dir(path)
 
     def _copy_files(self, file, output_dir, valid_files_group):
         file = os.path.normpath(file)

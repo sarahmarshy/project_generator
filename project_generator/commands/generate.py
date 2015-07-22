@@ -1,4 +1,4 @@
-# Copyright 2015 0xc0170
+# Copyright 2014-2015 0xc0170
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,25 +13,24 @@
 # limitations under the License.
 import os
 
-import build
-from ..tool import ToolsSupported
-from ..workspace import PgenWorkspace
-from ..settings import ProjectSettings
+from ..main import *
+from ..project import Project
+import logging
 
-help = 'Flash a project'
+help = 'Export a project record'
+
 
 def run(args):
     if os.path.exists(args.file):
-        # first build a project then flash it
-        build.run(args)
+        project = Project(args.file)
 
-        # time to flash
-        # known project from records
-        workspace = PgenWorkspace(args.file, os.getcwd())
         if args.project:
-            workspace.flash_project(args.project, args.tool)
+            project.export(args.tool, args.copy)
+
+            if args.build:
+                project.build(args.tool)
         else:
-            workspace.flash_projects(args.tool)
+            logging.warning("Specify which project to generate.")
     else:
         # not project known by pgen
         logging.warning("%s not found." % args.file)
@@ -39,11 +38,14 @@ def run(args):
 def setup(subparser):
     subparser.add_argument(
         "-f", "--file", help="YAML projects file", default='projects.yaml')
-    subparser.add_argument("-p", "--project", help="Name of the project to flash")
     subparser.add_argument(
-        "-t", "--tool", help="Flash a project files for provided tool")
+        "-p", "--project", help="Project to be generated")
     subparser.add_argument(
-        "-dir", "--directory", help="The projects directory")
+        "-t", "--tool", help="Create project files for provided tool (uvision by default)")
+    subparser.add_argument(
+        "-b", "--build", action="store_true", help="Build defined projects")
     subparser.add_argument(
         "-defdir", "--defdirectory",
         help="Path to the definitions, otherwise default (~/.pg/definitions) is used")
+    subparser.add_argument(
+        "-c", "--copy", action="store_true", help="Copy all files to the exported directory")

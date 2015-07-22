@@ -1,4 +1,4 @@
-# Copyright 2015 0xc0170
+# Copyright 2014-2015 0xc0170
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,23 +14,26 @@
 
 import os
 import logging
+from ..create import create_yaml
 
-help = 'Import to pgen'
+help = 'Create a project record'
 
-from ..tool import ToolsSupported, mcu_create
 
 def run(args):
+    logging.debug("Generating the records.")
+
     root = os.getcwd()
 
-    # exporter - fix TOOLS please
-    tool = ToolsSupported().get_value(args.tool, 'exporter')
-    mcu_create(tool, args.mcu, args.file, args.tool)
+    directory = root if not args.directory else os.path.join(root, args.directory)
+    create_yaml(root, directory, args.name, args.target.lower(), args.sources)
+
 
 def setup(subparser):
     subparser.add_argument(
-        '-mcu', action='store', help='MCU name')
-    # we need tool as some tools have same extensions and we might have problems
+        '-name', help='Project name')
     subparser.add_argument(
-        '-t', '--tool', action='store', help='Tool to be set')
+        '-tar', '--target', action='store', help='Target definition')
     subparser.add_argument(
-        '-f', '--file', action='store', help='File to be parsed')
+        '-dir', '--directory', action='store', help='Directory selection', default=None)
+    subparser.add_argument(
+        '-s', '--sources', action='store_true', help='List all files, otherwise only folders for sources.')

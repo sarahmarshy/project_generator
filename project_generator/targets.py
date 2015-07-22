@@ -40,7 +40,7 @@ class Targets:
         project_file.close()
         return config
 
-    def get_mcu_definition(self):
+    def get_mcu_template(self):
         return self.MCU_TEMPLATE
 
     def get_mcu_record(self, target):

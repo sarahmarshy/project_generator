@@ -374,7 +374,7 @@ class Uvision(Builder, Exporter):
         project_file = join(getcwd(), project_file)
         uvproj_dic = xmltodict.parse(file(project_file), dict_constructor=dict)
         # Generic Target, should get from Target class !
-        mcu = Targets().get_mcu_definition()
+        mcu = Targets().get_mcu_template()
 
         mcu['tool_specific'] = {
             # legacy device

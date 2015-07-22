@@ -439,7 +439,7 @@ class IAREmbeddedWorkbench(Builder, Exporter, IAREmbeddedWorkbenchProject):
         project_file = join(getcwd(), project_file)
         ewp_dic = xmltodict.parse(file(project_file), dict_constructor=dict)
 
-        mcu = Targets().get_mcu_definition()
+        mcu = Targets().get_mcu_template()
 
         # we take 0 configuration or just configuration, as multiple configuration possibl
         # debug, release, for mcu - does not matter, try and adjust

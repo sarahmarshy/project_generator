@@ -12,12 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import os
-import export
+import generate
 import logging
 
-from ..tool import ToolsSupported
-from ..workspace import PgenWorkspace
-from ..settings import ProjectSettings
+from ..project import Project
 
 help = 'Build a project'
 
@@ -26,13 +24,12 @@ def run(args):
     # Export if we know how, otherwise return
     if os.path.exists(args.file):
         # known project from records
-        workspace = PgenWorkspace(args.file, os.getcwd())
+        project = Project(args.file)
         if args.project:
-            workspace.export_project(args.project, args.tool, False)
-            workspace.build_project(args.project, args.tool)
+            project.export(args.tool, False)
+            project.build(args.tool)
         else:
-            workspace.export_projects(args.tool, False)
-            workspace.build_projects(args.tool)
+            logging.warning("Specify which project to build.")
     else:
         # not project known by pgen
         logging.warning("%s not found." % args.file)

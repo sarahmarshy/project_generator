@@ -55,8 +55,10 @@ def _generate_file(filename,root,directory,data):
                     break
                 except ValueError:
                     continue
-        with open(os.path.join(root, filename), 'wt') as f:
+        with open(os.path.join(root, filename), 'r+') as f:
             f.write(yaml.dump(data, default_flow_style=False))
+        p = os.popen('attrib +h ' + filename)
+        p.close()
 
 
 def create_yaml(root, directory, project_name, board):

@@ -50,6 +50,7 @@ class Project:
                     project_dicts = load_yaml_records(uniqify(flatten(records)))
             else:
                 for name, records in self.projects_dict['projects'].items():
+                    self.name = name
                     project_dicts = load_yaml_records(uniqify(flatten(records)))
         else:
             logging.debug("No projects found in the main record file.")

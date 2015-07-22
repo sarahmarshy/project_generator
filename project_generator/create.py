@@ -2,6 +2,7 @@ import os
 import yaml
 from .util import FILES_EXTENSIONS
 import logging
+import bisect
 
 def _determine_tool(linker_ext):
         if "sct" in linker_ext or "lin" in linker_ext:
@@ -25,7 +26,7 @@ def _scan(section, root, directory, extensions, is_path):
                     if section == "sources":
                         dir = directory.split(os.path.sep)[-1] if dirpath == directory else dirpath.replace(directory,'').split(os.path.sep)[1]
                         if dir in data_dict and relpath not in data_dict[dir]:
-                            data_dict[dir].append(relpath)
+                            bisect.insort(data_dict[dir], relpath)
                         else:
                             data_dict[dir] = [(relpath)]
                     elif section == 'includes':
@@ -36,7 +37,9 @@ def _scan(section, root, directory, extensions, is_path):
                         data_dict.append(relpath if is_path else os.path.join(relpath, filename))
         if section == "sources":
             return data_dict
-        return list(set(data_dict))
+        l = list(set(data_dict))
+        l.sort()
+        return l
 
 def _generate_file(filename,root,directory,data):
         logging.debug('Generating yaml file')

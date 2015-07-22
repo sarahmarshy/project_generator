@@ -15,9 +15,7 @@
 import argparse
 import os
 import logging
-import subprocess
-
-from .settings import ProjectSettings
+from .util import update
 
 colourful = True
 
@@ -73,34 +71,6 @@ def main():
 
     update()
     args.func(args)
-
-def update(force=True, settings=ProjectSettings()):
-    defdir_exists = True
-    if not os.path.exists(settings.paths['definitions']):
-        defdir_exists = False
-        os.mkdir(settings.paths['definitions'])
-
-    # For default, use up to date repo from github
-    if settings.get_env_settings('definitions') == settings.get_env_settings('definitions_default'):
-        if not defdir_exists:
-            cmd = ('git', 'clone', '--quiet',
-                   'https://github.com/project-generator/project_generator_definitions.git', '.')
-            subprocess.call(cmd, cwd=settings.paths['definitions'])
-        elif force:
-            # rebase only if force, otherwise use the current version
-            cmd = ('git', 'pull', '--rebase', '--quiet', 'origin', 'master')
-            subprocess.call(cmd, cwd=settings.paths['definitions'])
-        else:
-            # check if we are on top of origin/master
-            cmd = ('git', 'fetch', 'origin','master', '--quiet')
-            subprocess.call(cmd, cwd=settings.paths['definitions'])
-            cmd = ('git', 'diff', 'master', 'origin/master', '--quiet')
-            p = subprocess.call(cmd, cwd=settings.paths['definitions'])
-            # any output means we are behind the master, update
-            if p:
-                logging.debug("Definitions are behind the origin/master, rebasing.")
-                cmd = ('git', 'pull', '--rebase', '--quiet', 'origin', 'master')
-                subprocess.call(cmd, cwd=settings.paths['definitions'])
 
 if __name__ == '__main__':
     main()

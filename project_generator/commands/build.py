@@ -21,11 +21,11 @@ help = 'Build a project'
 
 
 def run(args):
-    
+
     # Export if we know how, otherwise return
     if os.path.exists(args.file):
         # known project from records
-        project = Project(args.file)
+        project = Project(args.file) if not args.project else Project(args.file, args.project)
         project.export(args.tool, False)
         project.build(args.tool)
     else:
@@ -35,6 +35,8 @@ def run(args):
 def setup(subparser):
     subparser.add_argument(
         "-f", "--file", help="YAML projects file", default='projects.yaml')
+    subparser.add_argument(
+        "-p", "--project", help="Project to be generated")
     subparser.add_argument(
         "-t", "--tool", help="Build a project files for provided tool")
     subparser.add_argument(

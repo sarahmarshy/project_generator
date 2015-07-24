@@ -134,9 +134,8 @@ class Project:
                     [x for x in project_file_data['common']['tools_supported'] if x is not None])
 
         if 'tool_specific' in project_file_data:
-            group_name = 'default'
             for tool_name, tool_settings in project_file_data['tool_specific'].items():
-                self.tool_specific[tool_name].add_settings(tool_settings, group_name)
+                self.tool_specific[tool_name].add_settings(tool_settings, 'default')
 
     def _process_include_files(self, files):
         # If it's dic add it , if file, add it to files

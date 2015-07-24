@@ -42,6 +42,7 @@ def _scan(section, root, directory, extensions):
         return l
 
 def _generate_file(filename,root,directory,data):
+        print "hi"
         logging.debug('Generating yaml file')
         overwrite = False
         if os.path.isfile(os.path.join(directory, filename)):
@@ -70,8 +71,7 @@ def create_yaml(root, directory, project_name, board):
         common_section = {
             'linker_file': FILES_EXTENSIONS['linker_file'],
             'sources': FILES_EXTENSIONS['source_files_c'] + FILES_EXTENSIONS['source_files_cpp'] +
-                        FILES_EXTENSIONS['source_files_s'] + FILES_EXTENSIONS['source_files_obj'] +
-                        FILES_EXTENSIONS['source_files_lib'],
+                        FILES_EXTENSIONS['source_files_s'] + FILES_EXTENSIONS['source_files_obj'],
             'includes': FILES_EXTENSIONS['includes'],
             'target': [],
         }

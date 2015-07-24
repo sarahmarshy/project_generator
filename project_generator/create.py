@@ -34,7 +34,7 @@ def _scan(section, root, directory, extensions):
                         for i in range(1, len(dirs)+1):
                             data_dict.append(os.path.sep.join(dirs[:i]))
                     else:
-                        data_dict.append(relpath)
+                        data_dict.append(os.path.join(relpath, filename))
         if section == "sources":
             return data_dict
         l = list(set(data_dict))
@@ -43,6 +43,7 @@ def _scan(section, root, directory, extensions):
 
 def _generate_file(filename,root,directory,data):
         logging.debug('Generating yaml file')
+        overwrite = False
         if os.path.isfile(os.path.join(directory, filename)):
             print("Project file " +filename+  " already exists")
             while True:
@@ -55,8 +56,12 @@ def _generate_file(filename,root,directory,data):
                     break
                 except ValueError:
                     continue
-        with open(os.path.join(root, filename), 'r+') as f:
-            f.write(yaml.dump(data, default_flow_style=False))
+        if overwrite:
+            with open(os.path.join(root, filename), 'r+') as f:
+                f.write(yaml.dump(data, default_flow_style=False))
+        else:
+            with open(os.path.join(root, filename), 'w+') as f:
+                f.write(yaml.dump(data, default_flow_style=False))
         p = os.popen('attrib +h ' + filename)
         p.close()
 

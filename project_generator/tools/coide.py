@@ -278,7 +278,7 @@ class Coide(Exporter):
         project_file = join(getcwd(), project_file)
         coproj_dic = xmltodict.parse(file(project_file), dict_constructor=dict)
 
-        mcu = Targets().get_mcu_template()
+        mcu = Targets().get_mcu_definition()
 
         IROM1_index = self._coproj_find_option(coproj_dic['Project']['Target']['BuildOption']['Link']['MemoryAreas']['Memory'], '@name', 'IROM1')
         IROM2_index = self._coproj_find_option(coproj_dic['Project']['Target']['BuildOption']['Link']['MemoryAreas']['Memory'], '@name', 'IROM2')

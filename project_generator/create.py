@@ -82,8 +82,7 @@ def create_yaml(root, directory, project_name, board,cpu):
             'settings': {'export_dir': [export_dir]}
         }
         project_yaml = {
-            'common': {},
-            'macros': [cpu, "__MBED__=1"],
+            'common': {'macros': [cpu]},
             'tool_specific': {}
         }
 

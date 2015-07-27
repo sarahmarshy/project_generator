@@ -74,8 +74,7 @@ def create_yaml(root, directory, project_name, board):
             'includes': FILES_EXTENSIONS['includes'],
             'target': [],
         }
-        parent = os.path.abspath(os.path.join(root, os.pardir))
-        export_dir = os.path.join(parent, "generated_projects","{project_name}")
+        export_dir = os.path.join("..", "generated_projects","{project_name}")
         projects_yaml = {
             'projects': {
                 project_name: ['project.yaml']

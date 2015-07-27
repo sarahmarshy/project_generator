@@ -42,7 +42,7 @@ def _scan(section, root, directory, extensions):
         return l
 
 def _generate_file(filename,root,directory,data):
-        logging.debug('Generating yaml file')
+        logging.debug('Generating yaml file ' + filename)
         overwrite = False
         if os.path.isfile(os.path.join(directory, filename)):
             print("Project file " +filename+  " already exists")
@@ -57,11 +57,16 @@ def _generate_file(filename,root,directory,data):
                 except ValueError:
                     continue
         if overwrite:
+            if 'settings' in data and 'export_dir' in data['settings']:
+                if os.path.exists('generated_projects') and (os.listdir('generated_projects')!=[]):
+                    logging.critical("Non-empty generated_projects folder in this directory. Remove it to run create again.")
+                    return -1
             os.remove(filename)
         with open(os.path.join(root, filename), 'w+') as f:
             f.write(yaml.dump(data, default_flow_style=False))
         p = os.popen('attrib +h ' + filename)
         p.close()
+        return 0
 
 
 def create_yaml(root, directory, project_name, board,cpu):
@@ -95,7 +100,9 @@ def create_yaml(root, directory, project_name, board,cpu):
                 'linker_file': project_yaml['common']['linker_file']
             }
         }
-        _generate_file("projects.yaml", root, directory, projects_yaml)
+        ret = _generate_file("projects.yaml", root, directory, projects_yaml)
+        if ret < 0:
+            return -1
         _generate_file("project.yaml", root, directory, project_yaml)
 
 

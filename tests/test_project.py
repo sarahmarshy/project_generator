@@ -39,7 +39,7 @@ projects_yaml = {
     },
     'settings' : {
         'definitions_dir': ['notpg/path/somewhere'],
-        'export_dir': ['projects/{workspace}/{tool}_{target}/{project_name}']
+        'export_dir': ['projects/{tool}_{target}/{project_name}']
     }
 }
 
@@ -65,7 +65,7 @@ class TestProject(TestCase):
 
         # now that Project and PgenWorkspace accepts dictionaries, we dont need to
         # create yaml files!
-        self.project = Project(project_1_yaml)
+        self.project = Project(projects_yaml,'project_1')
 
         # create 3 files to test project
         with open(os.path.join(os.getcwd(), 'test_workspace/main.cpp'), 'wt') as f:
@@ -82,7 +82,7 @@ class TestProject(TestCase):
 
     def test_project_yaml(self):
         # test using yaml files and compare basic data
-        project = Project('test_workspace/project_1.yaml')
+        project = Project(projects_yaml,'project_1')
         assert self.project.name == project.name
         # fix this one, they should be equal
         #self.assertDictEqual(self.project.project, project.project)
@@ -94,10 +94,8 @@ class TestProject(TestCase):
         # test copy method which shojld copy all files to generated project dir by default
         self.project.customize_project_for_tool('uvision')
         self.project._set_output_dir_path('uvision', None)
-
-        self.project._set_output_dir()
         self.project.copy_sources_to_generated_destination()
 
     def test_set_output_dir_path(self):
         self.project._set_output_dir_path('uvision')
-        assert self.project.project['output_dir']['path'] == 'projects/uvision_target1/project_1'
+        assert self.project.project['output_dir']['path'] == os.path.join('projects','uvision_target1','project_1')

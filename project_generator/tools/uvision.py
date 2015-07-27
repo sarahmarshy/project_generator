@@ -329,7 +329,7 @@ class Uvision(Builder, Exporter):
         logging.debug("Building uVision project: %s" % path)
 
         args = [self.env_settings.get_env_settings('uvision'), '-r', '-j0', '-o', './build/build_log.txt', path]
-        logging.debug(args)
+        logging.debug("Calling command: " + " ".join(args))
 
         try:
             ret_code = None

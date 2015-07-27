@@ -57,11 +57,9 @@ def _generate_file(filename,root,directory,data):
                 except ValueError:
                     continue
         if overwrite:
-            with open(os.path.join(root, filename), 'r+') as f:
-                f.write(yaml.dump(data, default_flow_style=False))
-        else:
-            with open(os.path.join(root, filename), 'w+') as f:
-                f.write(yaml.dump(data, default_flow_style=False))
+            os.remove(filename)
+        with open(os.path.join(root, filename), 'w+') as f:
+            f.write(yaml.dump(data, default_flow_style=False))
         p = os.popen('attrib +h ' + filename)
         p.close()
 
@@ -74,7 +72,7 @@ def create_yaml(root, directory, project_name, board,cpu):
             'includes': FILES_EXTENSIONS['includes'],
             'target': [],
         }
-        export_dir = os.path.join("..", "generated_projects","{project_name}")
+        export_dir = os.path.join("..","generated_projects","{project_name}")
         projects_yaml = {
             'projects': {
                 project_name: ['project.yaml']

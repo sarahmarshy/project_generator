@@ -42,7 +42,6 @@ def _scan(section, root, directory, extensions):
         return l
 
 def _generate_file(filename,root,directory,data):
-        print "hi"
         logging.debug('Generating yaml file')
         overwrite = False
         if os.path.isfile(os.path.join(directory, filename)):
@@ -75,12 +74,14 @@ def create_yaml(root, directory, project_name, board):
             'includes': FILES_EXTENSIONS['includes'],
             'target': [],
         }
+        parent = os.path.abspath(os.path.join(root, os.pardir))
+        export_dir = os.path.join(parent, "generated_projects","{project_name}")
         projects_yaml = {
             'projects': {
                 project_name: ['project.yaml']
-            }
+            },
+            'settings': {'export_dir': [export_dir]}
         }
-
         project_yaml = {
             'common': {},
             'tool_specific': {}

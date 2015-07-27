@@ -66,7 +66,7 @@ def _generate_file(filename,root,directory,data):
         p.close()
 
 
-def create_yaml(root, directory, project_name, board):
+def create_yaml(root, directory, project_name, board,cpu):
         common_section = {
             'linker_file': FILES_EXTENSIONS['linker_file'],
             'sources': FILES_EXTENSIONS['source_files_c'] + FILES_EXTENSIONS['source_files_cpp'] +
@@ -83,6 +83,7 @@ def create_yaml(root, directory, project_name, board):
         }
         project_yaml = {
             'common': {},
+            'macros': [cpu, "__MBED__=1"],
             'tool_specific': {}
         }
 

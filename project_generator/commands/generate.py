@@ -30,7 +30,7 @@ def run(args):
         # not project known by pgen
         logging.warning("%s not found." % args.file)
     if args.build:
-        project.build(args.tool, args.copy)
+        project.build(args.tool)
 
 def setup(subparser):
     subparser.add_argument(

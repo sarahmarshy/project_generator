@@ -154,11 +154,11 @@ class Project:
                     self.project['includes'].append(os.path.normpath(dir_path))
 
     def _process_source_files(self, files, group_name):
-        extensions = ['cpp', 'c', 's', 'obj', 'lib']
+        extensions = ['cpp', 'c', 's', 'obj', '_lib']
         mappings = defaultdict(lambda: None)
         mappings['o'] = 'obj'
-        mappings['a'] = 'lib'
-        mappings['ar'] = 'lib'
+        mappings['a'] = '_lib'
+        mappings['ar'] = '_lib'
         mappings['cc'] = 'cpp'
         if group_name not in self.source_groups:
             self.source_groups[group_name] = {}
@@ -272,6 +272,8 @@ class Project:
                                 toolchain_specific_settings.source_groups)
         for ext in ["c","cpp","s","lib"]:
            key = "source_files_"+ext
+           if ext == "lib":
+               ext = "_lib"
            self.project[key] = self.format_source_files(ext, tool_specific_settings, toolchain_specific_settings)
 
         self.project['source_files_obj']= merge_recursive(self.format_source_files('obj',tool_specific_settings, toolchain_specific_settings),

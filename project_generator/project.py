@@ -229,10 +229,10 @@ class Project:
     @staticmethod
     def _generate_output_dir(path):
         """this is a separate function, so that it can be more easily tested."""
+        relpath = os.path.relpath(os.getcwd(),path)
+        count = relpath.count(os.sep) + 1
 
-        count = path.count(os.sep) + 1
-
-        return (os.sep.join('..' for _ in range(count)) + os.sep), count
+        return relpath+os.path.sep, count
 
     def source_of_type(self, filetype):
         """return a dictionary of groups and the sources of a specified type within them"""

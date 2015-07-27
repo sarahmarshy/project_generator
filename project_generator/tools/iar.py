@@ -299,13 +299,12 @@ class IAREmbeddedWorkbench(Builder, Exporter, IAREmbeddedWorkbenchProject):
         # TODO 0xc0170: add ewd file parsing and support
         ewd_dic = self.definitions.ewd_file
 
-        eww = None
-        if self.workspace['singular']:
-            eww_dic = self.definitions.eww_file
-            # set eww
-            self._eww_set_path_single_project(eww_dic, expanded_dic['name'])
-            eww_xml = xmltodict.unparse(eww_dic, pretty=True)
-            project_path, eww = self.gen_file_raw(eww_xml, '%s.eww' % expanded_dic['name'], expanded_dic['output_dir']['path'])
+
+        eww_dic = self.definitions.eww_file
+        # set eww
+        self._eww_set_path_single_project(eww_dic, expanded_dic['name'])
+        eww_xml = xmltodict.unparse(eww_dic, pretty=True)
+        project_path, eww = self.gen_file_raw(eww_xml, '%s.eww' % expanded_dic['name'], expanded_dic['output_dir']['path'])
 
         try:
             self._ewp_set_name(ewp_dic, expanded_dic['name'])

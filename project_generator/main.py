@@ -26,13 +26,13 @@ except ImportError:
 
 import pkg_resources
 
-from .commands import build, generate, create, tool
+from .commands import build, generate, create, tools
 
 subcommands = {
     'create': create,
     'generate': generate,
     'build': build,
-    'tool': tool
+    'tools': tools
 }
 
 
@@ -70,8 +70,8 @@ def main():
 
     logging.debug('This should be the project root: %s', os.getcwd())
 
-    update()
     args.func(args)
+    update()
 
 if __name__ == '__main__':
     main()

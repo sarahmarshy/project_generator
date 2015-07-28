@@ -7,6 +7,7 @@
 import copy
 
 from .exporter import Exporter
+from .builder import Builder
 
 class gdb_definitions():
 
@@ -16,12 +17,20 @@ class gdb_definitions():
     }
 
 
-class GDB(Exporter):
+class GDB(Exporter, Builder):
     def __init__(self, workspace, env_settings):
         self.workspace = workspace
         self.env_settings = env_settings
 
-    def export_project(self, data, env_settings):
+    @staticmethod
+    def get_toolnames():
+        return ['gdb']
+
+    @staticmethod
+    def get_toolchain():
+        return None
+
+    def export_project(self):
         # for native debugging, no command files are necessary
         return None, []
 
@@ -46,6 +55,14 @@ class ARMNoneEABIGDB(GDB):
 
     def __init__(self, workspace, env_settings):
         super(ARMNoneEABIGDB, self).__init__(workspace, env_settings)
+
+    @staticmethod
+    def get_toolnames():
+        return ['gdb']
+
+    @staticmethod
+    def get_toolchain():
+        return None
 
     def export_project(self):
         generated_projects = copy.deepcopy(self.generated_project)

@@ -45,6 +45,14 @@ class MakefileGccArm(Exporter):
         self.workspace = workspace
         self.env_settings = env_settings
 
+    @staticmethod
+    def get_toolnames():
+        return ['make_gcc_arm']
+
+    @staticmethod
+    def get_toolchain():
+        return 'gcc_arm'
+
     def _list_files(self, data, attribute, rel_path):
         """ Creates a list of all files based on the attribute. """
         file_list = []
@@ -193,8 +201,12 @@ class MakefileGccArm(Exporter):
         else:
             if ret_code != self.SUCCESSVALUE:
                 # Seems like something went wrong.
-                logging.error("Build failed with the status: %s" %
-                              self.ERRORLEVEL[ret_code])
+                if ret_code < 3:
+                    logging.error("Build failed with the status: %s" %
+                                  self.ERRORLEVEL[ret_code])
+                else:
+                    logging.error("Build failed with unknown error. Returned: %s" %
+                                   ret_code)
             else:
                 logging.info("Build succeeded with the status: %s" %
                              self.ERRORLEVEL[ret_code])

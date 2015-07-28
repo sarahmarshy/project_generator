@@ -19,6 +19,8 @@ import copy
 
 from os.path import basename, join, normpath
 from os import getcwd
+
+from .builder import Builder
 from .exporter import Exporter
 from ..targets import Targets
 
@@ -43,7 +45,8 @@ class CoIDEdefinitions():
         },
     }
 
-class Coide(Exporter):
+class Coide(Exporter, Builder):
+
     source_files_dic = [
         'source_files_c', 'source_files_s', 'source_files_cpp', 'source_files_obj', 'source_files_lib']
     file_types = {'cpp': 1, 'c': 1, 's': 1, 'obj': 1, 'lib': 1}
@@ -59,6 +62,14 @@ class Coide(Exporter):
         self.definitions = CoIDEdefinitions()
         self.workspace = workspace
         self.env_settings = env_settings
+
+    @staticmethod
+    def get_toolnames():
+        return ['gcc_arm']
+
+    @staticmethod
+    def get_toolchain():
+        return 'coide'
 
     def _expand_data(self, old_data, new_data, attribute, group, rel_path):
         """ data expansion - uvision needs filename and path separately. """

@@ -79,6 +79,14 @@ class Uvision(Builder, Exporter):
         self.workspace = workspace
         self.env_settings = env_settings
 
+    @staticmethod
+    def get_toolnames():
+        return ['uvision']
+
+    @staticmethod
+    def get_toolchain():
+        return 'uvision'
+
     def _expand_data(self, old_data, new_data, attribute, group, rel_path):
         """ data expansion - uvision needs filename and path separately. """
         if group == 'Sources':
@@ -329,7 +337,7 @@ class Uvision(Builder, Exporter):
         logging.debug("Building uVision project: %s" % path)
 
         args = [self.env_settings.get_env_settings('uvision'), '-r', '-j0', '-o', './build/build_log.txt', path]
-        logging.debug("Calling command: " + " ".join(args))
+        logging.debug(args)
 
         try:
             ret_code = None

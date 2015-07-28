@@ -184,11 +184,18 @@ class IAREmbeddedWorkbench(Builder, Exporter, IAREmbeddedWorkbenchProject):
         }
     }
 
-
     def __init__(self, workspace, env_settings):
         self.definitions = IARDefinitions()
         self.workspace = workspace
         self.env_settings = env_settings
+
+    @staticmethod
+    def get_toolnames():
+        return ['iar_arm']
+
+    @staticmethod
+    def get_toolchain():
+        return 'iar'
 
     def _expand_data(self, old_data, new_data, attribute, group, rel_path):
         """ Groups expansion for Sources. """
@@ -299,12 +306,13 @@ class IAREmbeddedWorkbench(Builder, Exporter, IAREmbeddedWorkbenchProject):
         # TODO 0xc0170: add ewd file parsing and support
         ewd_dic = self.definitions.ewd_file
 
-
-        eww_dic = self.definitions.eww_file
-        # set eww
-        self._eww_set_path_single_project(eww_dic, expanded_dic['name'])
-        eww_xml = xmltodict.unparse(eww_dic, pretty=True)
-        project_path, eww = self.gen_file_raw(eww_xml, '%s.eww' % expanded_dic['name'], expanded_dic['output_dir']['path'])
+        eww = None
+        if self.workspace['singular']:
+            eww_dic = self.definitions.eww_file
+            # set eww
+            self._eww_set_path_single_project(eww_dic, expanded_dic['name'])
+            eww_xml = xmltodict.unparse(eww_dic, pretty=True)
+            project_path, eww = self.gen_file_raw(eww_xml, '%s.eww' % expanded_dic['name'], expanded_dic['output_dir']['path'])
 
         try:
             self._ewp_set_name(ewp_dic, expanded_dic['name'])
@@ -389,7 +397,7 @@ class IAREmbeddedWorkbench(Builder, Exporter, IAREmbeddedWorkbenchProject):
             return
         logging.debug("Building IAR project: %s" % proj_path)
 
-        args = [join(env_settings.get_env_settings('iar'), 'IarBuild.exe'), proj_path, '-build', project_name]
+        args = [join(self.env_settings.get_env_settings('iar'), 'IarBuild.exe'), proj_path, '-build', os.path.splitext(os.path.basename(self.workspace['files']['ewp']))[0]]
         logging.debug(args)
 
         try:

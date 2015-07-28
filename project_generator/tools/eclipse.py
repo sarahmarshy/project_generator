@@ -19,10 +19,11 @@ import logging
 from posixpath import normpath, join, basename
 
 from .exporter import Exporter
+from .builder import Builder
 from .gccarm import MakefileGccArm
 
 
-class EclipseGnuARM(Exporter):
+class EclipseGnuARM(Exporter, Builder):
     source_files_dic = ['source_files_c', 'source_files_s',
                         'source_files_cpp', 'source_files_obj']
     file_types = {'cpp': 1, 'c': 1, 's': 1, 'obj': 1, 'lib': 1}
@@ -41,6 +42,14 @@ class EclipseGnuARM(Exporter):
         self.exporter = MakefileGccArm(workspace, env_settings)
         self.workspace = workspace
         self.env_settings = env_settings
+
+    @staticmethod
+    def get_toolnames():
+        return ['eclipse_make_gcc_arm', 'make_gcc_arm']
+
+    @staticmethod
+    def get_toolchain():
+        return 'gcc_arm'
 
     def _expand_data(self, old_data, new_data, attribute, group, rel_path):
         """ data expansion - uvision needs filename and path separately. """

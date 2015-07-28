@@ -15,7 +15,6 @@
 
 import logging
 
-from collections import defaultdict
 from .tool import ToolsSupported
 from .util import *
 from .settings import *
@@ -68,19 +67,22 @@ class Project:
             'template' : '',    # tool template
             'output_type': 'exe',           # output type, default - exe
             'tools_supported': [self.settings.DEFAULT_TOOL], # Tools which are supported
+            'singular': True,  # singular project or part of a workspace
 
         }
 
     def _set_project_attributes(self,project_file_data):
         if 'common' in project_file_data:
-            if 'output_type' in project_file_data['common']:
-                if project_file_data['common']['output_type'][0] not in ['lib','exe']:
+            if 'output' in project_file_data['common']:
+                if project_file_data['common']['output'][0] not in ['exe','lib']:
                     raise RuntimeError("Invalid Output Type.")
 
-                self.project['output_type'] = project_file_data['common']['output_type'][0]
+                self.project['output_type'] = project_file_data['common']['output'][0]
 
             if 'includes' in project_file_data['common']:
                 self._process_include_files(project_file_data['common']['includes'])
+                # self.project['includes'].extend(
+                    # [os.path.normpath(x) for x in project_file_data['common']['includes'] if x is not None])
 
             if 'sources' in project_file_data['common']:
                 if type(project_file_data['common']['sources']) == type(dict()):
@@ -109,8 +111,9 @@ class Project:
                     [x for x in project_file_data['common']['tools_supported'] if x is not None])
 
         if 'tool_specific' in project_file_data:
+            group_name = 'default'
             for tool_name, tool_settings in project_file_data['tool_specific'].items():
-                self.tool_specific[tool_name].add_settings(tool_settings, 'default')
+                self.tool_specific[tool_name].add_settings(tool_settings, group_name)
 
     def _process_include_files(self, files):
         # If it's dic add it , if file, add it to files
@@ -167,8 +170,14 @@ class Project:
             tools = [tool]
 
         generated_files = {}
+        result = 0
         for export_tool in tools:
-            exporter = ToolsSupported().get_value(export_tool, 'exporter')
+            exporter = ToolsSupported().get_tool(export_tool)
+
+            # None is an error
+            if exporter is None:
+                result = -1
+                continue
 
             self.customize_project_for_tool(export_tool)
             if copy:
@@ -177,6 +186,7 @@ class Project:
             files = exporter(self.project, self.settings).export_project()
             generated_files[export_tool] = files
         self.generated_files = generated_files
+        return result
 
     def build(self, tool):
         """build the project"""
@@ -186,15 +196,23 @@ class Project:
         else:
             tools = [tool]
 
+        result = 0
+
         for build_tool in tools:
-            builder = self.tools.get_value(build_tool, 'builder')
+            builder = ToolsSupported().get_tool(build_tool)
+            # None is an error
+            if builder is None:
+                result = -1
+                continue
+
             logging.debug("Building for tool: %s", build_tool)
             logging.debug(self.generated_files)
             builder(self.generated_files[build_tool], self.settings).build_project()
+            return result
 
     def get_generated_project_files(self, tool):
         # returns list of project files which were generated
-        exporter = ToolsSupported().get_value(tool, 'exporter')
+        exporter = ToolsSupported().get_tool(tool)
         return exporter(self.generated_files[tool], self.settings).get_generated_project_files()
 
     def copy_sources_to_generated_destination(self):
@@ -232,11 +250,11 @@ class Project:
                 k, v in settings.items()},toolchain_specific_settings.source_of_type(ext))]
 
     def customize_project_for_tool(self, tool):
-        toolchain_specific_settings =  self.tool_specific[self.tools.get_value(tool, 'toolchain')]
+        toolchain_specific_settings =  self.tool_specific[ToolsSupported().get_toolchain(tool)]
         tool_specific_settings = []
-        toolnames = self.tools.get_value(tool, 'toolnames')
+        toolnames = ToolsSupported().get_toolnames(tool)
         for tool_spec in toolnames:
-            if self.tools.get_value(tool, 'toolchain') != tool_spec:
+            if ToolsSupported().get_toolchain(tool) != tool_spec:
                 tool_specific_settings.append(self.tool_specific[tool_spec])
 
         self.project['includes'] =  self.project['includes'] + list(flatten([settings.includes for settings in tool_specific_settings]))
@@ -265,7 +283,6 @@ class Project:
 
         self.project['template'] = toolchain_specific_settings.template or [
                 tool_settings.template for tool_settings in tool_specific_settings if tool_settings.template]
-
         self._set_output_dir_path(tool, '')
         if len(self.project['linker_file']) == 0 and self.project['output_type'] == 'exe':
             raise RuntimeError("Executable - no linker command found.")
@@ -285,6 +302,9 @@ class Project:
             'tool': tool,
             'target': self.project['target']
         })
+
+        # I'm hoping that having the workspace variable will remove the need for workspace_path
+
         # TODO (matthewelse): make this return a value directly
         self.project['output_dir']['path'] = os.path.normpath(location)
         path = self.project['output_dir']['path']

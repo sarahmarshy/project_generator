@@ -20,21 +20,7 @@ from unittest import TestCase
 from project_generator.project import Project
 from project_generator.settings import ProjectSettings
 from project_generator.tools.uvision import uVisionDefinitions, Uvision
-
-project_1_yaml = {
-    'common': {
-        'sources': ['sources/main.cpp'],
-        'includes': ['includes/header1.h'],
-        'target': ['mbed-lpc1768'],
-        'linker_file': ['linker_script'],
-    }
-}
-
-projects_1_yaml = {
-    'projects': {
-        'project_1' : ['test_workspace/project_1.yaml']
-    },
-}
+from simple_project import *
 
 
 class TestProject(TestCase):

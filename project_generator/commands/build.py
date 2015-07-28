@@ -12,10 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import os
-import generate
 import logging
 
-from ..project import Project
+from ..generate import Generator
 
 help = 'Build a project'
 
@@ -24,10 +23,10 @@ def run(args):
 
     # Export if we know how, otherwise return
     if os.path.exists(args.file):
-        # known project from records
-        project = Project(args.file) if not args.project else Project(args.file, args.project)
-        project.export(args.tool, False)
-        project.build(args.tool)
+        generator = Generator(args.file)
+        for project in generator.generate(args.project):
+            project.export(args.tool, args.copy)
+            project.build(args.tool)
     else:
         # not project known by pgen
         logging.warning("%s not found." % args.file)

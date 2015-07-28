@@ -23,37 +23,13 @@ from .settings import *
 class Project:
 
     """represents a project, which can be formed of many yaml files"""
-    def __init__(self, projects_file='projects.yaml', name = ''):
-        if type(projects_file) is not dict:
-            try:
-                with open(projects_file, 'rt') as f:
-                    self.projects_dict = yaml.load(f)
-            except IOError:
-               raise IOError("The main pgen projects file %s doesn't exist." % projects_file)
-        else:
-            self.projects_dict = projects_file
+    def __init__(self, project_dict, name):
 
         self.settings = ProjectSettings()
-        if 'settings' in self.projects_dict:
-            self.settings.update(self.projects_dict['settings'])
+        if 'settings' in project_dict:
+            self.settings.update(project_dict['settings'])
 
         self.name = name
-        project_dicts = {}
-        if 'projects' in self.projects_dict:
-            if len(self.projects_dict['projects'].keys()) > 1:
-                if name == '':
-                    raise RuntimeError("You must specify a project name when using a multi-project yaml file.")
-                elif name not in self.projects_dict['projects'].keys():
-                    raise RuntimeError("You specified an invalid project name.")
-                else:
-                    records = self.projects_dict['projects'][name]
-                    project_dicts = load_yaml_records(uniqify(flatten(records)))
-            else:
-                for name, records in self.projects_dict['projects'].items():
-                    self.name = name
-                    project_dicts = load_yaml_records(uniqify(flatten(records)))
-        else:
-            logging.debug("No projects found in the main record file.")
 
         self.tool_specific = defaultdict(ToolSpecificSettings)
         self.tools = ToolsSupported()
@@ -61,8 +37,8 @@ class Project:
         self.project = {}
         self._fill_project_defaults()
         # process all projects dictionaries
-        for project in project_dicts:
-            self._set_project_attributes(project)
+        for section in project_dict:
+            self._set_project_attributes(section)
         self.generated_files = {}
 
     def _fill_project_defaults(self):

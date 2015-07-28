@@ -18,8 +18,6 @@ import shutil
 from unittest import TestCase
 
 from project_generator.generate import Generator
-from project_generator.settings import ProjectSettings
-from project_generator.tools.uvision import uVisionDefinitions, Uvision
 from simple_project import *
 
 
@@ -61,6 +59,6 @@ class TestProject(TestCase):
         assert os.path.isdir('create_this_folder')
         shutil.rmtree('create_this_folder')
 
-    #def test_build_project(self):
-     #   self.project.export('uvision', False)
-      #  self.project.build('uvision')
+    def test_build_project(self):
+     self.project.export('uvision', False)
+     self.project.build('uvision')

@@ -30,7 +30,6 @@ class Project:
         self.name = name
 
         self.tool_specific = defaultdict(ToolSpecificSettings)
-        self.tools = ToolsSupported()
         self.source_groups = {}
         self.project = {}
         self._fill_project_defaults()

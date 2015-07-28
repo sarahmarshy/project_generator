@@ -15,16 +15,26 @@
 import os
 import logging
 from ..tool import *
+from .generate import Generator
 
 help = 'List tools pgen supports'
 
 
 def run(args):
     logging.debug("Finding tools.")
-    print("\nPgen supports the following tools:\n")
-    print("\n".join(ToolsSupported().get_supported()))
+    if os.path.exists(args.file):
+        generator = Generator(args.file)
+        for project in generator.generate(args.project):
+            tools = [tool for tool, value in project.tool_specific.items() if value.linker_file is not None]
+            tools = ", ".join(tools)
+            print("%s supports: %s\n"%(project.project['name'], tools))
+    else:
+        # not project known by pgen
+        logging.warning("%s not found." % args.file)
 
 
 def setup(subparser):
-    subparser.add_argument(
-        '-name', help='Project name')
+        subparser.add_argument(
+        "-f", "--file", help="YAML projects file", default='projects.yaml')
+        subparser.add_argument(
+        "-p", "--project", help="Project to be generated", default = '')

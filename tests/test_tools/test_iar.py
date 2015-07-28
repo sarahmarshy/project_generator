@@ -52,3 +52,7 @@ class TestProject(TestCase):
         assert os.path.splitext(projectfiles['files'][0])[1] == '.ewp'
         assert os.path.splitext(projectfiles['files'][1])[1] == '.eww'
         assert os.path.splitext(projectfiles['files'][2])[1] == '.ewd'
+
+    def test_build_project(self):
+     self.project.export('iar_arm', False)
+     self.project.build('iar_arm')

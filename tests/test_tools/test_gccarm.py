@@ -50,3 +50,7 @@ class TestProject(TestCase):
         self.project.export('make_gcc_arm', False)
         projectfiles = self.project.get_generated_project_files('make_gcc_arm')
         assert projectfiles
+
+    def test_build_project(self):
+     self.project.export('make_gcc_arm', False)
+     self.project.build('make_gcc_arm')

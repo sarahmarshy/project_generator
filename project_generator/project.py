@@ -23,11 +23,10 @@ from .settings import *
 class Project:
 
     """represents a project, which can be formed of many yaml files"""
-    def __init__(self, project_dict, name):
-
+    def __init__(self, project_dict, settings_dict, name):
         self.settings = ProjectSettings()
-        if 'settings' in project_dict:
-            self.settings.update(project_dict['settings'])
+        if 'settings' in settings_dict:
+            self.settings.update(settings_dict['settings'])
 
         self.name = name
 
@@ -74,11 +73,11 @@ class Project:
 
     def _set_project_attributes(self,project_file_data):
         if 'common' in project_file_data:
-            if 'output' in project_file_data['common']:
-                if project_file_data['common']['output'][0] not in ['lib','exe']:
+            if 'output_type' in project_file_data['common']:
+                if project_file_data['common']['output_type'][0] not in ['lib','exe']:
                     raise RuntimeError("Invalid Output Type.")
 
-                self.project['output_type'] = project_file_data['common']['output'][0]
+                self.project['output_type'] = project_file_data['common']['output_type'][0]
 
             if 'includes' in project_file_data['common']:
                 self._process_include_files(project_file_data['common']['includes'])

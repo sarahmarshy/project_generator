@@ -17,7 +17,7 @@ import shutil
 
 from unittest import TestCase
 
-from project_generator.project import Project
+from project_generator.generate import Generator
 from project_generator.settings import ProjectSettings
 from project_generator.tools.uvision import uVisionDefinitions, Uvision
 from simple_project import *
@@ -35,25 +35,17 @@ class TestProject(TestCase):
             f.write(yaml.dump(project_1_yaml, default_flow_style=False))
         # write projects file
         with open(os.path.join(os.getcwd(), 'test_workspace/projects.yaml'), 'wt') as f:
-            f.write(yaml.dump(projects_1_yaml, default_flow_style=False))
-        self.project = Project(projects_1_yaml,'project_1')
+            f.write(yaml.dump(project_1_yaml, default_flow_style=False))
 
-        self.defintions = uVisionDefinitions()
-        self.uvision = Uvision(self.project.project, ProjectSettings())
+        self.project = Generator(projects_yaml).generate('project_1').next()
 
     def tearDown(self):
         # remove created directory
         shutil.rmtree('test_workspace', ignore_errors=True)
         shutil.rmtree('generated_projects', ignore_errors=True)
 
-    # this is now commented, a project needs to be adjusted before exporting, so this one
-    # fails. I'll keep it for a while as a reminder
-    # def test_export(self):
-    #     self.uvision.export_project()
-
     def test_export_project(self):
         self.project.export('uvision', False)
-        # it should get generated files from the last export
         projectfiles = self.project.get_generated_project_files('uvision')
         assert projectfiles
         assert os.path.splitext(projectfiles['files'][0])[1] == '.uvproj'
@@ -62,8 +54,9 @@ class TestProject(TestCase):
         project_1_yaml['common']['export_dir'] = ['create_this_folder']
         with open(os.path.join(os.getcwd(), 'test_workspace/project_1.yaml'), 'wt') as f:
             f.write(yaml.dump(project_1_yaml, default_flow_style=False))
-        project = Project(projects_1_yaml,'project_1')
-        project.export('uvision', False)
+        generator = Generator(projects_yaml)
+        for project in generator.generate('project_1'):
+            project.export('uvision', False)
 
         assert os.path.isdir('create_this_folder')
         shutil.rmtree('create_this_folder')

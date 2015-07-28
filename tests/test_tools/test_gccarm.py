@@ -18,7 +18,7 @@ import shutil
 from unittest import TestCase
 
 
-from project_generator.project import Project
+from project_generator.generate import Generator
 from project_generator.settings import ProjectSettings
 from project_generator.tools.gccarm import MakefileGccArm
 from simple_project import *
@@ -35,10 +35,10 @@ class TestProject(TestCase):
         with open(os.path.join(os.getcwd(), 'test_workspace/project_1.yaml'), 'wt') as f:
             f.write(yaml.dump(project_1_yaml, default_flow_style=False))
         # write projects file
-        with open(os.path.join(os.getcwd(), 'test_workspace/projects.yaml'), 'wt') as f:
-            f.write(yaml.dump(projects_1_yaml, default_flow_style=False))
-        self.project = Project(projects_1_yaml,'project_1')
+        #with open(os.path.join(os.getcwd(), 'test_workspace/projects.yaml'), 'wt') as f:
+           # f.write(yaml.dump(projects_1_yaml, default_flow_style=False))
 
+        self.project = Generator(projects_yaml).generate('project_1').next()
         self.gccarm = MakefileGccArm(self.project.project, ProjectSettings())
 
     def tearDown(self):

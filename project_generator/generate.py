@@ -19,11 +19,11 @@ class Generator:
                 else:
                     records =self.projects_dict['projects'][name]
                     project_dicts = load_yaml_records(uniqify(flatten(records)))
-                    yield Project(project_dicts,name)
+                    yield Project(project_dicts,self.projects_dict, name)
             else:
                 for name, records in self.projects_dict['projects'].items():
                     project_dicts = load_yaml_records(uniqify(flatten(records)))
-                    yield Project(project_dicts,name)
+                    yield Project(project_dicts,self.projects_dict,name)
         else:
             logging.debug("No projects found in the main record file.")
 

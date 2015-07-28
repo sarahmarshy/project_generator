@@ -17,6 +17,7 @@ import shutil
 import yaml
 from unittest import TestCase
 
+from project_generator.generate import Generator
 from project_generator.project import Project
 
 project_1_yaml = {
@@ -65,7 +66,7 @@ class TestProject(TestCase):
 
         # now that Project and PgenWorkspace accepts dictionaries, we dont need to
         # create yaml files!
-        self.project = Project(projects_yaml,'project_1')
+        self.project = Generator(projects_yaml).generate('project_1').next()
 
         # create 3 files to test project
         with open(os.path.join(os.getcwd(), 'test_workspace/main.cpp'), 'wt') as f:
@@ -82,7 +83,7 @@ class TestProject(TestCase):
 
     def test_project_yaml(self):
         # test using yaml files and compare basic data
-        project = Project(projects_yaml,'project_1')
+        project = Generator(projects_yaml).generate('project_1').next()
         assert self.project.name == project.name
         # fix this one, they should be equal
         #self.assertDictEqual(self.project.project, project.project)

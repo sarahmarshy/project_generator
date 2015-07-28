@@ -395,10 +395,8 @@ class IAREmbeddedWorkbench(Builder, Exporter, IAREmbeddedWorkbenchProject):
         if not os.path.exists(proj_path):
             logging.debug("The file: %s does not exists, exported prior building?" % proj_path)
             return
-        logging.debug("Building IAR project: %s" % proj_path)
 
         args = [join(self.env_settings.get_env_settings('iar'), 'IarBuild.exe'), proj_path, '-build', os.path.splitext(os.path.basename(self.workspace['files']['ewp']))[0]]
-        logging.debug(args)
 
         Builder.build_command(args, self, "IAR", proj_path.split(os.path.sep)[-1])
 

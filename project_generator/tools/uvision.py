@@ -335,10 +335,14 @@ class Uvision(Builder, Exporter):
             logging.debug("The file: %s does not exists, exported prior building?" % path)
             return
 
-        logging.debug("Building uVision project: %s" % path)
+        proj_name = path.split(os.path.sep)[-1]
 
         args = [self.env_settings.get_env_settings('uvision'), '-r', '-j0', '-o', './build/build_log.txt', path]
-        Builder.build_command(args, self, "Uvision", path.split(os.path.sep)[-1])
+        ret = Builder.build_command(args, self, "Uvision", proj_name)
+        if ret < 0 and logging.getLogger().isEnabledFor(logging.DEBUG):
+            build_path = join(self.workspace['path'], 'build', 'build_log.txt')
+            with open(build_path, 'r+') as f:
+                logging.debug(" BUILD LOG\n" + "\n".join(f.readlines()))
 
     def get_mcu_definition(self, project_file):
         """ Parse project file to get target definition """

@@ -15,7 +15,8 @@
 import copy
 
 from os.path import join, normpath,dirname
-import subprocess
+import os
+from .builder import Builder
 from .exporter import Exporter
 from ..targets import Targets
 import logging
@@ -31,6 +32,7 @@ class MakefileGccArm(Exporter):
     }
 
     SUCCESSVALUE = 0
+    WARNVALUE = 1
 
     optimization_options = ['O0', 'O1', 'O2', 'O3', 'Os']
 
@@ -191,22 +193,5 @@ class MakefileGccArm(Exporter):
         logging.debug("Building GCC ARM project: %s" % path)
 
         args = ['make', 'all']
-        logging.debug(args)
 
-        try:
-            ret_code = None
-            ret_code = subprocess.call(args, cwd=path)
-        except:
-            logging.error("Error whilst calling make. Is it in your PATH?")
-        else:
-            if ret_code != self.SUCCESSVALUE:
-                # Seems like something went wrong.
-                if ret_code < 3:
-                    logging.error("Build failed with the status: %s" %
-                                  self.ERRORLEVEL[ret_code])
-                else:
-                    logging.error("Build failed with unknown error. Returned: %s" %
-                                   ret_code)
-            else:
-                logging.info("Build succeeded with the status: %s" %
-                             self.ERRORLEVEL[ret_code])
+        Builder.build_command(args, self, "GCC", path.split(os.path.sep)[-1])

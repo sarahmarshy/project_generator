@@ -65,6 +65,7 @@ class Uvision(Builder, Exporter):
     }
 
     SUCCESSVALUE = 0
+    WARNVALUE = 1
 
     generated_project = {
         'path': '',
@@ -337,20 +338,7 @@ class Uvision(Builder, Exporter):
         logging.debug("Building uVision project: %s" % path)
 
         args = [self.env_settings.get_env_settings('uvision'), '-r', '-j0', '-o', './build/build_log.txt', path]
-        logging.debug(args)
-
-        try:
-            ret_code = None
-            ret_code = subprocess.call(args)
-        except:
-            logging.error(
-                "Error whilst calling UV4: '%s'. Please set uvision path in the projects.yaml file." % self.env_settings.get_env_settings('uvision'))
-        else:
-            if ret_code != self.SUCCESSVALUE:
-                # Seems like something went wrong.
-                logging.error("Build failed with the status: %s" % self.ERRORLEVEL[ret_code])
-            else:
-                logging.info("Build succeeded with the status: %s" % self.ERRORLEVEL[ret_code])
+        Builder.build_command(args, self, "Uvision", path.split(os.path.sep)[-1])
 
     def get_mcu_definition(self, project_file):
         """ Parse project file to get target definition """

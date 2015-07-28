@@ -400,14 +400,7 @@ class IAREmbeddedWorkbench(Builder, Exporter, IAREmbeddedWorkbenchProject):
         args = [join(self.env_settings.get_env_settings('iar'), 'IarBuild.exe'), proj_path, '-build', os.path.splitext(os.path.basename(self.workspace['files']['ewp']))[0]]
         logging.debug(args)
 
-        try:
-            ret_code = None
-            ret_code = subprocess.call(args)
-        except:
-            logging.error("Error whilst calling IarBuild. Please check IARBUILD path in the user_settings.py file.")
-        else:
-            # no IAR doc describes errors from IarBuild
-            logging.info("Build completed.")
+        Builder.build_command(args, self, "IAR", proj_path.split(os.path.sep)[-1])
 
     def get_generated_project_files(self):
         return {'path': self.workspace['path'], 'files': [self.workspace['files']['ewp'], self.workspace['files']['eww'],

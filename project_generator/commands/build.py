@@ -35,8 +35,10 @@ def setup(subparser):
     subparser.add_argument(
         "-f", "--file", help="YAML projects file", default='projects.yaml')
     subparser.add_argument(
-        "-p", "--project", help="Project to be generated")
+        "-p", "--project", help="Project to be generated", default = '')
     subparser.add_argument(
         "-t", "--tool", help="Build a project files for provided tool")
     subparser.add_argument(
         "-dir", "--directory", help="The projects directory")
+    subparser.add_argument(
+        "-c", "--copy", action="store_true", help="Copy all files to the exported directory")

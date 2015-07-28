@@ -97,7 +97,7 @@ def create_yaml(root, directory, project_name, board,cpu):
         tool = _determine_tool(str(project_yaml['common']['linker_file']).split('.')[-1])
         project_yaml['tool_specific'] = {
             tool: {
-                'linker_file': project_yaml['common']['linker_file']
+                'linker_file': [project_yaml['common']['linker_file']]
             }
         }
         ret = _generate_file("projects.yaml", root, directory, projects_yaml)

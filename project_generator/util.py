@@ -19,6 +19,7 @@ import string
 import operator
 import subprocess
 from .settings import ProjectSettings
+import logging
 
 from functools import reduce
 
@@ -71,7 +72,7 @@ def load_yaml_records(yaml_files):
             f = open(yaml_file, 'rt')
             dictionaries.append(yaml.load(f))
         except IOError:
-           raise IOError("The file %s referenced in main yaml doesn't exist." % project_file)
+           raise IOError("The file %s referenced in main yaml doesn't exist." % yaml_file)
     return dictionaries
 
 class PartialFormatter(string.Formatter):

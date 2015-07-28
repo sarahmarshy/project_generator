@@ -1,0 +1,6 @@
+projects:
+  project_generator:
+  - project.yaml
+settings:
+  export_dir:
+  - generated_projects\{project_name}

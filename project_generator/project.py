@@ -160,8 +160,7 @@ class Project:
             if not os.path.dirname(source_file) in self.project['source_paths']:
                 self.project['source_paths'].append(os.path.normpath(os.path.dirname(source_file)))
 
-    def generate(self, tool, copy):
-        """ Exports a project """
+    def _resolve_tools(self, tool):
         tools = []
         if not tool:
             tools = self.project['tools_supported']
@@ -171,6 +170,10 @@ class Project:
             raise RuntimeError("The tool name \"%s\" is not valid! \nChoose from: \n%s"% (tool, ", ".join(options)))
         else:
             tools = [ToolsSupported().resolve_alias(tool)]
+
+    def generate(self, tool, copy):
+        """ Exports a project """
+        tools = self._resolve_tools(tool)
 
         generated_files = {}
         result = 0
@@ -193,15 +196,7 @@ class Project:
 
     def build(self, tool):
         """build the project"""
-        tools = []
-        if not tool:
-            tools = self.project['tools_supported']
-        elif ToolsSupported().resolve_alias(tool) is None:
-            options = ToolsSupported().get_supported() + ToolsSupported().TOOLS_ALIAS.keys()
-            options.sort()
-            raise RuntimeError("The tool name \"%s\" is not valid! \nChoose from: \n%s"% (tool, ", ".join(options)))
-        else:
-            tools = [ToolsSupported().resolve_alias(tool)]
+        tools = self._resolve_tools(tool)
 
         result = 0
 

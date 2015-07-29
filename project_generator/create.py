@@ -4,13 +4,15 @@ from .util import FILES_EXTENSIONS
 import logging
 import bisect
 
-def _determine_tool(linker_ext):
-        if "sct" in linker_ext or "lin" in linker_ext:
-            return "uvision"
-        elif "ld" in linker_ext:
-            return "make_gcc_arm"
-        elif "icf" in linker_ext:
-            return "iar_arm"
+def _determine_tool(files):
+        for file in files:
+            linker_ext = file.split('.')[-1]
+            if "sct" in linker_ext or "lin" in linker_ext:
+                yield (str(file),"uvision")
+            elif "ld" in linker_ext:
+                yield (str(file),"make_gcc_arm")
+            elif "icf" in linker_ext:
+                yield (str(file),"iar_arm")
 
 
 def _scan(section, root, directory, extensions):
@@ -80,7 +82,7 @@ def create_yaml(root, directory, project_name, board,cpu):
         export_dir = os.path.join("generated_projects","{project_name}")
         projects_yaml = {
             'projects': {
-                project_name: ['project.yaml']
+                project_name: ['.project.yaml']
             },
             'settings': {'export_dir': [export_dir]}
         }
@@ -94,16 +96,17 @@ def create_yaml(root, directory, project_name, board,cpu):
                 project_yaml['common'][section] = _scan(section, root, directory,common_section[section])
 
         project_yaml['common']['target'] = [board]
-        tool = _determine_tool(str(project_yaml['common']['linker_file']).split('.')[-1])
-        project_yaml['tool_specific'] = {
-            tool: {
-                'linker_file': project_yaml['common']['linker_file']
-            }
-        }
-        ret = _generate_file("projects.yaml", root, directory, projects_yaml)
+
+        tools = _determine_tool(project_yaml['common']['linker_file'])
+        for (file,tool) in tools:
+             project_yaml['tool_specific'][tool] = {'linker_file': [file]}
+
+        del project_yaml['common']['linker_file']
+
+        ret = _generate_file(".projects.yaml", root, directory, projects_yaml)
         if ret < 0:
             return -1
-        _generate_file("project.yaml", root, directory, project_yaml)
+        _generate_file(".project.yaml", root, directory, project_yaml)
 
 
 

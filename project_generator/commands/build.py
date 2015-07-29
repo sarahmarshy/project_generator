@@ -25,7 +25,7 @@ def run(args):
     if os.path.exists(args.file):
         generator = Generator(args.file)
         for project in generator.generate(args.project):
-            project.export(args.tool, args.copy)
+            project.generate(args.tool, args.copy)
             project.build(args.tool)
     else:
         # not project known by pgen
@@ -33,7 +33,7 @@ def run(args):
 
 def setup(subparser):
     subparser.add_argument(
-        "-f", "--file", help="YAML projects file", default='projects.yaml')
+        "-f", "--file", help="YAML projects file", default='.projects.yaml')
     subparser.add_argument(
         "-p", "--project", help="Project to be generated", default = '')
     subparser.add_argument(

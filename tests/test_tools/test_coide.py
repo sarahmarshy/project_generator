@@ -20,7 +20,8 @@ from unittest import TestCase
 from project_generator.generate import Generator
 from project_generator.settings import ProjectSettings
 from project_generator.tools.coide import CoIDEdefinitions, Coide
-from simple_project import *
+
+from .simple_project import project_1_yaml, projects_1_yaml
 
 class TestProject(TestCase):
 
@@ -34,9 +35,9 @@ class TestProject(TestCase):
             f.write(yaml.dump(project_1_yaml, default_flow_style=False))
         # write projects file
         with open(os.path.join(os.getcwd(), 'test_workspace/projects.yaml'), 'wt') as f:
-            f.write(yaml.dump(projects_yaml, default_flow_style=False))
+            f.write(yaml.dump(projects_1_yaml, default_flow_style=False))
 
-        self.project = Generator(projects_yaml).generate('project_1').next()
+        self.project = next(Generator(projects_1_yaml).generate('project_1'))
 
         self.coide = Coide(self.project.project, ProjectSettings())
 
@@ -46,7 +47,9 @@ class TestProject(TestCase):
         shutil.rmtree('generated_projects', ignore_errors=True)
 
     def test_export_project(self):
-        self.project.export('coide', False)
+        result = self.project.generate('coide', False)
         projectfiles = self.project.get_generated_project_files('coide')
+
+        assert result == 0
         assert projectfiles
         assert os.path.splitext(projectfiles['files'][0])[1] == '.coproj'

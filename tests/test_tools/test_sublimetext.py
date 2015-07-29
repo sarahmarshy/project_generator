@@ -20,8 +20,8 @@ from unittest import TestCase
 from project_generator.generate import Generator
 from project_generator.settings import ProjectSettings
 from project_generator.tools.sublimetext import SublimeTextMakeGccARM
-from simple_project import *
 
+from simple_project import project_1_yaml, projects_1_yaml
 
 class TestProject(TestCase):
 
@@ -35,9 +35,10 @@ class TestProject(TestCase):
             f.write(yaml.dump(project_1_yaml, default_flow_style=False))
         # write projects file
         with open(os.path.join(os.getcwd(), 'test_workspace/projects.yaml'), 'wt') as f:
-            f.write(yaml.dump(projects_yaml, default_flow_style=False))
+            f.write(yaml.dump(projects_1_yaml, default_flow_style=False))
 
-        self.project = Generator(projects_yaml).generate('project_1').next()
+        self.project = next(Generator(projects_1_yaml).generate('project_1'))
+
         self.sublimetext = SublimeTextMakeGccARM(self.project.project, ProjectSettings())
 
     def tearDown(self):
@@ -46,8 +47,10 @@ class TestProject(TestCase):
         shutil.rmtree('generated_projects', ignore_errors=True)
 
     def test_export_project(self):
-        self.project.export('sublime_make_gcc_arm', False)
+        result = self.project.generate('sublime_make_gcc_arm', False)
        # it should get generated files from the last export
         projectfiles = self.project.get_generated_project_files('sublime_make_gcc_arm')
+
+        assert result == 0
         assert projectfiles
         assert os.path.splitext(projectfiles['files'][0])[1] == '.sublime-project'

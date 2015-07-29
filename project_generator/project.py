@@ -160,13 +160,17 @@ class Project:
             if not os.path.dirname(source_file) in self.project['source_paths']:
                 self.project['source_paths'].append(os.path.normpath(os.path.dirname(source_file)))
 
-    def export(self, tool, copy):
+    def generate(self, tool, copy):
         """ Exports a project """
         tools = []
         if not tool:
             tools = self.project['tools_supported']
+        elif ToolsSupported().resolve_alias(tool) is None:
+            options = ToolsSupported().get_supported() + ToolsSupported().TOOLS_ALIAS.keys()
+            options.sort()
+            raise RuntimeError("The tool name \"%s\" is not valid! \nChoose from: \n%s"% (tool, ", ".join(options)))
         else:
-            tools = [tool]
+            tools = [ToolsSupported().resolve_alias(tool)]
 
         generated_files = {}
         result = 0
@@ -192,8 +196,12 @@ class Project:
         tools = []
         if not tool:
             tools = self.project['tools_supported']
+        elif ToolsSupported().resolve_alias(tool) is None:
+            options = ToolsSupported().get_supported() + ToolsSupported().TOOLS_ALIAS.keys()
+            options.sort()
+            raise RuntimeError("The tool name \"%s\" is not valid! \nChoose from: \n%s"% (tool, ", ".join(options)))
         else:
-            tools = [tool]
+            tools = [ToolsSupported().resolve_alias(tool)]
 
         result = 0
 
@@ -243,46 +251,42 @@ class Project:
                 files.extend(group_contents[filetype])
         return files
 
-    def format_source_files(self, ext, tool_specific_settings, toolchain_specific_settings):
+    def format_source_files(self, ext, tool_specific_settings):
         return [merge_recursive(self.source_of_type(ext), {k: v for settings in
                 [settings.source_of_type(ext) for settings in tool_specific_settings] for
-                k, v in settings.items()},toolchain_specific_settings.source_of_type(ext))]
+                k, v in settings.items()})]
 
     def customize_project_for_tool(self, tool):
-        toolchain_specific_settings =  self.tool_specific[ToolsSupported().get_toolchain(tool)]
-        tool_specific_settings = []
-        toolnames = ToolsSupported().get_toolnames(tool)
-        for tool_spec in toolnames:
-            if ToolsSupported().get_toolchain(tool) != tool_spec:
-                tool_specific_settings.append(self.tool_specific[tool_spec])
+        toolchain = ToolsSupported().get_toolchain(tool)
+        tool_specific_settings = [self.tool_specific[toolchain]]
+        for tool in ToolsSupported().get_toolnames(tool):
+            if toolchain != tool:
+                tool_specific_settings.append(self.tool_specific[tool])
 
         self.project['includes'] =  self.project['includes'] + list(flatten([settings.includes for settings in tool_specific_settings]))
         self.project['include_files'] =  self.project['include_files'] + list(flatten([settings.include_files for settings in tool_specific_settings]))
         self.project['source_paths'] =  self.project['source_paths'] + list(flatten([settings.includes for settings in tool_specific_settings]))
         self.project['source_files'] = merge_recursive(self.source_groups,
-                                {k: v for settings in tool_specific_settings for k, v in settings.source_groups.items()},
-                                toolchain_specific_settings.source_groups)
+                                {k: v for settings in tool_specific_settings for k, v in settings.source_groups.items()})
         for ext in ["c","cpp","s","lib"]:
            key = "source_files_"+ext
            if ext == "lib":
                ext = "_lib"
-           self.project[key] = self.format_source_files(ext, tool_specific_settings, toolchain_specific_settings)
+           self.project[key] = self.format_source_files(ext, tool_specific_settings)
 
-        self.project['source_files_obj']= merge_recursive(self.format_source_files('obj',tool_specific_settings, toolchain_specific_settings),
-            self.format_source_files('o',tool_specific_settings, toolchain_specific_settings))
+        self.project['source_files_obj']= merge_recursive(self.format_source_files('obj',tool_specific_settings),
+            self.format_source_files('o',tool_specific_settings))
 
-        self.project['linker_file'] =  self.project['linker_file'] or toolchain_specific_settings.linker_file or [
-            tool_settings.linker_file for tool_settings in tool_specific_settings if tool_settings.linker_file]
+        self.project['linker_file'] =  self.project['linker_file'] or [
+            tool_settings.linker_file for tool_settings in tool_specific_settings if tool_settings.linker_file][0]
 
-        self.project['macros'] = self.project['macros'] + list(flatten([settings.macros for settings in tool_specific_settings])) \
-            + toolchain_specific_settings.macros
+        self.project['macros'] = self.project['macros'] + list(flatten([settings.macros for settings in tool_specific_settings]))
 
-        self.project['misc'] =  [merge_recursive({k: v for settings in tool_specific_settings for k, v in settings.misc.items()},
-            toolchain_specific_settings.misc)]
+        self.project['misc'] =  [merge_recursive({k: v for settings in tool_specific_settings for k, v in settings.misc.items()})]
 
-        self.project['template'] = toolchain_specific_settings.template or [
-                tool_settings.template for tool_settings in tool_specific_settings if tool_settings.template]
+        self.project['template'] = [tool_settings.template for tool_settings in tool_specific_settings if tool_settings.template]
         self._set_output_dir_path(tool, '')
+
         if len(self.project['linker_file']) == 0 and self.project['output_type'] == 'exe':
             raise RuntimeError("Executable - no linker command found.")
 

@@ -35,6 +35,16 @@ class ToolsSupported:
     # - get_toolchain (toolchain is a list of toolchains supported by tool)
     # - get_toolname (returns name string)
     # - export_project (basic functionality to be covered by a tool)
+    TOOLS_ALIAS ={
+        'iar':          'iar_arm',
+        'gcc':          'make_gcc_arm',
+        'make_gcc':     'make_gcc_arm',
+        'gcc_arm':      'make_gcc_arm',
+        'eclipse':      'eclipse_make_gcc_arm',
+        'sublime':      'sublime_make_gcc_arm',
+        'sublime_text': 'sublime_make_gcc_arm'
+     }
+
     TOOLS_DICT = {
         'iar_arm':              IAREmbeddedWorkbench,
         'uvision':              Uvision,
@@ -69,6 +79,13 @@ class ToolsSupported:
 
     def get_supported(self):
         return self.TOOLS_DICT.keys()
+
+    def resolve_alias(self, tool):
+        if tool in self.TOOLS_ALIAS.keys():
+            return self.TOOLS_ALIAS[tool]
+        elif tool in self.TOOLS_DICT.keys():
+            return tool
+        return None
 
 def target_supported(exporter, target, tool, env_settings):
     if exporter not in ToolsSupported().get_supported():

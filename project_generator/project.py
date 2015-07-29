@@ -163,9 +163,8 @@ class Project:
                 self.project['source_paths'].append(os.path.normpath(os.path.dirname(source_file)))
 
     def supported_tools(self):
-        #tools_with_linker = [ToolsSupported().resolve_alias(tool) for tool, value in self.tool_specific.items() if value.linker_file is not None
-                             #and ToolsSupported().resolve_alias(tool) is not None]
-        tools_with_linker = [tool for tool, value in self.tool_specific.items() if value.linker_file is not None]
+        tools_with_linker = [ToolsSupported().resolve_alias(tool) for tool, value in self.tool_specific.items() if value.linker_file is not None
+                             and ToolsSupported().resolve_alias(tool) is not None]
         tools = []
         for tool in ToolsSupported().get_supported():
             toolnames = ToolsSupported().get_toolnames(tool)
@@ -197,13 +196,14 @@ class Project:
             if exporter is None:
                 result = -1
                 continue
-
+            project = self.project
             self.customize_project_for_tool(export_tool)
             if copy:
                 self.copy_sources_to_generated_destination()
 
             files = exporter(self.project, self.settings).export_project()
             generated_files[export_tool] = files
+            self.project = project
         self.generated_files = generated_files
         return result
 
@@ -320,6 +320,10 @@ class Project:
         self.project['output_dir']['path'] = os.path.normpath(location)
         path = self.project['output_dir']['path']
         self.project['output_dir']['rel_path'], self.project['output_dir']['rel_count'] = self._generate_output_dir(path)
+        print "location: " + location
+        print "path: " + path
+        print "relpath: " + self.project['output_dir']['rel_path']
+
 
     def _copy_files(self, file, output_dir, valid_files_group):
         file = os.path.normpath(file)

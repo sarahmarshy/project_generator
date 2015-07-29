@@ -112,7 +112,9 @@ class Project:
         if 'tool_specific' in project_file_data:
             group_name = 'default'
             for tool_name, tool_settings in project_file_data['tool_specific'].items():
-                self.tool_specific[tool_name].add_settings(tool_settings, group_name)
+                real_name = ToolsSupported().resolve_alias(tool_name)
+                if real_name is not None:
+                    self.tool_specific[real_name].add_settings(tool_settings, group_name)
 
     def _process_include_files(self, files):
         # If it's dic add it , if file, add it to files
@@ -161,6 +163,8 @@ class Project:
                 self.project['source_paths'].append(os.path.normpath(os.path.dirname(source_file)))
 
     def supported_tools(self):
+        #tools_with_linker = [ToolsSupported().resolve_alias(tool) for tool, value in self.tool_specific.items() if value.linker_file is not None
+                             #and ToolsSupported().resolve_alias(tool) is not None]
         tools_with_linker = [tool for tool, value in self.tool_specific.items() if value.linker_file is not None]
         tools = []
         for tool in ToolsSupported().get_supported():
@@ -187,7 +191,6 @@ class Project:
         generated_files = {}
         result = 0
         for export_tool in tools:
-            print export_tool
             exporter = ToolsSupported().get_tool(export_tool)
 
             # None is an error

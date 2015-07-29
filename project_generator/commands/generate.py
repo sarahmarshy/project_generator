@@ -26,8 +26,7 @@ def run(args):
         generator = Generator(args.file)
         for project in generator.generate(args.project):
             project.generate(args.tool, args.copy)
-            if args.build:
-                 project.build(args.tool)
+
     else:
         # not project known by pgen
         logging.warning("%s not found." % args.file)
@@ -39,8 +38,6 @@ def setup(subparser):
         "-p", "--project", help="Project to be generated", default='')
     subparser.add_argument(
         "-t", "--tool", help="Create project files for provided tool (uvision by default)")
-    subparser.add_argument(
-        "-b", "--build", action="store_true", help="Build defined projects")
     subparser.add_argument(
         "-defdir", "--defdirectory",
         help="Path to the definitions, otherwise default (~/.pg/definitions) is used")

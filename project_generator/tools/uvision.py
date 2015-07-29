@@ -97,9 +97,12 @@ class Uvision(Builder, Exporter):
         for file in old_data[old_group]:
             if file:
                 extension = file.split(".")[-1]
-                new_file = {"FilePath": rel_path + normpath(file), "FileName": basename(file),
-                            "FileType": self.file_types[extension]}
-                new_data['groups'][group].append(new_file)
+                if extension in self.file_types:
+                    new_file = {"FilePath": rel_path + normpath(file), "FileName": basename(file),
+                                "FileType": self.file_types[extension]}
+                    new_data['groups'][group].append(new_file)
+                else:
+                    continue
 
     def _iterate(self, data, expanded_data, rel_path):
         """ Iterate through all data, store the result expansion in extended dictionary. """

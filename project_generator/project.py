@@ -160,10 +160,19 @@ class Project:
             if not os.path.dirname(source_file) in self.project['source_paths']:
                 self.project['source_paths'].append(os.path.normpath(os.path.dirname(source_file)))
 
+    def supported_tools(self):
+        tools_with_linker = [tool for tool, value in self.tool_specific.items() if value.linker_file is not None]
+        tools = []
+        for tool in ToolsSupported().get_supported():
+            toolnames = ToolsSupported().get_toolnames(tool)
+            if set(toolnames) & set(tools_with_linker):
+                tools.extend(toolnames)
+        return set(tools)
+
     def _resolve_tools(self, alias):
         tool = ToolsSupported().resolve_alias(alias)
         if not alias:
-            return self.project['tools_supported']
+            return self.supported_tools()
         elif tool is None:
             options = ToolsSupported().get_supported() + ToolsSupported().TOOLS_ALIAS.keys()
             options.sort()
@@ -178,6 +187,7 @@ class Project:
         generated_files = {}
         result = 0
         for export_tool in tools:
+            print export_tool
             exporter = ToolsSupported().get_tool(export_tool)
 
             # None is an error

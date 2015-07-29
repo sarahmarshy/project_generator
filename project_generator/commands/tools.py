@@ -25,7 +25,7 @@ def run(args):
     if os.path.exists(args.file):
         generator = Generator(args.file)
         for project in generator.generate(args.project):
-            tools = [tool for tool, value in project.tool_specific.items() if value.linker_file is not None]
+            tools = project.supported_tools()
             tools = ", ".join(tools)
             print("%s supports: %s\n"%(project.project['name'], tools))
     else:

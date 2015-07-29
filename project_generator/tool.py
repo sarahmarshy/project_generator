@@ -37,7 +37,6 @@ class ToolsSupported:
     # - export_project (basic functionality to be covered by a tool)
     TOOLS_ALIAS ={
         'iar':          'iar_arm',
-        'gcc':          'make_gcc_arm',
         'make_gcc':     'make_gcc_arm',
         'gcc_arm':      'make_gcc_arm',
         'eclipse':      'eclipse_make_gcc_arm',

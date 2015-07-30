@@ -194,8 +194,9 @@ class Project:
         else:
             return tool
 
-    def generate(self, copy):
+    def generate(self, copy, tool):
         """ Exports a project """
+        self.for_tool(tool)
         generated_files = {}
         result = 0
         exporter = ToolsSupported().get_tool(self.tool)
@@ -214,21 +215,18 @@ class Project:
 
     def build(self, tool):
         """build the project"""
-        tools = self._resolve_tools(tool)
-
+        self.for_tool(tool)
+        build_tool = self.tool
         result = 0
+        builder = ToolsSupported().get_tool(build_tool)
+        # None is an error
+        if builder is None:
+            result = -1
 
-        for build_tool in tools:
-            builder = ToolsSupported().get_tool(build_tool)
-            # None is an error
-            if builder is None:
-                result = -1
-                continue
-
-            logging.debug("Building for tool: %s", build_tool)
-            logging.debug(self.generated_files)
-            builder(self.generated_files[build_tool], self.settings).build_project()
-            return result
+        logging.debug("Building for tool: %s", build_tool)
+        logging.debug(self.generated_files)
+        builder(self.generated_files[build_tool], self.settings).build_project()
+        return result
 
     def get_generated_project_files(self, tool):
         # returns list of project files which were generated

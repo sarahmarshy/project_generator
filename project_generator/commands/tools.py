@@ -25,7 +25,8 @@ def run(args):
     if os.path.exists(args.file):
         generator = Generator(args.file)
         for project in generator.generate(args.project):
-            tools = project.supported_tools()
+            project.for_tool()
+            tools = project.supported
             tools = ", ".join(tools)
             print("%s supports: %s\n"%(project.project['name'], tools))
     else:

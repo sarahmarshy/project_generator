@@ -31,27 +31,30 @@ class Project:
         self.source_groups = {}
         self.project = {}
         self.project_dicts = project_dicts
+        self.tool = ''
 
-    def for_tool(self, tool = ''):
-        self.tool = self._resolve_tool(tool)
+    def for_tool(self, tool = "default"):
+        if tool != "default":
+            self.tool = self._resolve_tool(tool)
         self._fill_project_defaults()
-        self.tool = self._resolve_tool(tool)
         # process all projects dictionaries
 
         found = False
         self.supported = []
         for dict in self.project_dicts:
             self._set_project_attributes(dict, "common")
-            for tools in self._find_tool_settings(dict):
-                if tools == True:
-                    found = True
-                else:
-                    self.supported += tools
-        if not found and tool != '':
-            raise RuntimeError("The tool name \"%s\" is not defined in yaml!"%self.tool)
+            for t in self._find_tool_settings(dict):
+                for tools in self._find_supported_tools(t):
+                    self.supported.extend(tools)
+
+        if self.tool not in self.supported and tool != "default":
+            raise RuntimeError("The tool name \"%s\" is not supported in yaml!"%self.tool)
 
         self._fix_includes_and_sources()
         self._set_output_dir_path(self.tool, '')
+
+        if self.project['linker_file'] is None:
+            raise RuntimeError("No linker file found")
         self.generated_files = {}
 
     def _fill_project_defaults(self):
@@ -82,17 +85,26 @@ class Project:
             'target': '',       # target
             'template' : '',    # tool template
             'output_type': 'exe',           # output type, default - exe
-            'tools_supported': [self.settings.DEFAULT_TOOL], # Tools which are supported
-            'singular': True,  # singular project or part of a workspace
 
         }
 
+    def _find_supported_tools(self, toolchain):
+        for tool in ToolsSupported().get_supported():
+            toolnames = ToolsSupported().get_toolnames(tool)
+            if toolchain in toolnames:
+                yield toolnames
+
+    def _resolve_toolchain(self, tool):
+        return ToolsSupported().get_toolchain(tool)
+
     def _find_tool_settings(self, project_file_data):
+        toolchain = self._resolve_toolchain(self.tool)
         if 'tool_specific' in project_file_data:
             for tool, settings in project_file_data['tool_specific'].items():
-                if tool ==self.tool:
+                if tool == self.tool or tool == toolchain:
                     self._set_project_attributes(project_file_data['tool_specific'],tool)
-                    yield True
+                    if tool != toolchain:
+                        self._set_project_attributes(project_file_data['tool_specific'],toolchain)
                 if 'linker_file' in settings:
                     yield tool
 

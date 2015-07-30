@@ -53,7 +53,7 @@ class MakefileGccArm(Exporter):
 
     @staticmethod
     def get_toolchain():
-        return 'gcc_arm'
+        return 'make_gcc_arm'
 
     def _list_files(self, data, attribute, rel_path):
         """ Creates a list of all files based on the attribute. """

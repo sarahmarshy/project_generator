@@ -49,7 +49,7 @@ class EclipseGnuARM(Exporter, Builder):
 
     @staticmethod
     def get_toolchain():
-        return 'gcc_arm'
+        return 'make_gcc_arm'
 
     def _expand_data(self, old_data, new_data, attribute, group, rel_path):
         """ data expansion - uvision needs filename and path separately. """

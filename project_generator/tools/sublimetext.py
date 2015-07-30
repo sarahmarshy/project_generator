@@ -35,7 +35,7 @@ class SublimeTextMakeGccARM(MakefileGccArm):
 
     @staticmethod
     def get_toolchain():
-        return 'gcc_arm'
+        return 'make_gcc_arm'
 
     def _fix_sublime_paths(self, data):
         fixed_paths = []

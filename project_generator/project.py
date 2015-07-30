@@ -89,7 +89,6 @@ class Project:
 
     def _find_tool_settings(self, project_file_data):
         if 'tool_specific' in project_file_data:
-            group_name = 'default'
             for tool, settings in project_file_data['tool_specific'].items():
                 if tool ==self.tool:
                     self._set_project_attributes(project_file_data['tool_specific'],tool)
@@ -118,11 +117,11 @@ class Project:
 
         self._process_include_files(includes)
         for files in source_files:
-            if isinstance(files,dict):
+            if type(files) == dict:
                 for group_name, sources in files.items():
                     self._process_source_files(sources, group_name)
-                else:
-                    self._process_source_files(files, 'default')
+            else:
+                self._process_source_files(files, 'default')
 
         for group_name in self.source_groups.keys():
             for extension,files in self.source_groups[group_name].items():

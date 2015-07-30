@@ -58,13 +58,9 @@ class MakefileGccArm(Exporter):
     def _list_files(self, data, attribute, rel_path):
         """ Creates a list of all files based on the attribute. """
         file_list = []
-        for groups in data[attribute]:
-            try:
-                for k, v in groups.items():
-                    for file in v:
-                        file_list.append(join(rel_path, normpath(file)))
-            except:
-                continue
+        for k, v in data[attribute].items():
+            for file in v:
+                file_list.append(join(rel_path, normpath(file)))
         data[attribute] = file_list
 
     def _libraries(self, key, value, data):
@@ -126,14 +122,14 @@ class MakefileGccArm(Exporter):
         data['includes'] = fixed_paths
 
         libs = []
-        for k in data['source_files_lib'][0].keys():
+        for k in data['source_files_lib'].keys():
             libs.extend([join(data['output_dir']['rel_path'],
-                                                   normpath(path)) for path in data['source_files_lib'][0][k]])
+                                                   normpath(path)) for path in data['source_files_lib'][k]])
         data['source_files_lib'] = libs
 
-        for k in data['source_files_obj'][0].keys():
-            data['source_files_obj'][0][k] = [join(data['output_dir']['rel_path'],
-                                                   normpath(path)) for path in data['source_files_obj'][0][k]]
+        for k in data['source_files_obj'].keys():
+            data['source_files_obj'][k] = [join(data['output_dir']['rel_path'],
+                                                   normpath(path)) for path in data['source_files_obj'][k]]
         fixed_paths = []
         for path in data['source_paths']:
             fixed_paths.append(join(data['output_dir']['rel_path'], normpath(path)))

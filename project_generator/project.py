@@ -22,7 +22,7 @@ from .settings import *
 class Project:
 
     """represents a project, which can be formed of many yaml files"""
-    def __init__(self, project_dicts, settings_dict, name):
+    def __init__(self, project_dicts, settings_dict, name, ignore):
         self.settings = ProjectSettings()
         if 'settings' in settings_dict:
             self.settings.update(settings_dict['settings'])
@@ -32,6 +32,7 @@ class Project:
         self.project = {}
         self.project_dicts = project_dicts
         self.tool = ''
+        self.ignore_dirs = ignore
 
     def for_tool(self, tool = "default"):
         if tool != "default":
@@ -165,8 +166,11 @@ class Project:
     def _process_source_files(self, files, group_name):
         if group_name not in self.source_groups:
             self.source_groups[group_name] = {}
+
         for source_file in files:
             if os.path.isdir(source_file):
+                if source_file in self.ignore_dirs:
+                    continue
                 self.project['source_paths'].append(os.path.normpath(source_file))
                 self._process_source_files([os.path.join(os.path.normpath(source_file), f) for f in os.listdir(
                     source_file) if os.path.isfile(os.path.join(os.path.normpath(source_file), f))], group_name)

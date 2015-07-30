@@ -24,7 +24,7 @@ def run(args):
     # Export if we know how, otherwise return
     if os.path.exists(args.file):
         generator = Generator(args.file)
-        for project in generator.generate(args.project):
+        for project in generator.generate(args.ignore,args.project):
             project.generate(args.copy, args.tool)
             project.build(args.tool)
     else:
@@ -38,6 +38,8 @@ def setup(subparser):
         "-p", "--project", help="Project to be generated", default = '')
     subparser.add_argument(
         "-t", "--tool", help="Build a project files for provided tool")
+    subparser.add_argument(
+        "-i", "--ignore", nargs='+', help="Directories to be ignored", type = str, default='generated_projects')
     subparser.add_argument(
         "-dir", "--directory", help="The projects directory")
     subparser.add_argument(

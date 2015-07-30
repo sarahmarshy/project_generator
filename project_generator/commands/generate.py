@@ -24,7 +24,7 @@ help = 'Export a project record'
 def run(args):
     if os.path.exists(args.file):
         generator = Generator(args.file)
-        for project in generator.generate(args.project):
+        for project in generator.generate(args.ignore, args.project):
             project.generate(args.copy, args.tool)
 
     else:
@@ -38,6 +38,8 @@ def setup(subparser):
         "-p", "--project", help="Project to be generated", default='')
     subparser.add_argument(
         "-t", "--tool", help="Create project files for provided tool (uvision by default)")
+    subparser.add_argument(
+        "-i", "--ignore", nargs='+', help="Directories to be ignored", type = str, default='generated_projects')
     subparser.add_argument(
         "-defdir", "--defdirectory",
         help="Path to the definitions, otherwise default (~/.pg/definitions) is used")

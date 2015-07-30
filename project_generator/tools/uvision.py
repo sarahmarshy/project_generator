@@ -119,9 +119,9 @@ class Uvision(Builder, Exporter):
         """ Get all groups defined. """
         groups = []
         for attribute in self.source_files_dic:
-            for dic in data[attribute]:
-                if dic:
-                    for k, v in dic.items():
+                print data[attribute]
+                if data[attribute]:
+                    for k, v in data[attribute].items():
                         if k == None:
                             k = 'Sources'
                         if k not in groups:

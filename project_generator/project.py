@@ -22,20 +22,36 @@ from .settings import *
 class Project:
 
     """represents a project, which can be formed of many yaml files"""
-    def __init__(self, project_dict, settings_dict, name):
+    def __init__(self, project_dicts, settings_dict, name):
         self.settings = ProjectSettings()
         if 'settings' in settings_dict:
             self.settings.update(settings_dict['settings'])
 
         self.name = name
-
-        self.tool_specific = defaultdict(ToolSpecificSettings)
         self.source_groups = {}
         self.project = {}
+        self.project_dicts = project_dicts
+
+    def for_tool(self, tool = ''):
+        self.tool = self._resolve_tool(tool)
         self._fill_project_defaults()
+        self.tool = self._resolve_tool(tool)
         # process all projects dictionaries
-        for section in project_dict:
-            self._set_project_attributes(section)
+
+        found = False
+        self.supported = []
+        for dict in self.project_dicts:
+            self._set_project_attributes(dict, "common")
+            for tools in self._find_tool_settings(dict):
+                if tools == True:
+                    found = True
+                else:
+                    self.supported += tools
+        if not found and tool != '':
+            raise RuntimeError("The tool name \"%s\" is not defined in yaml!"%self.tool)
+
+        self._fix_includes_and_sources()
+        self._set_output_dir_path(self.tool, '')
         self.generated_files = {}
 
     def _fill_project_defaults(self):
@@ -49,12 +65,13 @@ class Project:
             'includes': [],             # include paths
             'copy_sources': False,      # [internal] Copy sources to destination flag
             'include_files': [],        # [internal] files to be included
-            'source_paths': [],         # [internal] source paths
-            'source_files_c': [],       # [internal] c source files
-            'source_files_cpp': [],     # [internal] c++ source files
-            'source_files_s': [],       # [internal] assembly source files
-            'source_files_obj': [{}],   # [internal] object files
-            'source_files_lib': [{}],   # [internal] libraries
+            'sources': [],
+            'source_paths': [], # [internal] source paths
+            'source_files_c': {},       # [internal] c source files
+            'source_files_cpp': {},     # [internal] c++ source files
+            'source_files_s': {},       # [internal] assembly source files
+            'source_files_obj': {},   # [internal] object files
+            'source_files_lib': {},   # [internal] libraries
             'macros': [],               # macros (defines)
             'misc': {},                 # misc tools settings, which are parsed by tool
             'output_dir': {             # [internal] The generated path dict
@@ -70,51 +87,53 @@ class Project:
 
         }
 
-    def _set_project_attributes(self,project_file_data):
-        if 'common' in project_file_data:
-            if 'output' in project_file_data['common']:
-                if project_file_data['common']['output'][0] not in ['exe','lib']:
-                    raise RuntimeError("Invalid Output Type.")
-
-                self.project['output_type'] = project_file_data['common']['output'][0]
-
-            if 'includes' in project_file_data['common']:
-                self._process_include_files(project_file_data['common']['includes'])
-                # self.project['includes'].extend(
-                    # [os.path.normpath(x) for x in project_file_data['common']['includes'] if x is not None])
-
-            if 'sources' in project_file_data['common']:
-                if type(project_file_data['common']['sources']) == type(dict()):
-                    for group_name, sources in project_file_data['common']['sources'].items():
-                        self._process_source_files(sources, group_name)
-                else:
-                    self._process_source_files(project_file_data['common']['sources'], 'default')
-                for source_path in self.project['source_paths']:
-                    if os.path.normpath(source_path) not in self.project['includes']:
-                        self.project['includes'].extend([source_path])
-
-            if 'macros' in project_file_data['common']:
-                self.project['macros'].extend(
-                    [x for x in project_file_data['common']['macros'] if x is not None])
-
-            if 'export_dir' in project_file_data['common']:
-                self.project['export_dir'] = os.path.normpath(project_file_data['common']['export_dir'][0])
-
-            for key in ['debugger','build_dir','mcu','name','target','core', 'linker_file']:
-                if key in project_file_data['common']:
-                    self.project[key] = project_file_data['common'][key][0]
-
-            if 'tools_supported' in project_file_data['common']:
-                self.project['tools_supported'] = []
-                self.project['tools_supported'].extend(
-                    [x for x in project_file_data['common']['tools_supported'] if x is not None])
-
+    def _find_tool_settings(self, project_file_data):
         if 'tool_specific' in project_file_data:
             group_name = 'default'
-            for tool_name, tool_settings in project_file_data['tool_specific'].items():
-                real_name = ToolsSupported().resolve_alias(tool_name)
-                if real_name is not None:
-                    self.tool_specific[real_name].add_settings(tool_settings, group_name)
+            for tool, settings in project_file_data['tool_specific'].items():
+                if tool ==self.tool:
+                    self._set_project_attributes(project_file_data['tool_specific'],tool)
+                    yield True
+                if 'linker_file' in settings:
+                    yield tool
+
+    def _set_project_attributes(self,project_file_data, section):
+         if section in project_file_data:
+             for attribute, data in project_file_data[section].items():
+                 if attribute in self.project.keys():
+                     if type(self.project[attribute]) is list:
+                         if type(data) is list:
+                             self.project[attribute].extend(data)
+                         else:
+                            self.project[attribute].append(data)
+                     else:
+                         self.project[attribute] = data[0]
+
+    def _fix_includes_and_sources(self):
+        includes = self.project['includes']
+        source_files = self.project['sources']
+
+        self.project['includes'] = []
+        self.project['sources'] = []
+
+        self._process_include_files(includes)
+        for files in source_files:
+            if isinstance(files,dict):
+                for group_name, sources in files.items():
+                    self._process_source_files(sources, group_name)
+                else:
+                    self._process_source_files(files, 'default')
+
+        for group_name in self.source_groups.keys():
+            for extension,files in self.source_groups[group_name].items():
+                files = self.source_groups[group_name][extension]
+                key = 'source_files_'+extension
+                if key == 'source_files_a':
+                    key = 'source_files_lib'
+                if group_name in self.project[key]:
+                    self.project[key][group_name].extend(files)
+                else:
+                     self.project[key][group_name] = files
 
     def _process_include_files(self, files):
         # If it's dic add it , if file, add it to files
@@ -133,15 +152,8 @@ class Project:
                     self.project['includes'].append(os.path.normpath(dir_path))
 
     def _process_source_files(self, files, group_name):
-        extensions = ['cpp', 'c', 's', 'obj', '_lib']
-        mappings = defaultdict(lambda: None)
-        mappings['o'] = 'obj'
-        mappings['a'] = '_lib'
-        mappings['ar'] = '_lib'
-        mappings['cc'] = 'cpp'
         if group_name not in self.source_groups:
             self.source_groups[group_name] = {}
-
         for source_file in files:
             if os.path.isdir(source_file):
                 self.project['source_paths'].append(os.path.normpath(source_file))
@@ -149,9 +161,9 @@ class Project:
                     source_file) if os.path.isfile(os.path.join(os.path.normpath(source_file), f))], group_name)
 
             extension = source_file.split('.')[-1]
-            extension = mappings[extension] or extension
+            extension = FILE_MAP[extension] if extension in FILE_MAP else extension
 
-            if extension not in extensions:
+            if extension not in MAIN_FILES:
                 continue
 
             if extension not in self.source_groups[group_name]:
@@ -162,48 +174,30 @@ class Project:
             if not os.path.dirname(source_file) in self.project['source_paths']:
                 self.project['source_paths'].append(os.path.normpath(os.path.dirname(source_file)))
 
-    def supported_tools(self):
-        tools_with_linker = [ToolsSupported().resolve_alias(tool) for tool, value in self.tool_specific.items() if value.linker_file is not None
-                             and ToolsSupported().resolve_alias(tool) is not None]
-        tools = []
-        for tool in ToolsSupported().get_supported():
-            toolnames = ToolsSupported().get_toolnames(tool)
-            if set(toolnames) & set(tools_with_linker):
-                tools.extend(toolnames)
-        return set(tools)
-
-    def _resolve_tools(self, alias):
+    def _resolve_tool(self, alias):
         tool = ToolsSupported().resolve_alias(alias)
-        if not alias:
-            return self.supported_tools()
-        elif tool is None:
+        if tool is None:
             options = ToolsSupported().get_supported() + ToolsSupported().TOOLS_ALIAS.keys()
             options.sort()
             raise RuntimeError("The tool name \"%s\" is not valid! \nChoose from: \n%s"% (alias, ", ".join(options)))
         else:
-            return [tool]
+            return tool
 
-    def generate(self, tool, copy):
+    def generate(self, copy):
         """ Exports a project """
-        tools = self._resolve_tools(tool)
-
         generated_files = {}
         result = 0
-        for export_tool in tools:
-            exporter = ToolsSupported().get_tool(export_tool)
+        exporter = ToolsSupported().get_tool(self.tool)
 
-            # None is an error
-            if exporter is None:
-                result = -1
-                continue
-            project = self.project
-            self.customize_project_for_tool(export_tool)
-            if copy:
-                self.copy_sources_to_generated_destination()
+        # None is an error
+        if exporter is None:
+            result = -1
+        if copy:
+            self.project['copy_sources'] = True
+            self.copy_files()
 
-            files = exporter(self.project, self.settings).export_project()
-            generated_files[export_tool] = files
-            self.project = project
+        files = exporter(self.project, self.settings).export_project()
+        generated_files[self.tool] = files
         self.generated_files = generated_files
         return result
 
@@ -230,10 +224,6 @@ class Project:
         exporter = ToolsSupported().get_tool(tool)
         return exporter(self.generated_files[tool], self.settings).get_generated_project_files()
 
-    def copy_sources_to_generated_destination(self):
-        self.project['copy_sources'] = True
-        self.copy_files()
-
     @staticmethod
     def _generate_output_dir(path):
         """this is a separate function, so that it can be more easily tested."""
@@ -241,62 +231,6 @@ class Project:
         count = relpath.count(os.sep) + 1
 
         return relpath+os.path.sep, count
-
-    def source_of_type(self, filetype):
-        """return a dictionary of groups and the sources of a specified type within them"""
-        files = {}
-        for group, group_contents in self.source_groups.items():
-            files[group] = []
-            if filetype in group_contents:
-                files[group].extend(group_contents[filetype])
-        return files
-
-    def all_sources_of_type(self, filetype):
-        """return a list of the sources of a specified type"""
-        files = []
-        for group, group_contents in self.source_groups.items():
-            if filetype in group_contents:
-                files.extend(group_contents[filetype])
-        return files
-
-    def format_source_files(self, ext, tool_specific_settings):
-        return [merge_recursive(self.source_of_type(ext), {k: v for settings in
-                [settings.source_of_type(ext) for settings in tool_specific_settings] for
-                k, v in settings.items()})]
-
-    def customize_project_for_tool(self, tool):
-        toolchain = ToolsSupported().get_toolchain(tool)
-        tool_specific_settings = [self.tool_specific[toolchain]]
-        for tool in ToolsSupported().get_toolnames(tool):
-            if toolchain != tool:
-                tool_specific_settings.append(self.tool_specific[tool])
-
-        self.project['includes'] =  self.project['includes'] + list(flatten([settings.includes for settings in tool_specific_settings]))
-        self.project['include_files'] =  self.project['include_files'] + list(flatten([settings.include_files for settings in tool_specific_settings]))
-        self.project['source_paths'] =  self.project['source_paths'] + list(flatten([settings.includes for settings in tool_specific_settings]))
-        self.project['source_files'] = merge_recursive(self.source_groups,
-                                {k: v for settings in tool_specific_settings for k, v in settings.source_groups.items()})
-        for ext in ["c","cpp","s","lib"]:
-           key = "source_files_"+ext
-           if ext == "lib":
-               ext = "_lib"
-           self.project[key] = self.format_source_files(ext, tool_specific_settings)
-
-        self.project['source_files_obj']= merge_recursive(self.format_source_files('obj',tool_specific_settings),
-            self.format_source_files('o',tool_specific_settings))
-
-        self.project['linker_file'] =  self.project['linker_file'] or [
-            tool_settings.linker_file for tool_settings in tool_specific_settings if tool_settings.linker_file][0]
-
-        self.project['macros'] = self.project['macros'] + list(flatten([settings.macros for settings in tool_specific_settings]))
-
-        self.project['misc'] =  [merge_recursive({k: v for settings in tool_specific_settings for k, v in settings.misc.items()})]
-
-        self.project['template'] = [tool_settings.template for tool_settings in tool_specific_settings if tool_settings.template]
-        self._set_output_dir_path(tool, '')
-
-        if len(self.project['linker_file']) == 0 and self.project['output_type'] == 'exe':
-            raise RuntimeError("Executable - no linker command found.")
 
     def _set_output_dir_path(self, tool, workspace_path = None):
         if self.settings.export_location_format != self.settings.DEFAULT_EXPORT_LOCATION_FORMAT:
@@ -320,18 +254,6 @@ class Project:
         self.project['output_dir']['path'] = os.path.normpath(location)
         path = self.project['output_dir']['path']
         self.project['output_dir']['rel_path'], self.project['output_dir']['rel_count'] = self._generate_output_dir(path)
-        print "location: " + location
-        print "path: " + path
-        print "relpath: " + self.project['output_dir']['rel_path']
-
-
-    def _copy_files(self, file, output_dir, valid_files_group):
-        file = os.path.normpath(file)
-        dest_dir = os.path.join(os.getcwd(), output_dir, os.path.dirname(file))
-        if not os.path.exists(dest_dir):
-            os.makedirs(dest_dir)
-        if file.split('.')[-1] in valid_files_group:
-            shutil.copy2(os.path.join(os.getcwd(), file), os.path.join(os.getcwd(), output_dir, file))
 
     def copy_files(self):
         """" Copies all project files to specified directory - generated dir"""

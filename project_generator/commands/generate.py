@@ -25,7 +25,8 @@ def run(args):
     if os.path.exists(args.file):
         generator = Generator(args.file)
         for project in generator.generate(args.project):
-            project.generate(args.tool, args.copy)
+            project.for_tool(args.tool)
+            project.generate(args.copy)
 
     else:
         # not project known by pgen

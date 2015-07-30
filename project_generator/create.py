@@ -98,8 +98,25 @@ def create_yaml(root, directory, project_name, board,cpu):
         project_yaml['common']['target'] = [board]
 
         tools = _determine_tool(project_yaml['common']['linker_file'])
+
+        linkers = {}
         for (file,tool) in tools:
-             project_yaml['tool_specific'][tool] = {'linker_file': [file]}
+            if tool in linkers:
+                linkers[tool].append(file)
+            else:
+                linkers[tool] = [file]
+
+        for tool, linker in linkers.items():
+            if len(linker) > 1:
+                print "\nMultipe linkers found for " + tool + "\n"
+                for i, file in enumerate(linker):
+                    print str(i) + ": " + file
+                answer = raw_input('\nWhich file do you want? ')
+                while int(answer) not in range(0,len(linker)):
+                    answer = raw_input('Answer not in list. Which file do you want? ')
+                project_yaml['tool_specific'][tool] = {'linker_file': [linkers[tool][int(answer)]]}
+            else:
+                project_yaml['tool_specific'][tool] = {'linker_file': linker}
 
         del project_yaml['common']['linker_file']
 

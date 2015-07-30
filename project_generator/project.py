@@ -168,9 +168,9 @@ class Project:
             self.source_groups[group_name] = {}
 
         for source_file in files:
-            if os.path.isdir(source_file):
-                if source_file in self.ignore_dirs:
+            if source_file in self.ignore_dirs:
                     continue
+            if os.path.isdir(source_file):
                 self.project['source_paths'].append(os.path.normpath(source_file))
                 self._process_source_files([os.path.join(os.path.normpath(source_file), f) for f in os.listdir(
                     source_file) if os.path.isfile(os.path.join(os.path.normpath(source_file), f))], group_name)

@@ -3,6 +3,7 @@ import yaml
 from .util import FILES_EXTENSIONS
 import logging
 import bisect
+from collections import defaultdict
 
 def _determine_tool(files):
         for file in files:
@@ -17,7 +18,7 @@ def _determine_tool(files):
 
 def _scan(section, root, directory, extensions):
         if section == "sources":
-            data_dict = {}
+            data_dict = defaultdict(list)
         else:
             data_dict = []
         for dirpath, dirnames, files in os.walk(directory):
@@ -27,10 +28,8 @@ def _scan(section, root, directory, extensions):
                 if ext in extensions:
                     if section == "sources":
                         dir = directory.split(os.path.sep)[-1] if dirpath == directory else dirpath.replace(directory,'').split(os.path.sep)[1]
-                        if dir in data_dict and relpath not in data_dict[dir]:
+                        if relpath not in data_dict[dir]:
                             bisect.insort(data_dict[dir], relpath)
-                        else:
-                            data_dict[dir] = [(relpath)]
                     elif section == 'includes':
                         dirs = relpath.split(os.path.sep)
                         for i in range(1, len(dirs)+1):
@@ -38,7 +37,7 @@ def _scan(section, root, directory, extensions):
                     else:
                         data_dict.append(os.path.join(relpath, filename))
         if section == "sources":
-            return data_dict
+            return dict(data_dict)
         l = list(set(data_dict))
         l.sort()
         return l

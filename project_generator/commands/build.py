@@ -39,7 +39,7 @@ def setup(subparser):
     subparser.add_argument(
         "-t", "--tool", help="Build a project files for provided tool")
     subparser.add_argument(
-        "-i", "--ignore", nargs='+', help="Directories to be ignored", type = str, default='generated_projects')
+        "-i", "--ignore", nargs='+', help="Directories to be ignored", type = str, default=['generated_projects'])
     subparser.add_argument(
         "-dir", "--directory", help="The projects directory")
     subparser.add_argument(

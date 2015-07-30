@@ -39,7 +39,7 @@ def setup(subparser):
     subparser.add_argument(
         "-t", "--tool", help="Create project files for provided tool (uvision by default)")
     subparser.add_argument(
-        "-i", "--ignore", nargs='+', help="Directories to be ignored", type = str, default='generated_projects')
+        "-i", "--ignore", nargs='+', help="Directories to be ignored", type = str, default= ['generated_projects'])
     subparser.add_argument(
         "-defdir", "--defdirectory",
         help="Path to the definitions, otherwise default (~/.pg/definitions) is used")

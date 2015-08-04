@@ -24,7 +24,7 @@ def run(args):
     # Export if we know how, otherwise return
     if os.path.exists(args.file):
         generator = Generator(args.file)
-        for project in generator.generate(args.ignore,args.project):
+        for project in generator.generate(args.project,args.ignore):
             project.generate(args.copy, args.tool)
             project.build(args.tool)
     else:

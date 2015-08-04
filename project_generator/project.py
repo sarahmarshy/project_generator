@@ -23,7 +23,7 @@ import re
 class Project:
 
     """represents a project, which can be formed of many yaml files"""
-    def __init__(self, project_dicts, settings_dict, name, ignore):
+    def __init__(self, project_dicts, settings_dict, name, ignore = []):
         self.settings = ProjectSettings()
         if 'settings' in settings_dict:
             self.settings.update(settings_dict['settings'])
@@ -56,7 +56,7 @@ class Project:
 
         self._fix_includes_and_sources()
 
-        if self.project['linker_file'] is None:
+        if self.project['linker_file'] is None and tool!="default":
             raise RuntimeError("No linker file found")
         self.generated_files = {}
 
@@ -108,7 +108,9 @@ class Project:
                     self._set_project_attributes(project_file_data['tool_specific'],tool)
                     if tool != toolchain:
                         self._set_project_attributes(project_file_data['tool_specific'],toolchain)
-                if 'linker_file' in settings:
+                if 'linker_file' in settings and self.project['output_type'] == 'exe':
+                    yield tool
+                else:
                     yield tool
 
     def _set_project_attributes(self,project_file_data, section):
@@ -222,7 +224,6 @@ class Project:
 
     def build(self, tool):
         """build the project"""
-        self.for_tool(tool)
         build_tool = self.tool
         result = 0
         builder = ToolsSupported().get_tool(build_tool)

@@ -24,7 +24,7 @@ help = 'Export a project record'
 def run(args):
     if os.path.exists(args.file):
         generator = Generator(args.file)
-        for project in generator.generate(args.ignore, args.project):
+        for project in generator.generate(args.project, args.ignore):
             project.generate(args.copy, args.tool)
 
     else:

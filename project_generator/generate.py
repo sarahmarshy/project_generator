@@ -11,7 +11,7 @@ class Generator:
         else:
             self.projects_dict = projects_file
 
-    def generate(self, ignore, name = ''):
+    def generate(self, name = '', ignore = []):
         if 'projects' in self.projects_dict:
             if name != '':
                 if name not in self.projects_dict['projects'].keys():

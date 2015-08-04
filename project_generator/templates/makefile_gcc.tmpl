@@ -44,7 +44,7 @@ LD_SCRIPT = {{linker_file}}
 
 CC_SYMBOLS = {% for symbol in macros %} -D{{symbol}} {% endfor %}
 
-LIBS = {% for library in source_files_lib %} -l{{library}} {% endfor %}
+LIBS = {% for library in source_files_a %} -l{{library}} {% endfor %}
 
 # directories
 INC_DIRS = {% for path in includes %} {{path}} {% endfor %}

@@ -37,20 +37,23 @@ class Project:
 
     def for_tool(self, tool = "default"):
         if tool != "default":
+            # will resolve any alias user writes in command line. IE iar => iar_arm
             self.tool = self._resolve_tool(tool)
-        self._fill_project_defaults()
-        self._set_output_dir_path(self.tool, '')
-        self.ignore_dirs.append(str(".*"+self.project['output_dir']['path']+".*")) #ignore any path that has the output directory in it
-        # process all projects dictionaries
+        self._fill_project_defaults()  # default dictionary needed for project
+        self._set_output_dir_path(self.tool, '')  # determines where generated projects will go
 
-        found = False
-        self.supported = []
-        for dict in self.project_dicts:
-            self._set_project_attributes(dict, "common")
-            for t in self._find_tool_settings(dict):
+        # ignore any path that has the output directory in it
+        self.ignore_dirs.append(str(".*"+self.project['output_dir']['path']+".*"))
+
+        self.supported = []  # tools that project's yaml files define
+        for dict in self.project_dicts:  # iterates over the dictionaries defined in yaml file
+            self._set_project_attributes(dict, "common")  # self.project dict values according to yaml common section
+            for t in self._find_tool_settings(dict):  # _find_tool_settings yields valid tools defined in yaml
                 for tools in self._find_supported_tools(t):
+                    # iterate over these valid tools and find what tools user can generate for in command line
                     self.supported.extend(tools)
 
+        #if tool is default, we are just extracting yaml ingformation to see what tools are possible
         if self.tool not in self.supported and tool != "default":
             raise RuntimeError("The tool name \"%s\" is not supported in yaml!"%self.tool)
 
@@ -76,7 +79,7 @@ class Project:
             'source_files_cpp': {},     # [internal] c++ source files
             'source_files_s': {},       # [internal] assembly source files
             'source_files_obj': {},   # [internal] object files
-            'source_files_lib': {},   # [internal] libraries
+            'source_files_a': {},   # [internal] libraries
             'macros': [],               # macros (defines)
             'misc': {},                 # misc tools settings, which are parsed by tool
             'output_dir': {             # [internal] The generated path dict
@@ -91,38 +94,52 @@ class Project:
         }
 
     def _find_supported_tools(self, toolchain):
+        # Iterate over all possible pgen tools
         for tool in ToolsSupported().get_supported():
+            # toolnames defined by respective tool class. IE sublime returns
+            # ['sublime_make_gcc_arm', 'make_gcc_arm', 'sublime']
             toolnames = ToolsSupported().get_toolnames(tool)
             if toolchain in toolnames:
+                # yield all these if given toolchain is in the toolnames
+                # IE when toolchain is make_gcc_arm, sublime is valid exporter
                 yield toolnames
 
     def _resolve_toolchain(self, tool):
         return ToolsSupported().get_toolchain(tool)
 
     def _find_tool_settings(self, project_file_data):
+        """"Looks in yaml file for tool_specific settings"""
+
         toolchain = self._resolve_toolchain(self.tool)
         if 'tool_specific' in project_file_data:
             for tool, settings in project_file_data['tool_specific'].items():
+                # Iterates over tool specific info in yaml. Will set corresponding self.project values
                 if tool == self.tool or tool == toolchain:
                     self._set_project_attributes(project_file_data['tool_specific'],tool)
                     if tool != toolchain:
+                        # Example case. Tool = Sublime, but yaml defines info for GCC
+                        # Pgen should pick up the yaml settings for GCC
                         self._set_project_attributes(project_file_data['tool_specific'],toolchain)
                 if 'linker_file' in settings and self.project['output_type'] == 'exe':
+                    """ Yield this valid tool so we can determine what tools the project can be
+                        succesfully generated for """
                     yield tool
                 else:
+                    # Output library, linker file not needed
                     yield tool
 
     def _set_project_attributes(self,project_file_data, section):
-         if section in project_file_data:
-             for attribute, data in project_file_data[section].items():
-                 if attribute in self.project.keys():
+        """Set attributes in self.project according to dict and section(key) of that dict"""
+        if section in project_file_data:  # make sure the key is valid
+             for attribute, data in project_file_data[section].items():  # attribute => key, data => value
+                 if attribute in self.project.keys():  # Is this also a key is self.project?
                      if type(self.project[attribute]) is list:
                          if type(data) is list:
                              self.project[attribute].extend(data)
                          else:
                             self.project[attribute].append(data)
                      else:
-                         self.project[attribute] = data[0]
+                         self.project[attribute] = data[0]  # self.project attribute is a string, only room for 1 value
 
     def _fix_includes_and_sources(self):
         includes = self.project['includes']
@@ -133,18 +150,24 @@ class Project:
 
         self._process_include_files(includes)
         for files in source_files:
+            """
+            Check if user used a group name when defining sources
+            Sources:
+                group_name:
+                    - source_file1
+                    - source_file2
+                - source_file_no_group
+            """
             if type(files) == dict:
                 for group_name, sources in files.items():
                     self._process_source_files(sources, group_name)
             else:
-                self._process_source_files(files, 'default')
+                self._process_source_files(files, 'default') # no group defined, put it in the default group
 
         for group_name in self.source_groups.keys():
             for extension,files in self.source_groups[group_name].items():
                 files = self.source_groups[group_name][extension]
                 key = 'source_files_'+extension
-                if key == 'source_files_a':
-                    key = 'source_files_lib'
                 if group_name in self.project[key]:
                     self.project[key][group_name].extend(files)
                 else:
@@ -167,6 +190,8 @@ class Project:
                     self.project['includes'].append(os.path.normpath(dir_path))
 
     def _process_source_files(self, files, group_name):
+        """Sorts source files into groups in the form of source_groups[group_name][extension]
+            extensions will be mapped to 5 main types 'cpp', 'c', 's', 'obj', 'a'"""
         if group_name not in self.source_groups:
             self.source_groups[group_name] = {}
 
@@ -194,6 +219,7 @@ class Project:
                 self.project['source_paths'].append(os.path.normpath(os.path.dirname(source_file)))
 
     def _resolve_tool(self, alias):
+        """will resolve any alias user writes in command line. IE iar => iar_arm"""
         tool = ToolsSupported().resolve_alias(alias)
         if tool is None:
             options = ToolsSupported().get_supported() + ToolsSupported().TOOLS_ALIAS.keys()

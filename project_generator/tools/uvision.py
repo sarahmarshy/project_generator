@@ -50,7 +50,7 @@ class uVisionDefinitions():
 class Uvision(Builder, Exporter):
 
     optimization_options = ['O0', 'O1', 'O2', 'O3']
-    source_files_dic = ['source_files_c', 'source_files_s', 'source_files_cpp', 'source_files_lib', 'source_files_obj']
+    source_files_dic = ['source_files_c', 'source_files_s', 'source_files_cpp', 'source_files_a', 'source_files_obj']
     file_types = {'cpp': 8, 'c': 1, 's': 2, 'obj': 3,'o':3, 'lib': 4, 'ar': 4}
 
     ERRORLEVEL = {
@@ -133,13 +133,13 @@ class Uvision(Builder, Exporter):
     def _fix_paths(self, data, rel_path):
         data['includes'] = [join(rel_path, normpath(path)) for path in data['includes']]
 
-        if type(data['source_files_lib']) == type(dict()):
-            for k in data['source_files_lib'].keys():
-                data['source_files_lib'][k] = [
-                    join(rel_path, normpath(path)) for path in data['source_files_lib'][k]]
+        if type(data['source_files_a']) == type(dict()):
+            for k in data['source_files_a'].keys():
+                data['source_files_a'][k] = [
+                    join(rel_path, normpath(path)) for path in data['source_files_a'][k]]
         else:
-            data['source_files_lib'] = [
-                join(rel_path, normpath(path)) for path in data['source_files_lib']]
+            data['source_files_a'] = [
+                join(rel_path, normpath(path)) for path in data['source_files_a']]
 
         if type(data['source_files_obj']) == type(dict()):
             for k in data['source_files_obj'].keys():

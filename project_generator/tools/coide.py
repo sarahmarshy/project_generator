@@ -48,7 +48,7 @@ class CoIDEdefinitions():
 class Coide(Exporter, Builder):
 
     source_files_dic = [
-        'source_files_c', 'source_files_s', 'source_files_cpp', 'source_files_obj', 'source_files_lib']
+        'source_files_c', 'source_files_s', 'source_files_cpp', 'source_files_obj', 'source_files_a']
     file_types = {'cpp': 1, 'c': 1, 's': 1, 'obj': 1, 'lib': 1}
 
     generated_project = {
@@ -127,11 +127,11 @@ class Coide(Exporter, Builder):
     def _fix_paths(self, data, rel_path):
         data['includes'] = [join(rel_path, normpath(path)) for path in data['includes']]
 
-        for k in data['source_files_lib'][0].keys():
-            data['source_files_lib'][0][k] = [join(rel_path,normpath(path)) for path in data['source_files_lib'][0][k]]
+        for k in data['source_files_a'].keys():
+            data['source_files_a'][k] = [join(rel_path,normpath(path)) for path in data['source_files_a'][k]]
 
-        for k in data['source_files_obj'][0].keys():
-            data['source_files_obj'][0][k] = [join(rel_path,normpath(path)) for path in data['source_files_obj'][0][k]]
+        for k in data['source_files_obj'].keys():
+            data['source_files_obj'][k] = [join(rel_path,normpath(path)) for path in data['source_files_obj'][k]]
         if data['linker_file']:
             data['linker_file'] = join(rel_path, normpath(data['linker_file']))
 

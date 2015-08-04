@@ -97,7 +97,7 @@ class IAREmbeddedWorkbenchProject:
         index_option = self._get_option(ewp_dic['project']['configuration']['settings'][index_ilink]['data']['option'], 'IlinkIcfFile')
         self._set_option(ewp_dic['project']['configuration']['settings'][index_ilink]['data']['option'][index_option], project_dic['linker_file'])
         index_option = self._get_option(ewp_dic['project']['configuration']['settings'][index_ilink]['data']['option'], 'IlinkAdditionalLibs')
-        self._set_multiple_option(ewp_dic['project']['configuration']['settings'][index_ilink]['data']['option'][index_option], project_dic['source_files_lib'])
+        self._set_multiple_option(ewp_dic['project']['configuration']['settings'][index_ilink]['data']['option'][index_option], project_dic['source_files_a'])
         self._set_multiple_option(ewp_dic['project']['configuration']['settings'][index_ilink]['data']['option'][index_option], project_dic['source_files_obj'])
 
     def _ewp_files_set(self, ewp_dic, project_dic):
@@ -164,7 +164,7 @@ class IAREmbeddedWorkbenchProject:
 class IAREmbeddedWorkbench(Tool, Builder, Exporter, IAREmbeddedWorkbenchProject):
 
     source_files_dic = [
-        'source_files_c', 'source_files_s', 'source_files_cpp', 'source_files_obj', 'source_files_lib']
+        'source_files_c', 'source_files_s', 'source_files_cpp', 'source_files_obj', 'source_files_a']
 
     core_dic = {
         "cortex-m0":  34,
@@ -261,9 +261,9 @@ class IAREmbeddedWorkbench(Tool, Builder, Exporter, IAREmbeddedWorkbenchProject)
         """ All paths needs to be fixed - add PROJ_DIR prefix + normalize """
         data['includes'] = [join('$PROJ_DIR$', rel_path, normpath(path)) for path in data['includes']]
 
-        for k in data['source_files_lib'].keys():
-            data['source_files_lib'][k] = [
-                join('$PROJ_DIR$', rel_path, normpath(path)) for path in data['source_files_lib'][k]]
+        for k in data['source_files_a'].keys():
+            data['source_files_a'][k] = [
+                join('$PROJ_DIR$', rel_path, normpath(path)) for path in data['source_files_a'][k]]
 
         for k in data['source_files_obj'].keys():
             data['source_files_obj'][k] = [

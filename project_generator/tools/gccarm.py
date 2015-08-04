@@ -67,7 +67,7 @@ class MakefileGccArm(Exporter):
         """ Add defined GCC libraries. """
         for option in value:
             if key == "libraries":
-                data['source_files_lib'].append(option)
+                data['source_files_a'].append(option)
 
     def _compiler_options(self, key, value, data):
         """ Compiler flags """
@@ -122,10 +122,10 @@ class MakefileGccArm(Exporter):
         data['includes'] = fixed_paths
 
         libs = []
-        for k in data['source_files_lib'].keys():
+        for k in data['source_files_a'].keys():
             libs.extend([join(data['output_dir']['rel_path'],
-                                                   normpath(path)) for path in data['source_files_lib'][k]])
-        data['source_files_lib'] = libs
+                                                   normpath(path)) for path in data['source_files_a'][k]])
+        data['source_files_a'] = libs
 
         for k in data['source_files_obj'].keys():
             data['source_files_obj'][k] = [join(data['output_dir']['rel_path'],

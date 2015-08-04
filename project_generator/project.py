@@ -18,6 +18,7 @@ import logging
 from .tool import ToolsSupported
 from .util import *
 from .settings import *
+import re
 
 class Project:
 
@@ -168,8 +169,9 @@ class Project:
             self.source_groups[group_name] = {}
 
         for source_file in files:
-            if source_file in self.ignore_dirs:
-                    continue
+            if any(re.match(ignore,source_file) for ignore in self.ignore_dirs):
+                continue
+
             if os.path.isdir(source_file):
                 self.project['source_paths'].append(os.path.normpath(source_file))
                 self._process_source_files([os.path.join(os.path.normpath(source_file), f) for f in os.listdir(

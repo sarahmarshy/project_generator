@@ -26,7 +26,7 @@ def run(args):
         generator = Generator(args.file)
         for project in generator.generate(args.project):
             project.for_tool()
-            tools = project.supported
+            tools = set(project.supported)
             tools = ", ".join(tools)
             print("%s supports: %s\n"%(project.project['name'], tools))
     else:

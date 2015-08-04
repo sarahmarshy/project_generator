@@ -58,7 +58,6 @@ class Project:
 
         if self.project['linker_file'] is None and tool!="default":
             raise RuntimeError("No linker file found")
-        self.generated_files = {}
 
     def _fill_project_defaults(self):
 
@@ -219,11 +218,18 @@ class Project:
 
         files = exporter(self.project, self.settings).export_project()
         generated_files[self.tool] = files
-        self.generated_files = generated_files
+        with open(os.path.join(os.getcwd(), ".generated_projects.yaml"), 'w+') as f:
+            f.write(yaml.dump(generated_files, default_flow_style=False))
         return result
 
     def build(self, tool):
         """build the project"""
+        self.tool = self._resolve_tool(tool)
+        generated_files = {}
+        if not os.path.isfile(os.path.join(os.getcwd(), ".generated_projects.yaml")):
+            raise RuntimeError("You need to run generate before build!")
+        with open(os.path.join(os.getcwd(), ".generated_projects.yaml"), 'r+') as f:
+            generated_files = yaml.load(f)
         build_tool = self.tool
         result = 0
         builder = ToolsSupported().get_tool(build_tool)
@@ -232,14 +238,10 @@ class Project:
             result = -1
 
         logging.debug("Building for tool: %s", build_tool)
-        logging.debug(self.generated_files)
-        builder(self.generated_files[build_tool], self.settings).build_project()
+        logging.debug(generated_files)
+        builder(generated_files[build_tool], self.settings).build_project()
         return result
 
-    def get_generated_project_files(self, tool):
-        # returns list of project files which were generated
-        exporter = ToolsSupported().get_tool(tool)
-        return exporter(self.generated_files[tool], self.settings).get_generated_project_files()
 
     @staticmethod
     def _generate_output_dir(path):

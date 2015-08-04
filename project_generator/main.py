@@ -26,13 +26,14 @@ except ImportError:
 
 import pkg_resources
 
-from .commands import build, generate, create, tools
+from .commands import build, generate, create, tools, import_mcu
 
 subcommands = {
     'create': create,
     'generate': generate,
     'build': build,
-    'tools': tools
+    'tools': tools,
+    'import': import_mcu
 }
 
 

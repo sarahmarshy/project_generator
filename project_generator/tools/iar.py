@@ -24,10 +24,9 @@ import os
 from os import getcwd
 from os.path import join, normpath
 
-from .builder import Builder
-from .exporter import Exporter
+from .tool import Tool, Builder, Exporter
 from ..targets import Targets
-
+import yaml
 
 class IARDefinitions():
 
@@ -162,7 +161,7 @@ class IAREmbeddedWorkbenchProject:
         index_option = self._get_option(ewd_dic['project']['configuration']['settings'][index_general]['data']['option'], 'OCDynDriverList')
         self._set_option(ewd_dic['project']['configuration']['settings'][index_general]['data']['option'][index_option], debugger_def_dic['OCDynDriverList']['state'])
 
-class IAREmbeddedWorkbench(Builder, Exporter, IAREmbeddedWorkbenchProject):
+class IAREmbeddedWorkbench(Tool, Builder, Exporter, IAREmbeddedWorkbenchProject):
 
     source_files_dic = [
         'source_files_c', 'source_files_s', 'source_files_cpp', 'source_files_obj', 'source_files_lib']
@@ -221,12 +220,11 @@ class IAREmbeddedWorkbench(Builder, Exporter, IAREmbeddedWorkbenchProject):
         """ Get all groups defined. """
         groups = []
         for attribute in self.source_files_dic:
-                if data[attribute]:
-                    for k, v in data[attribute].items():
-                        if k == None:
-                            k = 'Sources'
-                        if k not in groups:
-                            groups.append(k)
+            for k, v in data[attribute].items():
+                if k == None:
+                    k = 'Sources'
+                if k not in groups:
+                    groups.append(k)
         return groups
 
     def _find_target_core(self, data):
@@ -307,7 +305,9 @@ class IAREmbeddedWorkbench(Builder, Exporter, IAREmbeddedWorkbenchProject):
 
         eww = None
         if self.workspace['singular']:
-            eww_dic = self.definitions.eww_file
+            # TODO 0xc0170: if we use here self.definitions.eww, travis fails. I cant reproduce it and dont see
+            # eww used anywhere prior to exporting this.
+            eww_dic = {u'workspace': {u'project': {u'path': u''}, u'batchBuild': None}}
             # set eww
             self._eww_set_path_single_project(eww_dic, expanded_dic['name'])
             eww_xml = xmltodict.unparse(eww_dic, pretty=True)
@@ -406,7 +406,7 @@ class IAREmbeddedWorkbench(Builder, Exporter, IAREmbeddedWorkbenchProject):
     def get_mcu_definition(self, project_file):
         """ Parse project file to get mcu definition """
         project_file = join(getcwd(), project_file)
-        ewp_dic = xmltodict.parse(file(project_file), dict_constructor=dict)
+        ewp_dic = yaml.load(file(project_file))
 
         mcu = Targets().get_mcu_definition()
 

@@ -58,10 +58,6 @@ def _generate_file(filename,root,directory,data):
                 except ValueError:
                     continue
         if overwrite:
-            if 'settings' in data and 'export_dir' in data['settings']:
-                if os.path.exists('generated_projects') and (os.listdir('generated_projects')!=[]):
-                    logging.critical("Non-empty generated_projects folder in this directory. Remove it to run create again.")
-                    return -1
             os.remove(filename)
         with open(os.path.join(root, filename), 'w+') as f:
             f.write(yaml.dump(data, default_flow_style=False))

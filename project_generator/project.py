@@ -39,6 +39,8 @@ class Project:
         if tool != "default":
             self.tool = self._resolve_tool(tool)
         self._fill_project_defaults()
+        self._set_output_dir_path(self.tool, '')
+        self.ignore_dirs.append(str(".*"+self.project['output_dir']['path']+".*")) #ignore any path that has the output directory in it
         # process all projects dictionaries
 
         found = False
@@ -53,7 +55,6 @@ class Project:
             raise RuntimeError("The tool name \"%s\" is not supported in yaml!"%self.tool)
 
         self._fix_includes_and_sources()
-        self._set_output_dir_path(self.tool, '')
 
         if self.project['linker_file'] is None:
             raise RuntimeError("No linker file found")

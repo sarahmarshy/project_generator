@@ -32,7 +32,7 @@ def _scan(section, root, directory, extensions):
                     dir = directory.split(os.path.sep)[-1] if dirpath == directory else dirpath.replace(directory,'').split(os.path.sep)[1]
                     if relpath not in data_dict[dir]:
                         # Add the path to the file to this dictionary, with dir as group name
-                        bisect.insort(data_dict[dir], relpath)
+                        bisect.insort(data_dict[dir], os.path.normpath(relpath))
                 elif section == 'includes':
                     #get all the folders along the path
                     dirs = relpath.split(os.path.sep)
@@ -42,9 +42,9 @@ def _scan(section, root, directory, extensions):
                             We want to catch any possible combo, so add Here, Here\is, and Here\is\include
 
                         """
-                        data_dict.append(os.path.sep.join(dirs[:i]))
+                        data_dict.append(os.path.normpath(os.path.sep.join(dirs[:i])))
                 else:
-                    data_dict.append(os.path.join(relpath, filename))
+                    data_dict.append(os.path.normpath(os.path.join(relpath, filename)))
     if section == "sources":
         return dict(data_dict)
     l = list(set(data_dict))

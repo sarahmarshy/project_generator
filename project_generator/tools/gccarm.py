@@ -151,7 +151,6 @@ class MakefileGccArm(Exporter):
     def get_generated_project_files(self):
         return {'path': self.workspace['path'], 'files': [self.workspace['files']['makefile']]}
 
-
     def process_data_for_makefile(self, data):
         self._fix_paths(data)
         self._list_files(data, 'source_files_c', data['output_dir']['rel_path'])

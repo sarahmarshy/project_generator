@@ -117,11 +117,3 @@ def update(force=True, settings=ProjectSettings()):
                 logging.debug("Definitions are behind the origin/master, rebasing.")
                 cmd = ('git', 'pull', '--rebase', '--quiet', 'origin', 'master')
                 subprocess.call(cmd, cwd=settings.paths['definitions'])
-
-def _copy_files(file, output_dir, valid_files_group):
-        file = os.path.normpath(file)
-        dest_dir = os.path.join(os.getcwd(), output_dir, os.path.dirname(file))
-        if not os.path.exists(dest_dir):
-            os.makedirs(dest_dir)
-        if file.split('.')[-1] in valid_files_group:
-            shutil.copy2(os.path.join(os.getcwd(), file), os.path.join(os.getcwd(), output_dir, file))

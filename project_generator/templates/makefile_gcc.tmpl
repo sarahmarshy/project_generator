@@ -44,7 +44,10 @@ LD_SCRIPT = {{linker_file}}
 
 CC_SYMBOLS = {% for symbol in macros %} -D{{symbol}} {% endfor %}
 
-LIBS = {% for library in source_files_a %} -l{{library}} {% endfor %}
+LIBS = {% for library in libraries %} {{library}} {% endfor %}
+LIB_PATHS = {% for path in lib_paths %} {{path}} {% endfor %}
+LD_SYS_LIBS = -lstdc++ -lsupc++ -lm -lc -lgcc -lnosys
+
 
 # directories
 INC_DIRS = {% for path in includes %} {{path}} {% endfor %}
@@ -131,7 +134,7 @@ endif
 $(OBJ_FOLDER)$(TARGET).$(TARGET_EXT): $(LD_SCRIPT) $(C_OBJS) $(CPP_OBJS) $(S_OBJS)
 	@echo 'Building target: $@'
 	@echo 'Invoking: MCU Linker'
-	$(LD) $(LD_OPTIONS) $(CPP_OBJS) $(C_OBJS) $(S_OBJS) $(LIBS) -o $(OBJ_FOLDER)$(TARGET).$(TARGET_EXT)
+	$(LD) $(LD_OPTIONS) $(CPP_OBJS) $(C_OBJS) $(S_OBJS) $(LIB_PATHS) $(LIBS) $(LD_SYS_LIBS) -o $(OBJ_FOLDER)$(TARGET).$(TARGET_EXT)
 	@echo 'Finished building target: $@'
 	@echo ' '
 

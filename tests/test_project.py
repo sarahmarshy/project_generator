@@ -27,10 +27,23 @@ project_1_yaml = {
         'macros': ['MACRO1', 'MACRO2'],
         'target': ['target1'],
         'core': ['core1'],
-        'tools_supported': ['iar_arm', 'uvision', 'coide', 'unknown'],
         'output_type': ['exe'],
         'debugger': ['debugger_1'],
         'linker_file': ['test_workspace/linker.ld'],
+    },
+    'tool_specific' : {
+        'make_gcc_arm':{
+            'linker_file' : ['test_workspace/linker.ld']
+        },
+        'iar_arm':{
+            'linker_file' : ['test_workspace/linker.ld']
+        },
+        'uvision':{
+            'linker_file' : ['test_workspace/linker.ld']
+        },
+        'coide':{
+            'linker_file' : ['test_workspace/linker.ld']
+        }
     }
 }
 
@@ -93,10 +106,10 @@ class TestProject(TestCase):
 
     def test_copy(self):
         # test copy method which shojld copy all files to generated project dir by default
-        self.project.customize_project_for_tool('uvision')
-        self.project._set_output_dir_path('uvision', None)
-        self.project.copy_sources_to_generated_destination()
+        self.project.for_tool('uvision')
+        self.project.copy_files()
 
     def test_set_output_dir_path(self):
+        self.project.for_tool('uvision')
         self.project._set_output_dir_path('uvision')
         assert self.project.project['output_dir']['path'] == os.path.join('projects','uvision_target1','project_1')

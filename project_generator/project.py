@@ -162,8 +162,7 @@ class Project:
                 for group_name, sources in files.items():
                     self._process_source_files(sources, group_name)
             else:
-                self._process_source_files(files, 'default') # no group defined, put it in the default group
-
+                self._process_source_files(source_files, 'default') # no group defined, put it in the default group
         for group_name in self.source_groups.keys():
             for extension,files in self.source_groups[group_name].items():
                 files = self.source_groups[group_name][extension]
@@ -268,7 +267,6 @@ class Project:
         builder(generated_files[build_tool], self.settings).build_project()
         return result
 
-
     @staticmethod
     def _generate_output_dir(path):
         """this is a separate function, so that it can be more easily tested."""
@@ -320,23 +318,23 @@ class Project:
                                  os.path.join(os.getcwd(), self.project['output_dir']['path'], path))
 
         # all sources are grouped, therefore treat them as dict
-        for k, v in self.project['source_files_c'][0].items():
+        for k, v in self.project['source_files_c'].items():
             for file in v:
                 self._copy_files(file, self.project['output_dir']['path'], FILES_EXTENSIONS['source_files_c'])
 
-        for k, v in self.project['source_files_cpp'][0].items():
+        for k, v in self.project['source_files_cpp'].items():
             for file in v:
                 self._copy_files(file, self.project['output_dir']['path'], FILES_EXTENSIONS['source_files_cpp'])
 
-        for k, v in self.project['source_files_s'][0].items():
+        for k, v in self.project['source_files_s'].items():
             for file in v:
                 self._copy_files(file, self.project['output_dir']['path'], FILES_EXTENSIONS['source_files_s'])
 
-        for k,v in self.project['source_files_obj'][0].items():
+        for k,v in self.project['source_files_obj'].items():
             for file in v:
                 self._copy_files(file, self.project['output_dir']['path'], FILES_EXTENSIONS['source_files_obj'])
 
-        for k,v in self.project['source_files_lib'][0].items():
+        for k,v in self.project['source_files_a'].items():
             for file in v:
                 self._copy_files(file, self.project['output_dir']['path'], FILES_EXTENSIONS['source_files_lib'])
 
@@ -346,3 +344,11 @@ class Project:
             os.makedirs(dest_dir)
         shutil.copy2(os.path.join(os.getcwd(), linker),
                      os.path.join(os.getcwd(), self.project['output_dir']['path'], linker))
+
+    def _copy_files(self, file, output_dir, valid_files_group):
+        file = os.path.normpath(file)
+        dest_dir = os.path.join(os.getcwd(), output_dir, os.path.dirname(file))
+        if not os.path.exists(dest_dir):
+            os.makedirs(dest_dir)
+        if file.split('.')[-1] in valid_files_group:
+            shutil.copy2(os.path.join(os.getcwd(), file), os.path.join(os.getcwd(), output_dir, file))

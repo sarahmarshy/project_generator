@@ -142,9 +142,6 @@ class MakefileGccArm(Exporter):
             data['lib_paths'].append(path)
             data['libraries'].append(lib)
 
-        for k in data['source_files_obj'].keys():
-            data['source_files_obj'][k] = [join(data['output_dir']['rel_path'],
-                                                   normpath(path)) for path in data['source_files_obj'][k]]
         fixed_paths = []
         for path in data['source_paths']:
             fixed_paths.append(join(data['output_dir']['rel_path'], normpath(path)))
@@ -171,6 +168,7 @@ class MakefileGccArm(Exporter):
         self._list_files(data, 'source_files_c', data['output_dir']['rel_path'])
         self._list_files(data, 'source_files_cpp', data['output_dir']['rel_path'])
         self._list_files(data, 'source_files_s', data['output_dir']['rel_path'])
+        self._list_files(data, 'source_files_obj', data['output_dir']['rel_path'])
 
         self._parse_specific_options(data)
         data['toolchain'] = 'arm-none-eabi-'

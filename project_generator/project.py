@@ -227,6 +227,14 @@ class Project:
         else:
             return tool
 
+    def get_generated_project_files(self):
+        generated_files = {}
+        if not os.path.isfile(os.path.join(os.getcwd(), ".generated_projects.yaml")):
+            raise RuntimeError("You need to run generate before build!")
+        with open(os.path.join(os.getcwd(), ".generated_projects.yaml"), 'r+') as f:
+            generated_files = yaml.load(f)
+        return generated_files
+
     def generate(self, copy, tool):
         """ Exports a project """
         self.for_tool(tool)
@@ -250,11 +258,7 @@ class Project:
     def build(self, tool):
         """build the project"""
         self.tool = self._resolve_tool(tool)
-        generated_files = {}
-        if not os.path.isfile(os.path.join(os.getcwd(), ".generated_projects.yaml")):
-            raise RuntimeError("You need to run generate before build!")
-        with open(os.path.join(os.getcwd(), ".generated_projects.yaml"), 'r+') as f:
-            generated_files = yaml.load(f)
+        generated_files = self.get_generated_project_files()
         build_tool = self.tool
         result = 0
         builder = ToolsSupported().get_tool(build_tool)

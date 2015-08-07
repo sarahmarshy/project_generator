@@ -65,22 +65,19 @@ else
 endif
 
 COMPILER_OPTIONS  = {% for option in compiler_options %} -{{option}} {% endfor %}
-COMPILER_OPTIONS += -m$(INSTRUCTION_MODE)
-COMPILER_OPTIONS += -mcpu=$(CPU) -MMD -MP $(CC_SYMBOLS)
-
-DEPEND_OPTS = -MF $(OBJ_FOLDER)$(@F:.o=.d)
+COMPILER_OPTIONS += -mcpu=$(CPU) -m$(INSTRUCTION_MODE) -c -g -MMD -MP $(CC_SYMBOLS)
 
 # Flags
-CFLAGS = $(COMPILER_OPTIONS) $(DEPEND_OPTS) $(INC_DIRS_F) -std={{ c_standard|default('gnu99') }} -c
+CFLAGS = $(COMPILER_OPTIONS) -std={{ c_standard|default('gnu99') }} $(INC_DIRS_F)
 
-CXXFLAGS = $(COMPILER_OPTIONS) $(DEPEND_OPTS) $(INC_DIRS_F) -std={{ cc_standard|default('gnu++98') }} -c
+CXXFLAGS = $(COMPILER_OPTIONS) -std={{ cc_standard|default('gnu++98') }} -fno-rtti $(INC_DIRS_F)
 
-ASFLAGS = $(COMPILER_OPTIONS) $(INC_DIRS_F) -c
+ASFLAGS = $(COMPILER_OPTIONS) $(INC_DIRS_F)
 
 # Linker options
-LD_OPTIONS = -mcpu=$(CPU) -m$(INSTRUCTION_MODE) -{{optimization_level}}
+LD_OPTIONS = -mcpu=$(CPU) -m$(INSTRUCTION_MODE)
 LD_OPTIONS += -specs=nano.specs {% for option in linker_options %}-{{option}} {% endfor %}
-LD_OPTIONS += -Wl,-Map=$(OBJ_FOLDER)$(TARGET).map,--cref -T$(LD_SCRIPT)
+LD_OPTIONS += -Wl,--wrap,main -Wl,-Map=$(OBJ_FOLDER)$(TARGET).map,--cref -T$(LD_SCRIPT)
 
 OBJCPFLAGS = -O ihex
 

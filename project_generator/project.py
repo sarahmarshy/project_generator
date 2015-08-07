@@ -250,9 +250,16 @@ class Project:
             self.copy_files()
 
         files = exporter(self.project, self.settings).export_project()
-        generated_files[self.tool] = files
+        #generated_files[self.tool] = files
+        with open(os.path.join(os.getcwd(), ".generated_projects.yaml"), 'r+') as f:
+            generated = yaml.load(f)
+            f.truncate()
         with open(os.path.join(os.getcwd(), ".generated_projects.yaml"), 'w+') as f:
-            f.write(yaml.dump(generated_files, default_flow_style=False))
+            if generated is None:
+                generated = {}
+            else:
+                generated[self.tool] = files
+            f.write(yaml.dump(generated, default_flow_style=False))
         return result
 
     def build(self, tool):
@@ -268,6 +275,8 @@ class Project:
 
         logging.debug("Building for tool: %s", build_tool)
         logging.debug(generated_files)
+        if build_tool not in generated_files:
+             raise RuntimeError("You need to run generate for %s before build!"%build_tool)
         builder(generated_files[build_tool], self.settings).build_project()
         return result
 

@@ -26,27 +26,28 @@ except ImportError:
 
 import pkg_resources
 
-from .commands import build, generate, create, tools, import_mcu
+from .commands import build, generate, create, tools
 
 subcommands = {
     'create': create,
     'generate': generate,
     'build': build,
-    'tools': tools,
-    'import': import_mcu
+    'tools': tools
 }
-subcommand_help = {
-    'create': create,
-    'generate': generate,
-    'build': build,
-    'tools': tools,
-    'import': import_mcu
+help = {
+    'create': "Create a yaml file describing a given directory. If no directory is specified, the current working "
+              "directory will be used.",
+    'generate': "Generate a project for a given tool, according to a specified yaml file. If no file is specified, "
+                ".projects.yaml will be used",
+    'build': "Build a generated project for a specified tool. `generate` must be run before a call to `build`.",
+    'tools': "List all tools supported by a given yaml file and given project. If no project is specified, `tools` "
+             "will list all possible tools for all projects in a yaml file."
 }
 
 def main():
     # Parse Options
     parser = argparse.ArgumentParser(
-        description = 'Generate and build project files for many different tools'
+        description = 'Generate and build project files for many different tools.'
     )
 
     parser.add_argument('-v', dest='verbosity', action='count', default=0,
@@ -60,7 +61,7 @@ def main():
     subparsers = parser.add_subparsers(help='commands')
 
     for name, module in subcommands.items():
-        subparser = subparsers.add_parser(name, help=module.help)
+        subparser = subparsers.add_parser(name, description=help[name])
 
         module.setup(subparser)
         subparser.set_defaults(func=module.run)

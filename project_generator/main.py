@@ -35,11 +35,19 @@ subcommands = {
     'tools': tools,
     'import': import_mcu
 }
-
+subcommand_help = {
+    'create': create,
+    'generate': generate,
+    'build': build,
+    'tools': tools,
+    'import': import_mcu
+}
 
 def main():
     # Parse Options
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(
+        description = 'Generate and build project files for many different tools'
+    )
 
     parser.add_argument('-v', dest='verbosity', action='count', default=0,
                         help='Increase the verbosity of the output (repeat for more verbose output)')

@@ -35,11 +35,11 @@ def run(args):
 
 def setup(subparser):
     subparser.add_argument(
-        "-f", "--file", help="YAML projects file", default='.projects.yaml')
+        "-f", "--file", help="YAML projects file (.projects.yaml by default)", default='.projects.yaml')
     subparser.add_argument(
         "-p", "--project", help="Project to be generated", default='')
     subparser.add_argument(
-        "-t", "--tool", help="Create project files for provided tool (uvision by default)", type = str.lower)
+        "-t", "--tool", help="Create project files for provided tool", type = str.lower)
     subparser.add_argument(
         "-i", "--ignore", nargs='+', help="Directories to be ignored", type = str, default= ['generated_projects'])
     subparser.add_argument(

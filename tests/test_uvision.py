@@ -22,7 +22,7 @@ from project_generator.project import Project
 from project_generator.settings import ProjectSettings
 from project_generator.tools.uvision import uVisionDefinitions, Uvision
 
-from .simple_project import project_1_yaml, projects_1_yaml
+from test_tools.simple_project import project_1_yaml, projects_yaml
 
 class TestProject(TestCase):
 
@@ -36,9 +36,9 @@ class TestProject(TestCase):
             f.write(yaml.dump(project_1_yaml, default_flow_style=False))
         # write projects file
         with open(os.path.join(os.getcwd(), 'test_workspace/projects.yaml'), 'wt') as f:
-            f.write(yaml.dump(projects_1_yaml, default_flow_style=False))
+            f.write(yaml.dump(projects_yaml, default_flow_style=False))
 
-        self.project = next(Generator(projects_1_yaml).generate('project_1'))
+        self.project = next(Generator(projects_yaml).generate('project_1'))
 
         self.defintions = uVisionDefinitions()
         self.uvision = Uvision(self.project.project, ProjectSettings())
@@ -48,33 +48,27 @@ class TestProject(TestCase):
         shutil.rmtree('test_workspace', ignore_errors=True)
         shutil.rmtree('generated_projects', ignore_errors=True)
 
-    # this is now commented, a project needs to be adjusted before exporting, so this one
-    # fails. I'll keep it for a while as a reminder
-    # def test_export(self):
-    #     self.uvision.export_project()
-
     def test_export_project(self):
-        result = self.project.generate('uvision', False)
+        result = self.project.generate(False, 'uvision')
         # it should get generated files from the last export
-        projectfiles = self.project.get_generated_project_files('uvision')
-
+        projectfiles = self.project.get_generated_project_files()['uvision']
         assert result == 0
         assert projectfiles
-        assert os.path.splitext(projectfiles['files'][0])[1] == '.uvproj'
+        assert os.path.splitext(projectfiles['files']['uvproj'])[1] == '.uvproj'
 
     def test_export_project_to_diff_directory(self):
-        project_1_yaml['common']['export_dir'] = ['create_this_folder']
+        projects_yaml['settings']['export_dir'] = ['create_this_folder']
         with open(os.path.join(os.getcwd(), 'test_workspace/project_1.yaml'), 'wt') as f:
             f.write(yaml.dump(project_1_yaml, default_flow_style=False))
-        for project in Generator(projects_1_yaml).generate('project_1'):
-            result = project.generate('uvision', False)
+        for project in Generator(projects_yaml).generate('project_1'):
+            result = project.generate(False,"uvision")
 
         assert result == 0
         assert os.path.isdir('create_this_folder')
         shutil.rmtree('create_this_folder')
 
     def test_build_project(self):
-        result_export = self.project.generate('uvision', False)
+        result_export = self.project.generate(False, 'uvision')
         result_build = self.project.build('uvision')
 
         assert result_export == 0

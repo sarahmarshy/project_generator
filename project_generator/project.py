@@ -251,9 +251,12 @@ class Project:
 
         files = exporter(self.project, self.settings).export_project()
         #generated_files[self.tool] = files
-        with open(os.path.join(os.getcwd(), ".generated_projects.yaml"), 'r+') as f:
-            generated = yaml.load(f)
-            f.truncate()
+        if os.path.exists(os.path.join(os.getcwd(), ".generated_projects.yaml")):
+            with open(os.path.join(os.getcwd(), ".generated_projects.yaml"), 'r+') as f:
+                generated = yaml.load(f)
+                f.truncate()
+        else:
+            generated = {}
         with open(os.path.join(os.getcwd(), ".generated_projects.yaml"), 'w+') as f:
             if generated is None:
                 generated = {}

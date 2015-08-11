@@ -21,6 +21,7 @@ from .exporter import Exporter
 from ..targets import Targets
 import logging
 import ntpath
+import shutil
 
 class MakefileGccArm(Exporter):
 
@@ -198,6 +199,14 @@ class MakefileGccArm(Exporter):
         # cwd: relpath(join(project_path, ("gcc_arm" + project)))
         # > make all
         path = dirname(self.workspace['files']['makefile'])
+        os.chdir(path)
+        if os.path.exists("build"):
+            answer = raw_input('\nBuild directory exists. Delete? (y/n)')
+            answer = answer.lower()
+            if answer == 'y':
+                    shutil.rmtree("build")
+            else:
+                return
 
         args = ['make', 'all']
 

@@ -179,6 +179,7 @@ class Uvision(Builder, Exporter):
         self._uvproj_clean_xmldict(uvproj_dic['LDads'])
         uvproj_dic['LDads']['ScatterFile'] = project_dic['linker_file']
 
+        uvproj_dic['Cads']['VariousControls']['MiscControls'] = "--gnu"
         uvproj_dic['Cads']['VariousControls']['IncludePath'] = '; '.join(project_dic['includes']).encode('utf-8')
         uvproj_dic['Cads']['VariousControls']['Define'] = ', '.join(project_dic['macros']).encode('utf-8')
         uvproj_dic['Aads']['VariousControls']['Define'] = ', '.join(project_dic['macros']).encode('utf-8')
@@ -306,7 +307,7 @@ class Uvision(Builder, Exporter):
                 raise RuntimeError("Debugger %s is not supported" % expanded_dic['debugger'])
 
         # Project file
-        uvproj_xml = xmltodict.unparse(uvproj_dic, pretty=True)
+        uvproj_xml = xmltodict.unparse(uvproj_dic, pretty=T]rue)
         path, files = self.gen_file_raw(uvproj_xml, '%s.uvproj' % expanded_dic['name'], expanded_dic['output_dir']['path'])
         return path, files
 

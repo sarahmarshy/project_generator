@@ -307,7 +307,7 @@ class Uvision(Builder, Exporter):
                 raise RuntimeError("Debugger %s is not supported" % expanded_dic['debugger'])
 
         # Project file
-        uvproj_xml = xmltodict.unparse(uvproj_dic, pretty=T]rue)
+        uvproj_xml = xmltodict.unparse(uvproj_dic, pretty=True)
         path, files = self.gen_file_raw(uvproj_xml, '%s.uvproj' % expanded_dic['name'], expanded_dic['output_dir']['path'])
         return path, files
 

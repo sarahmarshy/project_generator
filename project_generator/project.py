@@ -90,6 +90,7 @@ class Project:
             'target': '',       # target
             'template' : '',    # tool template
             'output_type': 'exe',           # output type, default - exe
+            'singular'   : True
 
         }
 
@@ -352,7 +353,7 @@ class Project:
 
         for k,v in self.project['source_files_a'].items():
             for file in v:
-                self._copy_files(file, self.project['output_dir']['path'], FILES_EXTENSIONS['source_files_lib'])
+                self._copy_files(file, self.project['output_dir']['path'], FILES_EXTENSIONS['source_files_a'])
 
         linker = os.path.normpath(self.project['linker_file'])
         dest_dir = os.path.join(os.getcwd(), self.project['output_dir']['path'], os.path.dirname(linker))

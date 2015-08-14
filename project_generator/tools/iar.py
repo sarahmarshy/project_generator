@@ -27,7 +27,7 @@ from os.path import join, normpath
 from .builder import Builder
 from .exporter import Exporter
 from ..targets import Targets
-import yaml
+
 
 class IARDefinitions():
 
@@ -395,10 +395,12 @@ class IAREmbeddedWorkbench(Builder, Exporter, IAREmbeddedWorkbenchProject):
         if not os.path.exists(proj_path):
             logging.debug("The file: %s does not exists, exported prior building?" % proj_path)
             return
+        logging.debug("Building IAR project: %s" % proj_path)
 
         args = [join(self.env_settings.get_env_settings('iar'), 'IarBuild.exe'), proj_path, '-build', os.path.splitext(os.path.basename(self.workspace['files']['ewp']))[0]]
+        logging.debug(args)
 
-        Builder.build_command(args, self, "IAR", proj_path.split(os.path.sep)[-1])
+        Builder().build_command(args)
 
     def get_generated_project_files(self):
         return {'path': self.workspace['path'], 'files': [self.workspace['files']['ewp'], self.workspace['files']['eww'],
@@ -407,7 +409,7 @@ class IAREmbeddedWorkbench(Builder, Exporter, IAREmbeddedWorkbenchProject):
     def get_mcu_definition(self, project_file):
         """ Parse project file to get mcu definition """
         project_file = join(getcwd(), project_file)
-        ewp_dic = yaml.load(file(project_file))
+        ewp_dic = xmltodict.parse(file(project_file), dict_constructor=dict)
 
         mcu = Targets().get_mcu_definition()
 

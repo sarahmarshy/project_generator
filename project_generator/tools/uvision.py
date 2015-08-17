@@ -54,7 +54,7 @@ class Uvision(Builder, Exporter):
     file_types = {'cpp': 8, 'c': 1, 's': 2, 'obj': 3,'o':3, 'lib': 4, 'ar': 4}
 
     ERRORLEVEL = {
-        0: 'success (0 warnings, 0 errors)',
+        0: '(0 warnings, 0 errors)',
         1: 'warnings',
         2: 'errors',
         3: 'fatal errors',

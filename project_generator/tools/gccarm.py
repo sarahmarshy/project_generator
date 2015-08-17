@@ -27,7 +27,7 @@ class MakefileGccArm(Exporter):
 
     # http://www.gnu.org/software/make/manual/html_node/Running.html
     ERRORLEVEL = {
-        0: 'success (0 warnings, 0 errors)',
+        0: 'no errors',
         1: 'targets not already up to date',
         2: 'errors'
     }
@@ -172,7 +172,6 @@ class MakefileGccArm(Exporter):
         return {'path': self.workspace['path'], 'files': [self.workspace['files']['makefile']]}
 
     def process_data_for_makefile(self, data):
-        print data['macros']
         self._fix_paths(data)
         self._list_files(data, 'source_files_c', data['output_dir']['rel_path'])
         self._list_files(data, 'source_files_cpp', data['output_dir']['rel_path'])

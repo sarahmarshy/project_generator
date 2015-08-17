@@ -16,13 +16,13 @@
 # This project was exported via the project generator.  More information https://github.com/project-generator/project_generator
 
 CPU = {{core}}
-
+FPU = {{fpu}}
 # toolchain specific
 TOOLCHAIN = {{toolchain}}
 TOOLCHAIN_BINPATH = {{toolchain_bin_path}}
 CC = $(TOOLCHAIN_BINPATH)$(TOOLCHAIN)gcc
 CXX = $(TOOLCHAIN_BINPATH)$(TOOLCHAIN)g++
-AS = $(TOOLCHAIN_BINPATH)$(TOOLCHAIN)gcc -x assembler-with-cpp
+AS = $(TOOLCHAIN_BINPATH)$(TOOLCHAIN)gcc
 LD = $(TOOLCHAIN_BINPATH)$(TOOLCHAIN)gcc
 AR = $(TOOLCHAIN_BINPATH)$(TOOLCHAIN)ar
 ifeq ($(OS),Windows_NT)
@@ -36,7 +36,7 @@ OBJDUMP = $(TOOLCHAIN_BINPATH)$(TOOLCHAIN)objdump
 NM = $(TOOLCHAIN_BINPATH)$(TOOLCHAIN)nm
 
 # application specific
-INSTRUCTION_MODE = thumb
+INSTRUCTION_MODE = {{instruction_mode}}
 TARGET = {{name}}
 {% if output_type == 'exe' %}
 TARGET_EXT = elf
@@ -48,9 +48,8 @@ LD_SCRIPT = {{linker_file}}
 
 CC_SYMBOLS = {% for symbol in macros %} -D{{symbol}} {% endfor %}
 
-LIBS = {% for library in libraries %} {{library}} {% endfor %}
-LIB_PATHS = {% for path in lib_paths %} {{path}} {% endfor %}
-LD_SYS_LIBS = -lstdc++ -lsupc++ -lm -lc -lgcc -lnosys
+LIBS = {% for library in libraries %} -l{{library}} {% endfor %}
+LIB_PATHS = {% for path in lib_paths %} -L{{path}} {% endfor %}
 
 
 # directories
@@ -69,14 +68,15 @@ else
 endif
 
 COMPILER_OPTIONS  = {% for option in compiler_options %} -{{option}} {% endfor %}
-COMPILER_OPTIONS += -mcpu=$(CPU) -m$(INSTRUCTION_MODE) -c -g -MMD -MP $(CC_SYMBOLS)
+C_COMPILER_OPTIONS += -mcpu=$(CPU) -m$(INSTRUCTION_MODE) -mfpu=$(FPU) $(COMPILER_OPTIONS) $(CC_SYMBOLS)
+AS_COMPILER_OPTIONS += -mcpu=$(CPU) -m$(INSTRUCTION_MODE) -c -x assembler-with-cpp
 
 # Flags
-CFLAGS = $(COMPILER_OPTIONS) -std={{ c_standard|default('gnu99') }} $(INC_DIRS_F)
+CFLAGS = $(C_COMPILER_OPTIONS) -std={{ c_standard|default('gnu99') }} $(INC_DIRS_F)
 
-CXXFLAGS = $(COMPILER_OPTIONS) -std={{ cc_standard|default('gnu++98') }} -fno-rtti $(INC_DIRS_F)
+CXXFLAGS = $(C_COMPILER_OPTIONS) -std={{ cc_standard|default('gnu++98') }} -fno-rtti $(INC_DIRS_F)
 
-ASFLAGS = $(COMPILER_OPTIONS) $(INC_DIRS_F)
+ASFLAGS = $(AS_COMPILER_OPTIONS)
 
 # Linker options
 LD_OPTIONS = -mcpu=$(CPU) -m$(INSTRUCTION_MODE)
@@ -137,7 +137,7 @@ endif
 $(OBJ_FOLDER)$(TARGET).$(TARGET_EXT): $(LD_SCRIPT) $(C_OBJS) $(CPP_OBJS) $(S_OBJS)
 	@echo 'Building target: $@'
 	@echo 'Invoking: MCU Linker'
-	$(LD) $(LD_OPTIONS) $(LIB_PATHS) -o $(OBJ_FOLDER)$(TARGET).$(TARGET_EXT) $(CPP_OBJS) $(C_OBJS) $(S_OBJS) $(O_OBJS)$(LIBS) $(LD_SYS_LIBS)
+	$(LD) $(LD_OPTIONS) $(LIB_PATHS) -o $(OBJ_FOLDER)$(TARGET).$(TARGET_EXT) $(CPP_OBJS) $(C_OBJS) $(S_OBJS) $(O_OBJS)$(LIBS)
 	@echo 'Finished building target: $@'
 	@echo ' '
 

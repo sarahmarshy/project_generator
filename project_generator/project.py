@@ -81,6 +81,7 @@ class Project:
             'source_files_obj': {},   # [internal] object files
             'source_files_a': {},   # [internal] libraries
             'macros': [],               # macros (defines)
+            'mcu'   : {},
             'misc': {},                 # misc tools settings, which are parsed by tool
             'output_dir': {             # [internal] The generated path dict
                 'path': '',             # path with all name mangling we add to export_dir
@@ -236,9 +237,25 @@ class Project:
             generated_files = yaml.load(f)
         return generated_files
 
-    def generate(self, copy, tool):
+    def _try_open_file(self, filename):
+        try:
+            with open(filename, 'rt') as f:
+                return yaml.load(f)
+        except IOError:
+            raise IOError("The file %s doesn't exist." % filename)
+
+    def generate(self, copy, tool, target_settings, tool_settings):
         """ Exports a project """
+
+
         self.for_tool(tool)
+
+        target_settings = self._try_open_file(target_settings)
+        tool_settings = self._try_open_file(tool_settings)
+        self.project['misc'] = tool_settings
+        self.project['macros'] = target_settings['macros']
+        self.project['mcu'] = target_settings['MCU']
+
         generated_files = {}
         result = 0
         exporter = ToolsSupported().get_tool(self.tool)

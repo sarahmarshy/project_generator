@@ -68,7 +68,7 @@ class MakefileGccArm(Exporter):
         """ Add defined GCC libraries. """
         for option in value:
             if key == "libraries":
-                data['source_files_a'].append(option)
+                data['libraries'].append(option)
 
     def _compiler_options(self, key, value, data):
         """ Compiler flags """
@@ -98,21 +98,24 @@ class MakefileGccArm(Exporter):
         if key == "c_standard":
             data['c_standard'] = value
 
+    def _instruction_mode(self, key, value, data):
+        """ Instruction Mode """
+        if key == "instruction_mode":
+            data['instruction_mode'] = value
+
     def _parse_specific_options(self, data):
         """ Parse all uvision specific setttings. """
         data['compiler_options'] = []
-        for dic in data['misc']:
-            for k, v in dic.items():
+        data['linker_options'] = []
+        for k, v in data['misc'].items():
                 self._libraries(k, v, data)
                 self._compiler_options(k, v, data)
                 self._optimization(k, v, data)
                 self._cc_standard(k, v, data)
                 self._c_standard(k, v, data)
-
-        data['linker_options'] = []
-        for dic in data['misc']:
-            for k, v in dic.items():
+                self._instruction_mode(k, v, data)
                 self._linker_options(k, v, data)
+
 
     def _lib_names(self, libs):
         for lib in libs:
@@ -122,7 +125,7 @@ class MakefileGccArm(Exporter):
                 continue
             else:
                 file = file.replace(".a","")
-                yield ("-L"+head,file.replace("lib","-l"))
+                yield (head,file.replace("lib",''))
 
     def _fix_paths(self, data):
         # get relative path and fix all paths within a project
@@ -151,6 +154,10 @@ class MakefileGccArm(Exporter):
         if data['linker_file']:
             data['linker_file'] = join(data['output_dir']['rel_path'], normpath(data['linker_file']))
 
+    def _process_mcu(self, data):
+        for k,v in data['mcu'].items():
+            data[k] = v
+
     def export_workspace(self):
         logging.debug("Current version of CoIDE does not support workspaces")
 
@@ -165,6 +172,7 @@ class MakefileGccArm(Exporter):
         return {'path': self.workspace['path'], 'files': [self.workspace['files']['makefile']]}
 
     def process_data_for_makefile(self, data):
+        print data['macros']
         self._fix_paths(data)
         self._list_files(data, 'source_files_c', data['output_dir']['rel_path'])
         self._list_files(data, 'source_files_cpp', data['output_dir']['rel_path'])
@@ -172,6 +180,7 @@ class MakefileGccArm(Exporter):
         self._list_files(data, 'source_files_obj', data['output_dir']['rel_path'])
 
         self._parse_specific_options(data)
+        self._process_mcu(data)
         data['toolchain'] = 'arm-none-eabi-'
         data['toolchain_bin_path'] = self.env_settings.get_env_settings('gcc')
 
@@ -183,6 +192,7 @@ class MakefileGccArm(Exporter):
             raise RuntimeError(
                 "Target: %s not found, Please add them to https://github.com/project-generator/project_generator_definitions" % data['target'].lower())
 
+        # gcc arm is funny about cortex-m4f.
         # gcc arm is funny about cortex-m4f.
         if data['core'] == 'cortex-m4f':
             data['core'] = 'cortex-m4'

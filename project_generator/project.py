@@ -20,7 +20,6 @@ from .util import *
 from .settings import *
 import re
 from .targets import Targets
-from .target import Target
 
 class Project:
 
@@ -252,11 +251,11 @@ class Project:
 
         if target_settings is not None:
             target_settings = self._try_open_file(target_settings)
+            self.project['macros'] = target_settings['macros']
+            self.project['mcu'] = target_settings['MCU']
         if tool_settings is not None:
             tool_settings = self._try_open_file(tool_settings)
             self.project['misc'] = tool_settings
-        self.project['macros'] = target_settings['macros']
-        self.project['mcu'] = target_settings['MCU']
 
         generated_files = {}
         result = 0

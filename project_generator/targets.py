@@ -15,7 +15,7 @@
 import yaml
 import subprocess
 
-from os.path import join, normpath, splitext, isfile, exists
+from os.path import join, splitext, exists
 from os import listdir, makedirs, getcwd
 
 from .settings import ProjectSettings
@@ -50,12 +50,10 @@ class Targets:
 
     def get_target(self, alias):
         for target in self.targets:
-            if alias == target.name:
-                return target
-            elif alias in target.name:
+            if alias.lower() in target.name.lower():
                 return target
         targets = [target.name for target in self.targets]
-        raise RuntimeError("%s must be contained in one of these strings: \n" % "\n".join(targets))
+        raise RuntimeError("\n%s must be contained in one of these strings: \n%s" % (alias,"\n".join(targets)))
 
     def get_mcu_definition(self):
         return self.MCU_TEMPLATE

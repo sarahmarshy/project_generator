@@ -53,20 +53,7 @@ def _scan(section, root, directory, extensions):
 
 def _generate_file(filename,root,directory,data):
     logging.debug('Generating yaml file ' + filename)
-    overwrite = False
     if os.path.isfile(os.path.join(directory, filename)):
-        print("Project file " +filename+  " already exists")
-        while True:
-            answer = raw_input('Should I overwrite it? (Y/n)')
-            try:
-                overwrite = answer.lower() in ('y', 'yes')
-                if not overwrite:
-                    logging.critical('Unable to save project file')
-                    return -1
-                break
-            except ValueError:
-                continue
-    if overwrite:
         os.remove(filename)
     with open(os.path.join(root, filename), 'w+') as f:
         f.write(yaml.dump(data, default_flow_style=False))
@@ -75,7 +62,7 @@ def _generate_file(filename,root,directory,data):
     return 0
 
 
-def create_yaml(root, directory, project_name, board,cpu):
+def create_yaml(root, directory, project_name, board):
     # lay out what the common section a project yaml file will look like
     # The value mapped to by each key are the file extensions that will help us get valid files for each section
     common_section = {
@@ -97,7 +84,7 @@ def create_yaml(root, directory, project_name, board,cpu):
 
     # will be written to .project.yaml
     project_yaml = {
-        'common': {'macros': [cpu]},
+        'common': {},
         'tool_specific': {}
     }
 

@@ -12,12 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import copy
-import logging
 import xmltodict
-import subprocess
 import logging
-import time
 import copy
 
 import os
@@ -329,7 +325,7 @@ class IAREmbeddedWorkbench(Builder, Exporter, IAREmbeddedWorkbenchProject):
         # set target only if defined, otherwise use from template/default one
         if expanded_dic['target']:
             # get target definition (target + mcu)
-            mcu_def_dic = expanded_dic['target'].get_tool_configuration('uvision')
+            mcu_def_dic = expanded_dic['target'].get_tool_configuration('iar')
             self._normalize_mcu_def(mcu_def_dic)
             logging.debug("Mcu definitions: %s" % mcu_def_dic)
             self._ewp_set_target(ewp_dic, mcu_def_dic)

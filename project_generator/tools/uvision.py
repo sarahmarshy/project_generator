@@ -13,19 +13,15 @@
 # limitations under the License.
 
 import os
-import subprocess
-import shutil
 import logging
 import xmltodict
 import copy
 
 from os.path import basename, join, normpath
 from os import getcwd
-from collections import OrderedDict
 from .exporter import Exporter
 from .builder import Builder
 from ..targets import Targets
-from ..target import Target
 
 class uVisionDefinitions():
     debuggers = {

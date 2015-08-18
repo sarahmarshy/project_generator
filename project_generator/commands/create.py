@@ -25,7 +25,7 @@ def run(args):
     root = os.getcwd()
     directory = root if not args.directory else os.path.join(root, args.directory)
     name = os.path.split(directory)[1] if not args.name else args.name
-    create_yaml(root, directory, name, args.target.lower(),args.cpu)
+    create_yaml(root, directory, name, args.target.lower())
 
 
 def setup(subparser):
@@ -33,7 +33,5 @@ def setup(subparser):
         '-name', help='Project name')
     subparser.add_argument(
         '-tar', '--target', action='store', help='Target definition', default = "cortex-m0")
-    subparser.add_argument(
-        '-cpu', '--cpu', action='store', help='mbed CPU macro defintion')
     subparser.add_argument(
         '-dir', '--directory', action='store', help='Directory selection', default=None)

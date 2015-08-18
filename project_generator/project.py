@@ -19,6 +19,8 @@ from .tool import ToolsSupported
 from .util import *
 from .settings import *
 import re
+from .targets import Targets
+from .target import Target
 
 class Project:
 
@@ -266,6 +268,9 @@ class Project:
         if copy:
             self.project['copy_sources'] = True
             self.copy_files()
+
+        targets = Targets(self.settings.get_env_settings('definitions'))
+        self.project['target'] = targets.get_target(self.project['target'])
 
         files = exporter(self.project, self.settings).export_project()
         #generated_files[self.tool] = files

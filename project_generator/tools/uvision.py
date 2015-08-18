@@ -25,6 +25,7 @@ from collections import OrderedDict
 from .exporter import Exporter
 from .builder import Builder
 from ..targets import Targets
+from ..target import Target
 
 class uVisionDefinitions():
     debuggers = {
@@ -44,7 +45,6 @@ class uVisionDefinitions():
         # C/C++ settings
         'Cads': {
             'Optim':[0],
-            'uC99': 1,     # C99 mode
             'MiscControls': [],  # Misc controls
         },
 
@@ -198,14 +198,8 @@ class Uvision(Builder, Exporter):
         expanded_dic['build_dir'] = '.\\' + expanded_dic['build_dir'] + '\\'
 
         # set target only if defined, otherwise use from template/default one
-        if expanded_dic['target']:
-            target = Targets(self.env_settings.get_env_settings('definitions'))
-            if not target.is_supported(expanded_dic['target'].lower(), 'uvision'):
-                raise RuntimeError("Target %s is not supported." % expanded_dic['target'].lower())
-            mcu_def_dic = target.get_tool_def(expanded_dic['target'].lower(), 'uvision')
-            if not mcu_def_dic:
-                 raise RuntimeError(
-                    "Mcu definitions were not found for %s. Please add them to https://github.com/project-generator/project_generator_definitions" % expanded_dic['target'].lower())
+
+        mcu_def_dic = expanded_dic['target'].get_tool_configuration('uvision')
             # self.normalize_mcu_def(mcu_def_dic)
         self._normalize_mcu_def(mcu_def_dic)
         logging.debug("Mcu definitions: %s" % mcu_def_dic)

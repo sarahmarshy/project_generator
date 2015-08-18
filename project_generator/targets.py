@@ -19,6 +19,7 @@ from os.path import join, normpath, splitext, isfile, exists
 from os import listdir, makedirs, getcwd
 
 from .settings import ProjectSettings
+from .target import Target
 import logging
 
 class Targets:
@@ -34,56 +35,30 @@ class Targets:
     def __init__(self, directory=None):
         if directory:
             self.definitions_directory = directory
-            target_dir = join(self.definitions_directory, 'target')
-            self.targets = [ splitext(f)[0] for f in listdir(target_dir) if isfile(join(target_dir,f)) ]
+            self.targets = [Target(splitext(f)[0],self._find_tools(f),self._load_record(f)) for f in listdir(directory)
+                            if splitext(f)[1] == '.yaml' ]
 
     def _load_record(self, file):
-        project_file = open(file)
+        project_file = open(join(self.definitions_directory,file))
         config = yaml.load(project_file)
         project_file.close()
         return config
 
+    def _find_tools(self,file):
+        config = self._load_record(file)
+        return config['tool_specific'].keys()
+
+    def get_target(self, alias):
+        for target in self.targets:
+            if alias == target.name:
+                return target
+            elif alias in target.name:
+                return target
+        targets = [target.name for target in self.targets]
+        raise RuntimeError("%s must be contained in one of these strings: \n" % "\n".join(targets))
+
     def get_mcu_definition(self):
         return self.MCU_TEMPLATE
-
-    def get_mcu_record(self, target):
-        target_path = join(self.definitions_directory, 'target', target + '.yaml')
-        target_record = self._load_record(target_path)
-        mcu_path = target_record['target']['mcu']
-        mcu_path = normpath(mcu_path[0])
-        mcu_path = join(self.definitions_directory, mcu_path) + '.yaml'
-        return self._load_record(mcu_path)
-
-    def get_mcu_core(self, target):
-        if target not in self.targets:
-            return None
-        mcu_record = self.get_mcu_record(target)
-        try:
-            return mcu_record['mcu']['core']
-        except KeyError:
-            return None
-
-    def get_tool_def(self, target, tool):
-        if target not in self.targets:
-            return None
-        mcu_record = self.get_mcu_record(target)
-        try:
-            return mcu_record['tool_specific'][tool]
-        except KeyError:
-            return None
-
-    def is_supported(self, target, tool):
-        if target.lower() not in self.targets:
-            return False
-        mcu_record = self.get_mcu_record(target)
-        # Look at tool specific options which define tools supported for mcu
-        try:
-            for k,v in mcu_record['tool_specific'].items():
-                if k == tool:
-                    return True
-        except KeyError:
-            pass
-        return False
 
     def update_definitions(self, force=False, settings=ProjectSettings()):
         defdir_exists = True

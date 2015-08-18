@@ -329,13 +329,7 @@ class IAREmbeddedWorkbench(Builder, Exporter, IAREmbeddedWorkbenchProject):
         # set target only if defined, otherwise use from template/default one
         if expanded_dic['target']:
             # get target definition (target + mcu)
-            target = Targets(self.env_settings.get_env_settings('definitions'))
-            if not target.is_supported(expanded_dic['target'].lower(), 'iar'):
-                raise RuntimeError("Target %s is not supported." % expanded_dic['target'].lower())
-            mcu_def_dic = target.get_tool_def(expanded_dic['target'].lower(), 'iar')
-            if not mcu_def_dic:
-                 raise RuntimeError(
-                    "Mcu definitions were not found for %s. Please add them to https://github.com/project-generator/project_generator_definitions" % expanded_dic['target'].lower())
+            mcu_def_dic = expanded_dic['target'].get_tool_configuration('uvision')
             self._normalize_mcu_def(mcu_def_dic)
             logging.debug("Mcu definitions: %s" % mcu_def_dic)
             self._ewp_set_target(ewp_dic, mcu_def_dic)

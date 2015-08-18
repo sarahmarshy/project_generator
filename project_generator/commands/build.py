@@ -43,5 +43,7 @@ def setup(subparser):
         "-i", "--ignore", nargs='+', help="Directories to be ignored", type = str, default=['generated_projects'])
     subparser.add_argument(
         "-dir", "--directory", help="The projects directory")
+    subparser.add_argument("-tar", "--target", help="Target configuration file")
+    subparser.add_argument("-settings", "--settings", help="Tool configuration file")
     subparser.add_argument(
         "-c", "--copy", action="store_true", help="Copy all files to the exported directory")

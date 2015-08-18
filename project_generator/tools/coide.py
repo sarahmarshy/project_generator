@@ -221,14 +221,7 @@ class Coide(Exporter, Builder):
 
         # set target only if defined, otherwise use from template/default one
         if expanded_dic['target']:
-            target = Targets(self.env_settings.get_env_settings('definitions'))
-            if not target.is_supported(expanded_dic['target'].lower(), 'coide'):
-                raise RuntimeError("Target %s is not supported." % expanded_dic['target'].lower())
-            mcu_def_dic = target.get_tool_def(expanded_dic['target'].lower(), 'coide')
-            if not mcu_def_dic:
-                 raise RuntimeError(
-                    "Mcu definitions were not found for %s. Please add them to https://github.com/0xc0170/project_generator_definitions"
-                    % expanded_dic['target'].lower())
+            mcu_def_dic = expanded_dic['target'].get_tool_configuration('coide')
             self._normalize_mcu_def(mcu_def_dic)
             logging.debug("Mcu definitions: %s" % mcu_def_dic)
             # correct attributes from definition, as yaml does not allowed multiple keys (=dict), we need to

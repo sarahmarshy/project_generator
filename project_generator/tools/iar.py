@@ -228,13 +228,6 @@ class IAREmbeddedWorkbench(Builder, Exporter, IAREmbeddedWorkbenchProject):
                     groups.append(k)
         return groups
 
-    def _find_target_core(self, data):
-        """ Sets Target core. """
-        for k, v in self.core_dic.items():
-            if k == data['core']:
-                return v
-        return IAREmbeddedWorkbench.core_dic['cortex-m0']  # def cortex-m0 if not defined otherwise
-
     def _parse_specific_options(self, data):
         """ Parse all IAR specific settings. """
         data['iar_settings'].update(copy.deepcopy(

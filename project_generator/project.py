@@ -246,13 +246,13 @@ class Project:
 
     def generate(self, copy, tool, target_settings, tool_settings):
         """ Exports a project """
-
-
         self.for_tool(tool)
 
-        target_settings = self._try_open_file(target_settings)
-        tool_settings = self._try_open_file(tool_settings)
-        self.project['misc'] = tool_settings
+        if target_settings is not None:
+            target_settings = self._try_open_file(target_settings)
+        if tool_settings is not None:
+            tool_settings = self._try_open_file(tool_settings)
+            self.project['misc'] = tool_settings
         self.project['macros'] = target_settings['macros']
         self.project['mcu'] = target_settings['MCU']
 

@@ -1,0 +1,247 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+<Project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="project_proj.xsd">
+<!--
+  This project was exported via the project generator.  More information https://github.com/0xc0170/project_generator
+-->
+
+  <SchemaVersion>1.1</SchemaVersion>
+
+  <Header></Header>
+
+  <Targets>
+    <Target>
+      <TargetName>{{name}}</TargetName>
+      <ToolsetNumber>0x4</ToolsetNumber>
+      <ToolsetName>ARM-ADS</ToolsetName>
+      <TargetOption>
+        <TargetCommonOption>
+        <Device>{{uvision_settings['Device']}}</Device>
+          <Vendor>{{uvision_settings['Vendor']}}</Vendor>
+          <Cpu>{{uvision_settings['Cpu']}}</Cpu>
+          <FlashUtilSpec></FlashUtilSpec>
+          <StartupFile></StartupFile>
+          <FlashDriverDll>{{uvision_settings['FlashDriverDll']}}</FlashDriverDll>
+          <DeviceId>{{uvision_settings['DeviceId']}}</DeviceId>
+          <RegisterFile></RegisterFile>
+          <MemoryEnv></MemoryEnv>
+          <Cmp></Cmp>
+          <Asm></Asm>
+          <Linker></Linker>
+          <OHString></OHString>
+          <InfinionOptionDll></InfinionOptionDll>
+          <SLE66CMisc></SLE66CMisc>
+          <SLE66AMisc></SLE66AMisc>
+          <SLE66LinkerMisc></SLE66LinkerMisc>
+          <SFDFile>{{uvision_settings['SFDFile']}}</SFDFile>
+          <UseEnv>0</UseEnv>
+          <BinPath></BinPath>
+          <IncludePath></IncludePath>
+          <LibPath></LibPath>
+          <RegisterFilePath></RegisterFilePath>
+          <DBRegisterFilePath></DBRegisterFilePath>
+          <TargetStatus>
+            <Error>0</Error>
+            <ExitCodeStop>0</ExitCodeStop>
+            <ButtonStop>0</ButtonStop>
+            <NotGenerated>0</NotGenerated>
+            <InvalidFlash>1</InvalidFlash>
+          </TargetStatus>
+          <OutputDirectory>{{build_dir}}</OutputDirectory>
+          <OutputName>{{name}}</OutputName>
+          <CreateExecutable>{% if output_type == 'exe' %}1{% else %}0{% endif %}</CreateExecutable>
+          <CreateLib>{% if output_type == 'lib' %}1{% else %}0{% endif %}</CreateLib>
+          <CreateHexFile>{% if output_type == 'exe' %}1{% else %}0{% endif %}</CreateHexFile>
+          <DebugInformation>1</DebugInformation>
+          <BrowseInformation>1</BrowseInformation>
+          <ListingPath></ListingPath>
+          <HexFormatSelection>1</HexFormatSelection>
+          <Merge32K>0</Merge32K>
+          <CreateBatchFile>0</CreateBatchFile>
+          <BeforeCompile>
+            <RunUserProg1></RunUserProg1>
+            <RunUserProg2></RunUserProg2>
+            <UserProg1Name></UserProg1Name>
+            <UserProg2Name></UserProg2Name>
+            <UserProg1Dos16Mode></UserProg1Dos16Mode>
+            <UserProg2Dos16Mode></UserProg2Dos16Mode>
+            <nStopU1X>0</nStopU1X>
+            <nStopU2X>0</nStopU2X>
+          </BeforeCompile>
+          <BeforeMake>
+            <RunUserProg1></RunUserProg1>
+            <RunUserProg2></RunUserProg2>
+            <UserProg1Name></UserProg1Name>
+            <UserProg2Name></UserProg2Name>
+            <UserProg1Dos16Mode></UserProg1Dos16Mode>
+            <UserProg2Dos16Mode></UserProg2Dos16Mode>
+          </BeforeMake>
+          <AfterMake>
+            <RunUserProg1></RunUserProg1>
+            <RunUserProg2></RunUserProg2>
+            <UserProg1Name></UserProg1Name>
+            <UserProg2Name></UserProg2Name>
+            <UserProg1Dos16Mode></UserProg1Dos16Mode>
+            <UserProg2Dos16Mode></UserProg2Dos16Mode>
+          </AfterMake>
+          <SelectedForBatchBuild>0</SelectedForBatchBuild>
+          <SVCSIdString></SVCSIdString>
+        </TargetCommonOption>
+        <CommonProperty>
+          <UseCPPCompiler></UseCPPCompiler>
+          <RVCTCodeConst></RVCTCodeConst>
+          <RVCTZI></RVCTZI>
+          <RVCTOtherData></RVCTOtherData>
+          <ModuleSelection></ModuleSelection>
+          <IncludeInBuild></IncludeInBuild>
+          <AlwaysBuild></AlwaysBuild>
+          <GenerateAssemblyFile></GenerateAssemblyFile>
+          <AssembleAssemblyFile></AssembleAssemblyFile>
+          <PublicsOnly></PublicsOnly>
+          <StopOnExitCode></StopOnExitCode>
+          <CustomArgument></CustomArgument>
+          <IncludeLibraryModules></IncludeLibraryModules>
+        </CommonProperty>
+        <DllOption>
+          <SimDllName>SARMCM3.DLL</SimDllName>
+          <SimDllArguments></SimDllArguments>
+          <SimDlgDll>DCM.DLL</SimDlgDll>
+          <SimDlgDllArguments>-pCM4</SimDlgDllArguments>
+          <TargetDllName>SARMCM3.DLL</TargetDllName>
+          <TargetDllArguments>-MPU</TargetDllArguments>
+          <TargetDlgDll>TCM.DLL</TargetDlgDll>
+          <TargetDlgDllArguments>-pCM4</TargetDlgDllArguments>
+        </DllOption>
+        <DebugOption>
+          <Simulator>
+            <UseSimulator></UseSimulator>
+            <LoadApplicationAtStartup></LoadApplicationAtStartup>
+            <RunToMain></RunToMain>
+            <RestoreBreakpoints></RestoreBreakpoints>
+            <RestoreWatchpoints></RestoreWatchpoints>
+            <RestoreMemoryDisplay></RestoreMemoryDisplay>
+            <RestoreFunctions></RestoreFunctions>
+            <RestoreToolbox></RestoreToolbox>
+            <LimitSpeedToRealTime></LimitSpeedToRealTime>
+          </Simulator>
+          <Target>
+            <UseTarget></UseTarget>
+            <LoadApplicationAtStartup></LoadApplicationAtStartup>
+            <RunToMain></RunToMain>
+            <RestoreBreakpoints></RestoreBreakpoints>
+            <RestoreWatchpoints></RestoreWatchpoints>
+            <RestoreMemoryDisplay></RestoreMemoryDisplay>
+            <RestoreFunctions></RestoreFunctions>
+            <RestoreToolbox></RestoreToolbox>
+          </Target>
+          <RunDebugAfterBuild>}</RunDebugAfterBuild>
+          <TargetSelection></TargetSelection>
+          <SimDlls>
+            <CpuDll></CpuDll>
+            <CpuDllArguments></CpuDllArguments>
+            <PeripheralDll></PeripheralDll>
+            <PeripheralDllArguments></PeripheralDllArguments>
+            <InitializationFile></InitializationFile>
+          </SimDlls>
+          <TargetDlls>
+            <CpuDll></CpuDll>
+            <CpuDllArguments></CpuDllArguments>
+            <PeripheralDll></PeripheralDll>
+            <PeripheralDllArguments></PeripheralDllArguments>
+            <InitializationFile></InitializationFile>
+            <Driver>{{uvision_settings['TargetDlls']['Driver']}}</Driver>
+          </TargetDlls>
+        </DebugOption>
+        <Utilities>
+          <Flash1>
+            <UseTargetDll>1</UseTargetDll>
+            <UseExternalTool>0</UseExternalTool>
+            <RunIndependent>0</RunIndependent>
+            <UpdateFlashBeforeDebugging>1</UpdateFlashBeforeDebugging>
+            <Capability>1</Capability>
+            <DriverSelection>4105</DriverSelection>
+          </Flash1>
+          <Flash2></Flash2>
+          <Flash3></Flash3>
+          <Flash4></Flash4>
+        </Utilities>
+        <TargetArmAds>
+          <ArmAdsMisc>
+          </ArmAdsMisc>
+          <Cads>
+            <interw></interw>
+            <Optim></Optim>
+            <oTime></oTime>
+            <SplitLS></SplitLS>
+            <OneElfS></OneElfS>
+            <Strict></Strict>
+            <EnumInt></EnumInt>
+            <PlainCh></PlainCh>
+            <Ropi></Ropi>
+            <Rwpi></Rwpi>
+            <wLevel></wLevel>
+            <uThumb></uThumb>
+            <uSurpInc></uSurpInc>
+            <uC99>{{uvision_settings['Cads']['uC99']}}</uC99>
+            <VariousControls>
+              <MiscControls>{% for f in uvision_settings['Cads']['MiscControls'] %}{{f}} {% endfor %}</MiscControls>
+              <Define>{% for s in macros %} {{s}}, {% endfor %}</Define>
+              <Undefine></Undefine>
+              <IncludePath> {% for path in includes %} {{path}}; {% endfor %} </IncludePath>
+            </VariousControls>
+          </Cads>
+          <Aads>
+            <interw></interw>
+            <Ropi></Ropi>
+            <Rwpi></Rwpi>
+            <thumb></thumb>
+            <SplitLS></SplitLS>
+            <SwStkChk></SwStkChk>
+            <NoWarn></NoWarn>
+            <uSurpInc></uSurpInc>
+            <VariousControls>
+              <MiscControls>{% for f in uvision_settings['Aads']['MiscControls'] %}{{f}} {% endfor %}</MiscControls>
+              <Define>{% for s in macros %} {{s}}, {% endfor %}</Define>
+              <Undefine></Undefine>
+              <IncludePath>{% for path in uvision_settings['Aads']['IncludePath'] %} {{path}}; {% endfor %}</IncludePath>
+            </VariousControls>
+          </Aads>
+          <LDads>
+            <umfTarg></umfTarg>
+            <Ropi></Ropi>
+            <Rwpi></Rwpi>
+            <noStLib></noStLib>
+            <RepFail></RepFail>
+            <useFile></useFile>
+            <TextAddressRange></TextAddressRange>
+            <DataAddressRange></DataAddressRange>
+            <ScatterFile>{{linker_file}}</ScatterFile>
+            <IncludeLibs></IncludeLibs>
+            <IncludeLibsPath></IncludeLibsPath>
+            <Misc></Misc>
+            <LinkerInputFile></LinkerInputFile>
+            <DisabledWarnings></DisabledWarnings>
+          </LDads>
+        </TargetArmAds>
+      </TargetOption>
+      <Groups>
+        {% for group_name,files in groups.items() %}
+        <Group>
+          <GroupName>{{group_name}}</GroupName>
+          <Files>
+            {% if files %}
+            {% for file in files %}
+            <File>
+              <FileName>{{file.FileName}}</FileName>
+              <FileType>{{file.FileType}}</FileType>
+              <FilePath>{{file.FilePath}}</FilePath>
+            </File>
+            {% endfor %}
+            {% endif %}
+          </Files>
+        </Group>
+        {% endfor %}
+      </Groups>
+    </Target>
+  </Targets>
+
+</Project>

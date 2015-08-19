@@ -138,7 +138,7 @@ class IAREmbeddedWorkbench(Builder, Exporter):
     def build_project(self):
         """ Build IAR project. """
         # > IarBuild [project_path] -build [project_name]
-        proj_path = join(getcwd(), self.workspace['files']['ewp'])
+        proj_path = join(self.workspace['output_dir']['path'],self.workspace['name'])
         if proj_path.split('.')[-1] != 'ewp':
             proj_path += '.ewp'
         if not os.path.exists(proj_path):
@@ -147,7 +147,7 @@ class IAREmbeddedWorkbench(Builder, Exporter):
         logging.debug("Building IAR project: %s" % proj_path)
         proj_name = proj_path.split(os.path.sep)[-1]
 
-        args = [join(self.env_settings.get_env_settings('iar'), 'IarBuild.exe'), proj_path, '-build', os.path.splitext(os.path.basename(self.workspace['files']['ewp']))[0]]
+        args = [join(self.env_settings.get_env_settings('iar'), 'IarBuild.exe'), proj_path, '-build', os.path.splitext(os.path.basename(proj_path))[0]]
         Builder().build_command(args,self,"IAR",proj_name)
 
     def export_project(self):
@@ -169,16 +169,10 @@ class IAREmbeddedWorkbench(Builder, Exporter):
         logging.debug("Mcu definitions: %s" % mcu_def_dic)
         expanded_dic['iar_settings'].update(mcu_def_dic)
 
-        project_path, ewp = self.gen_file_jinja('iar.ewp.tmpl', expanded_dic, '%s.ewp' %
+        self.gen_file_jinja('iar.ewp.tmpl', expanded_dic, '%s.ewp' %
             self.workspace['name'], expanded_dic['output_dir']['path'])
-        project_path, eww = self.gen_file_jinja('iar.eww.tmpl', expanded_dic, '%s.eww' %
+        self.gen_file_jinja('iar.eww.tmpl', expanded_dic, '%s.eww' %
             self.workspace['name'], expanded_dic['output_dir']['path'])
-
-        generated_projects = {'path':'','files':{'ewp':'','eww':''}}
-        generated_projects['path'] = project_path
-        generated_projects['files']['ewp'] = ewp
-        generated_projects['files']['eww'] = eww
-        return generated_projects
 
     def get_generated_project_files(self):
         return {'path': self.workspace['path'], 'files': [self.workspace['files']['ewp'], self.workspace['files']['eww'],

@@ -35,13 +35,14 @@ class Project:
         self.project_dicts = project_dicts
         self.tool = ''
         self.ignore_dirs = ignore
+        self._fill_project_defaults()
 
     def for_tool(self, tool = "default"):
         if tool != "default":
             # will resolve any alias user writes in command line. IE iar => iar_arm
             self.tool = self._resolve_tool(tool)
         self._fill_project_defaults()  # default dictionary needed for project
-        self._set_output_dir_path(self.tool, '')  # determines where generated projects will go
+        self._set_output_dir_path()  # determines where generated projects will go
 
         # ignore any path that has the output directory in it
         self.ignore_dirs.append(str(".*"+self.project['output_dir']['path']+".*"))
@@ -230,14 +231,6 @@ class Project:
         else:
             return tool
 
-    def get_generated_project_files(self):
-        generated_files = {}
-        if not os.path.isfile(os.path.join(os.getcwd(), ".generated_projects.yaml")):
-            raise RuntimeError("You need to run generate before build!")
-        with open(os.path.join(os.getcwd(), ".generated_projects.yaml"), 'r+') as f:
-            generated_files = yaml.load(f)
-        return generated_files
-
     def _try_open_file(self, filename):
         try:
             with open(filename, 'rt') as f:
@@ -271,26 +264,13 @@ class Project:
         targets = Targets(self.settings.get_env_settings('definitions'))
         self.project['target'] = targets.get_target(self.project['target'])
 
-        files = exporter(self.project, self.settings).export_project()
-        #generated_files[self.tool] = files
-        if os.path.exists(os.path.join(os.getcwd(), ".generated_projects.yaml")):
-            with open(os.path.join(os.getcwd(), ".generated_projects.yaml"), 'r+') as f:
-                generated = yaml.load(f)
-                f.truncate()
-        else:
-            generated = {}
-        with open(os.path.join(os.getcwd(), ".generated_projects.yaml"), 'w+') as f:
-            if generated is None:
-                generated = {}
-            else:
-                generated[self.tool] = files
-            f.write(yaml.dump(generated, default_flow_style=False))
+        exporter(self.project, self.settings).export_project()
         return result
 
     def build(self, tool):
         """build the project"""
         self.tool = self._resolve_tool(tool)
-        generated_files = self.get_generated_project_files()
+        self._set_output_dir_path()
         build_tool = self.tool
         result = 0
         builder = ToolsSupported().get_tool(build_tool)
@@ -299,10 +279,7 @@ class Project:
             result = -1
 
         logging.debug("Building for tool: %s", build_tool)
-        logging.debug(generated_files)
-        if build_tool not in generated_files:
-             raise RuntimeError("You need to run generate for %s before build!"%build_tool)
-        builder(generated_files[build_tool], self.settings).build_project()
+        builder(self.project, self.settings).build_project()
         return result
 
     @staticmethod
@@ -313,7 +290,7 @@ class Project:
 
         return relpath+os.path.sep, count
 
-    def _set_output_dir_path(self, tool, workspace_path = None):
+    def _set_output_dir_path(self):
         if self.settings.export_location_format != self.settings.DEFAULT_EXPORT_LOCATION_FORMAT:
             location_format = self.settings.export_location_format
         else:
@@ -325,13 +302,10 @@ class Project:
         # substitute all of the different dynamic values
         location = PartialFormatter().format(location_format, **{
             'project_name': self.name,
-            'tool': tool,
+            'tool': self.tool,
             'target': self.project['target']
         })
 
-        # I'm hoping that having the workspace variable will remove the need for workspace_path
-
-        # TODO (matthewelse): make this return a value directly
         self.project['output_dir']['path'] = os.path.normpath(location)
         path = self.project['output_dir']['path']
         self.project['output_dir']['rel_path'], self.project['output_dir']['rel_count'] = self._generate_output_dir(path)

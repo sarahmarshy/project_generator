@@ -75,13 +75,6 @@ class Uvision(Builder, Exporter):
     SUCCESSVALUE = 0
     WARNVALUE = 1
 
-    generated_project = {
-        'path': '',
-        'files': {
-            'uvproj': '',
-        }
-    }
-
     def __init__(self, workspace, env_settings):
         self.definitions = uVisionDefinitions()
         # workspace or project
@@ -176,7 +169,7 @@ class Uvision(Builder, Exporter):
         if data['linker_file']:
             data['linker_file'] = join(rel_path, normpath(data['linker_file']))
 
-    def _export_single_project(self):
+    def export_project(self):
         expanded_dic = self.workspace.copy()
 
         groups = self._get_groups(self.workspace)
@@ -212,14 +205,6 @@ class Uvision(Builder, Exporter):
             'uvision4.uvproj.tmpl', expanded_dic, '%s.uvproj' % self.workspace['name'], expanded_dic['output_dir']['path'])
         project_path, optfile = self.gen_file_jinja(
             'uvision4.uvopt.tmpl', expanded_dic, '%s.uvopt' % self.workspace['name'], expanded_dic['output_dir']['path'])
-        return project_path, [projfile, optfile]
-
-    def export_project(self):
-        path, files = self._export_single_project()
-        generated_projects = copy.deepcopy(self.generated_project)
-        generated_projects['path'] = path
-        generated_projects['files']['uvproj'] = files
-        return generated_projects
 
     def get_generated_project_files(self):
         return {'path': self.workspace['path'], 'files': [self.workspace['files']['uvproj']]}
@@ -229,8 +214,7 @@ class Uvision(Builder, Exporter):
 
     def build_project(self):
         # > UV4 -b [project_path]
-        print self.workspace
-        path = join(os.getcwd(), self.workspace['files']['uvproj'][0])
+        path = join(self.workspace['output_dir']['path'],self.workspace['name'])
         if path.split('.')[-1] != 'uvproj':
             path = path + '.uvproj'
         if not os.path.exists(path):
@@ -242,7 +226,7 @@ class Uvision(Builder, Exporter):
         args = [self.env_settings.get_env_settings('uvision'), '-r', '-j0', '-o', './build/build_log.txt', path]
         ret = Builder.build_command(args, self, "Uvision", proj_name)
         if ret < 0 and logging.getLogger().isEnabledFor(logging.DEBUG):
-            build_path = join(self.workspace['path'], 'build', 'build_log.txt')
+            build_path = join(self.workspace['output_dir']['path'], 'build', 'build_log.txt')
             with open(build_path, 'r+') as f:
                 logging.debug(" BUILD LOG\n" + "\n".join(f.readlines()))
 

@@ -42,7 +42,7 @@ class Builder:
                 else:
                     sys.stdout.write(" failed with %s\n" % tool.ERRORLEVEL[ret_code])
                 return -1
-            elif tool != "IAR":
+            elif tool_name != "IAR":
                 sys.stdout.write(" succeeded with %s\n" % tool.ERRORLEVEL[ret_code])
                 return 0
             else:

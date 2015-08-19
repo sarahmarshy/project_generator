@@ -165,8 +165,7 @@ class MakefileGccArm(Exporter):
         """ Processes misc options specific for GCC ARM, and run generator. """
         generated_projects = copy.deepcopy(self.generated_projects)
         self.process_data_for_makefile(self.workspace)
-        generated_projects['path'], generated_projects['files']['makefile'] = self.gen_file_jinja('makefile_gcc.tmpl', self.workspace, 'Makefile', self.workspace['output_dir']['path'])
-        return generated_projects
+        self.gen_file_jinja('makefile_gcc.tmpl', self.workspace, 'Makefile', self.workspace['output_dir']['path'])
 
     def get_generated_project_files(self):
         return {'path': self.workspace['path'], 'files': [self.workspace['files']['makefile']]}
@@ -202,7 +201,7 @@ class MakefileGccArm(Exporter):
     def build_project(self):
         # cwd: relpath(join(project_path, ("gcc_arm" + project)))
         # > make all
-        path = dirname(self.workspace['files']['makefile'])
+        path = join(self.workspace['output_dir']['path'])
         os.chdir(path)
         if os.path.exists("build"):
             answer = raw_input('\nBuild directory exists. Delete? (y/n)')
@@ -212,6 +211,9 @@ class MakefileGccArm(Exporter):
             else:
                 return
 
-        args = ['make', 'all']
+        if logging.getLogger().isEnabledFor(logging.DEBUG):
+            args = ['make', 'all']
+        else:
+            args =['make','-s','all']
 
         Builder.build_command(args, self, "GCC", path.split(os.path.sep)[-1])

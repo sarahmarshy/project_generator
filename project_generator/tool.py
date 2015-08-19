@@ -26,7 +26,7 @@ from .tools.gccarm import MakefileGccArm
 from .tools.sublimetext import SublimeTextMakeGccARM
 from .tools.gdb import GDB
 from .tools.gdb import ARMNoneEABIGDB
-
+import sys
 class ToolsSupported:
     """ Represents all tools available """
 
@@ -85,17 +85,6 @@ class ToolsSupported:
         elif tool in self.TOOLS_DICT.keys():
             return tool
         return None
-
-def target_supported(exporter, target, tool, env_settings):
-    if exporter not in ToolsSupported().get_supported():
-        raise RuntimeError("Target does not support specified tool: %s" % tool)
-    else:
-        supported = exporter.is_supported_by_default(target)
-        # target requires further definitions for exporter
-        if not supported:
-            Target = Targets(env_settings.get_env_settings('definitions'))
-            supported = Target.is_supported(target, tool)
-        return supported
 
 def mcu_create(ToolParser, mcu_name, proj_file, tool):
     data = ToolParser(None, None).get_mcu_definition(proj_file)

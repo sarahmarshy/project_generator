@@ -22,6 +22,7 @@ from os import getcwd
 from .exporter import Exporter
 from .builder import Builder
 from ..targets import Targets
+import sys
 
 class uVisionDefinitions():
     debuggers = {
@@ -189,6 +190,8 @@ class Uvision(Builder, Exporter):
         # set target only if defined, otherwise use from template/default one
 
         mcu_def_dic = expanded_dic['target'].get_tool_configuration('uvision')
+        if mcu_def_dic is None:
+            return None
             # self.normalize_mcu_def(mcu_def_dic)
         self._normalize_mcu_def(mcu_def_dic)
         logging.debug("Mcu definitions: %s" % mcu_def_dic)
@@ -201,10 +204,11 @@ class Uvision(Builder, Exporter):
         expanded_dic['uvision_settings']['Cads']['Optim'][0] = 1
 
         # Project file
-        project_path, projfile = self.gen_file_jinja(
+        self.gen_file_jinja(
             'uvision4.uvproj.tmpl', expanded_dic, '%s.uvproj' % self.workspace['name'], expanded_dic['output_dir']['path'])
-        project_path, optfile = self.gen_file_jinja(
+        self.gen_file_jinja(
             'uvision4.uvopt.tmpl', expanded_dic, '%s.uvopt' % self.workspace['name'], expanded_dic['output_dir']['path'])
+        return 0
 
     def get_generated_project_files(self):
         return {'path': self.workspace['path'], 'files': [self.workspace['files']['uvproj']]}
@@ -218,8 +222,8 @@ class Uvision(Builder, Exporter):
         if path.split('.')[-1] != 'uvproj':
             path = path + '.uvproj'
         if not os.path.exists(path):
-            logging.debug("The file: %s does not exists, exported prior building?" % path)
-            return
+            logging.critical("The file: %s does not exist. You must call generate before build." % path)
+            return None
 
         proj_name = path.split(os.path.sep)[-1]
 
@@ -229,6 +233,7 @@ class Uvision(Builder, Exporter):
             build_path = join(self.workspace['output_dir']['path'], 'build', 'build_log.txt')
             with open(build_path, 'r+') as f:
                 logging.debug(" BUILD LOG\n" + "\n".join(f.readlines()))
+        return ret
 
     def get_mcu_definition(self, project_file):
         """ Parse project file to get target definition """

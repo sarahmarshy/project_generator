@@ -23,7 +23,7 @@ from os import getcwd
 from .builder import Builder
 from .exporter import Exporter
 from ..targets import Targets
-
+import sys
 class CoIDEdefinitions():
 
     coproj_file = OrderedDict([(u'Project', OrderedDict([(u'@version', u'2G - 1.7.5'), (u'@name', u''), (u'Target', OrderedDict([(u'@name', u''), (u'@isCurrent', u'1'), (u'Device', OrderedDict([(u'@manufacturerId', u'7'), (u'@manufacturerName', u'NXP'), (u'@chipId', u'165'), (u'@chipName', u'LPC1768'), (u'@boardId', u''), (u'@boardName', u'')])), (u'BuildOption', OrderedDict([(u'Compile', OrderedDict([(u'Option', [OrderedDict([(u'@name', u'OptimizationLevel'), (u'@value', u'4')]), OrderedDict([(u'@name', u'UseFPU'), (u'@value', u'0')]), OrderedDict([(u'@name', u'UserEditCompiler'), (u'@value', u'-fno-common;-fmessage-length=0;-Wall;-fno-strict-aliasing;-fno-rtti;-fno-exceptions;-ffunction-sections;-fdata-sections;-std=gnu++98;')])]), (u'Includepaths', OrderedDict([(u'Includepath', OrderedDict([(u'@path', u'')]))])), (u'DefinedSymbols', OrderedDict([(u'Define', OrderedDict([(u'@name', u'')]))]))])), (u'Link', OrderedDict([(u'@useDefault', u'0'), (u'Option', [OrderedDict([(u'@name', u'DiscardUnusedSection'), (u'@value', u'0')]), OrderedDict([(u'@name', u'UserEditLinkder'), (u'@value', u'1')]), OrderedDict([(u'@name', u'UseMemoryLayout'), (u'@value', u'0')]), OrderedDict([(u'@name', u'LTO'), (u'@value', u'')]), OrderedDict([(u'@name', u'IsNewStartupCode'), (u'@value', u'')]), OrderedDict([(u'@name', u'Library'), (u'@value', u'Use nano C Library')]), OrderedDict([(u'@name', u'nostartfiles'), (u'@value', u'0')]), OrderedDict([(u'@name', u'UserEditLinker'), (u'@value', u'')]), OrderedDict([(u'@name', u'Printf'), (u'@value', u'1')]), OrderedDict([(u'@name', u'Scanf'), (u'@value', u'1')])]), (u'LinkedLibraries', OrderedDict([(u'Libset', [OrderedDict([(u'@dir', u''), (u'@libs', u'stdc++')]), OrderedDict([(u'@dir', u''), (u'@libs', u'supc++')]), OrderedDict([(u'@dir', u''), (u'@libs', u'm')]), OrderedDict([(u'@dir', u''), (u'@libs', u'gcc')]), OrderedDict([(u'@dir', u''), (u'@libs', u'c')]), OrderedDict([(u'@dir', u''), (u'@libs', u'nosys')])])])), (u'MemoryAreas', OrderedDict([(u'@debugInFlashNotRAM', u'1'), (u'Memory', [OrderedDict([(u'@name', u'IROM1'), (u'@type', u'ReadOnly'), (u'@size', u'524288'), (u'@startValue', u'0')]), OrderedDict([(u'@name', u'IRAM1'), (u'@type', u'ReadWrite'), (u'@size', u'32768'), (u'@startValue', u'268435456')]), OrderedDict([(u'@name', u'IROM2'), (u'@type', u'ReadOnly'), (u'@size', u'0'), (u'@startValue', u'0')]), OrderedDict([(u'@name', u'IRAM2'), (u'@type', u'ReadWrite'), (u'@size', u'32768'), (u'@startValue', u'537378816')])])])), (u'LocateLinkFile', OrderedDict([(u'@path', u''), (u'@type', u'0')]))])), (u'Output', OrderedDict([(u'Option', [OrderedDict([(u'@name', u'OutputFileType'), (u'@value', u'0')]), OrderedDict([(u'@name', u'Path'), (u'@value', u'./')]), OrderedDict([(u'@name', u'Name'), (u'@value', u'')]), OrderedDict([(u'@name', u'HEX'), (u'@value', u'1')]), OrderedDict([(u'@name', u'BIN'), (u'@value', u'1')])])])), (u'User', OrderedDict([(u'UserRun', [OrderedDict([(u'@name', u'Run#1'), (u'@type', u'Before'), (u'@checked', u'0'), (u'@value', u'')]), OrderedDict([(u'@name', u'Run#1'), (u'@type', u'After'), (u'@checked', u'0'), (u'@value', u'')])])]))])), (u'DebugOption', OrderedDict([(u'Option', [OrderedDict([(u'@name', u'org.coocox.codebugger.gdbjtag.core.adapter'), (u'@value', u'J-Link')]), OrderedDict([(u'@name', u'org.coocox.codebugger.gdbjtag.core.debugMode'), (u'@value', u'SWD')]), OrderedDict([(u'@name', u'org.coocox.codebugger.gdbjtag.core.clockDiv'), (u'@value', u'1M')]), OrderedDict([(u'@name', u'org.coocox.codebugger.gdbjtag.corerunToMain'), (u'@value', u'1')]), OrderedDict([(u'@name', u'org.coocox.codebugger.gdbjtag.core.jlinkgdbserver'), (u'@value', u'')]), OrderedDict([(u'@name', u'org.coocox.codebugger.gdbjtag.core.userDefineGDBScript'), (u'@value', u'')]), OrderedDict([(u'@name', u'org.coocox.codebugger.gdbjtag.core.targetEndianess'), (u'@value', u'0')]), OrderedDict([(u'@name', u'org.coocox.codebugger.gdbjtag.core.jlinkResetMode'), (u'@value', u'Type 0: Normal')]), OrderedDict([(u'@name', u'org.coocox.codebugger.gdbjtag.core.resetMode'), (u'@value', u'SYSRESETREQ')]), OrderedDict([(u'@name', u'org.coocox.codebugger.gdbjtag.core.ifSemihost'), (u'@value', u'0')]), OrderedDict([(u'@name', u'org.coocox.codebugger.gdbjtag.core.ifCacheRom'), (u'@value', u'1')]), OrderedDict([(u'@name', u'org.coocox.codebugger.gdbjtag.core.ipAddress'), (u'@value', u'127.0.0.1')]), OrderedDict([(u'@name', u'org.coocox.codebugger.gdbjtag.core.portNumber'), (u'@value', u'2009')]), OrderedDict([(u'@name', u'org.coocox.codebugger.gdbjtag.core.autoDownload'), (u'@value', u'1')]), OrderedDict([(u'@name', u'org.coocox.codebugger.gdbjtag.core.verify'), (u'@value', u'1')]), OrderedDict([(u'@name', u'org.coocox.codebugger.gdbjtag.core.downloadFuction'), (u'@value', u'Erase Effected')]), OrderedDict([(u'@name', u'org.coocox.codebugger.gdbjtag.core.defaultAlgorithm'), (u'@value', u'')])])])), (u'ExcludeFile', None)])), (u'Components', OrderedDict([(u'@path', u'./')])), (u'Files', None)]))])
@@ -175,7 +175,7 @@ class Coide(Exporter, Builder):
             i += 1
         return None
 
-    def _export_single_project(self):
+    def export_project(self):
         """ Processes groups and misc options specific for CoIDE, and run generator """
         expanded_dic = self.workspace.copy()
 
@@ -207,7 +207,8 @@ class Coide(Exporter, Builder):
         try:
             coproj_dic['Project']['@name'] = expanded_dic['name']
         except KeyError:
-            raise RuntimeError("The coide template is not valid .coproj file")
+            logging.critical("The coide template is not valid .coproj file")
+            return None
 
         coproj_dic['Project']['Target']['@name'] = expanded_dic['name']
         # library/exe
@@ -222,6 +223,8 @@ class Coide(Exporter, Builder):
         # set target only if defined, otherwise use from template/default one
         if expanded_dic['target']:
             mcu_def_dic = expanded_dic['target'].get_tool_configuration('coide')
+            if mcu_def_dic is None:
+                return None
             self._normalize_mcu_def(mcu_def_dic)
             logging.debug("Mcu definitions: %s" % mcu_def_dic)
             # correct attributes from definition, as yaml does not allowed multiple keys (=dict), we need to
@@ -255,24 +258,17 @@ class Coide(Exporter, Builder):
                 index += 1
                 coproj_dic['Project']['Target']['DebugOption']['Option'][found]['@value'] = self.definitions.debuggers[expanded_dic['debugger']]['Target']['DebugOption']['org.coocox.codebugger.gdbjtag.core.adapter']
             except KeyError:
-                raise RuntimeError("Debugger %s is not supported" % expanded_dic['debugger'])
+                logging.critical("Debugger %s is not supported" % expanded_dic['debugger'])
+                return None
 
         # Project file
         # somehow this xml is not compatible with coide, coide v2.0 changing few things, lets use jinja
         # for now, more testing to get xml output right. Jinja template follows the xml dictionary,which is
         # what we want anyway.
         # coproj_xml = xmltodict.unparse(coproj_dic, pretty=True)
-        project_path, projfile = self.gen_file_jinja(
+        self.gen_file_jinja(
             'coide.coproj.tmpl', coproj_dic, '%s.coproj' % expanded_dic['name'], expanded_dic['output_dir']['path'])
-        return project_path, projfile
-
-    def export_workspace(self):
-        logging.debug("Current version of CoIDE does not support workspaces")
-
-    def export_project(self):
-        generated_projects = copy.deepcopy(self.generated_project)
-        generated_projects['path'], generated_projects['files']['coproj'] = self._export_single_project()
-        return generated_projects
+        return 0
 
     def get_generated_project_files(self):
         return {'path': self.workspace['path'], 'files': [self.workspace['files']['coproj']]}

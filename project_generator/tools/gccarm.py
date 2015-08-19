@@ -166,6 +166,7 @@ class MakefileGccArm(Exporter):
         generated_projects = copy.deepcopy(self.generated_projects)
         self.process_data_for_makefile(self.workspace)
         self.gen_file_jinja('makefile_gcc.tmpl', self.workspace, 'Makefile', self.workspace['output_dir']['path'])
+        return 0
 
     def get_generated_project_files(self):
         return {'path': self.workspace['path'], 'files': [self.workspace['files']['makefile']]}
@@ -201,7 +202,7 @@ class MakefileGccArm(Exporter):
     def build_project(self):
         # cwd: relpath(join(project_path, ("gcc_arm" + project)))
         # > make all
-        path = join(self.workspace['output_dir']['path'])
+        path = self.workspace['output_dir']['path']
         os.chdir(path)
         if os.path.exists("build"):
             answer = raw_input('\nBuild directory exists. Delete? (y/n)')

@@ -20,6 +20,7 @@ from os import listdir, makedirs, getcwd
 
 from .settings import ProjectSettings
 import logging
+import sys
 
 class Target:
     def __init__(self, name, tools, config):
@@ -30,7 +31,8 @@ class Target:
 
     def get_tool_configuration(self, tool):
         if not(tool in self.supported_tools):
-            raise RuntimeError("Target %s does not support %s." % (self.name,tool))
+            logging.critical("Target %s does not support %s." % (self.name,tool))
+            return None
         return self.config['tool_specific'][tool]
 
 
@@ -65,7 +67,8 @@ class Targets:
             if alias.lower() in target.name.lower():
                 return target
         targets = [target.name for target in self.targets]
-        raise RuntimeError("\n%s must be contained in one of these strings: \n%s" % (alias,"\n".join(targets)))
+        logging.critical("\n%s must be contained in one of these strings: \n%s" % (alias,"\n".join(targets)))
+        return None
 
     def get_mcu_definition(self):
         return self.MCU_TEMPLATE

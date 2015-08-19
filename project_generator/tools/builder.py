@@ -16,9 +16,6 @@ import subprocess
 import sys
 import os
 class Builder:
-    def build_project(self):
-        raise NotImplementedError
-
     @staticmethod
     def build_command(args, tool, tool_name, proj_name):
         logging.debug("Calling command: " +  " ".join(args))

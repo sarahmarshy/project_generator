@@ -20,6 +20,7 @@ import operator
 import subprocess
 from .settings import ProjectSettings
 import logging
+import sys
 
 from functools import reduce
 
@@ -75,11 +76,12 @@ def unicode_available():
 def load_yaml_records(yaml_files):
     dictionaries = []
     for yaml_file in yaml_files:
-        try:
+        if os.path.exists(yaml_file):
             f = open(yaml_file, 'rt')
             dictionaries.append(yaml.load(f))
-        except IOError:
-           raise IOError("The file %s referenced in main yaml doesn't exist." % yaml_file)
+        else:
+            logging.critical("The file %s referenced in main yaml doesn't exist." % yaml_file)
+            return None
     return dictionaries
 
 class PartialFormatter(string.Formatter):

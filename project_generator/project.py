@@ -20,6 +20,7 @@ from .util import *
 from .settings import *
 import re
 from .targets import Targets
+import os
 
 class Project:
 
@@ -41,6 +42,8 @@ class Project:
         if tool != "default":
             # will resolve any alias user writes in command line. IE iar => iar_arm
             self.tool = self._resolve_tool(tool)
+            if self.tool is None:
+                return None
         self._fill_project_defaults()  # default dictionary needed for project
         self._set_output_dir_path()  # determines where generated projects will go
 
@@ -54,15 +57,17 @@ class Project:
                 for tools in self._find_supported_tools(t):
                     # iterate over these valid tools and find what tools user can generate for in command line
                     self.supported.extend(tools)
-
         #if tool is default, we are just extracting yaml ingformation to see what tools are possible
         if self.tool not in self.supported and tool != "default":
-            raise RuntimeError("The tool name \"%s\" is not supported in yaml!"%self.tool)
+            logging.critical("The tool name \"%s\" is not supported in yaml!"%self.tool)
+            return None
 
         self._fix_includes_and_sources()
 
         if self.project['linker_file'] is None and tool!="default":
-            raise RuntimeError("No linker file found")
+            logging.critical("No linker file found")
+            return None
+        return 1
 
     def _fill_project_defaults(self):
 
@@ -227,27 +232,34 @@ class Project:
         if tool is None:
             options = ToolsSupported().get_supported() + ToolsSupported().TOOLS_ALIAS.keys()
             options.sort()
-            raise RuntimeError("The tool name \"%s\" is not valid! \nChoose from: \n%s"% (alias, ", ".join(options)))
+            logging.critical("The tool name \"%s\" is not valid! \nChoose from: \n%s"% (alias, ", ".join(options)))
+            return None
         else:
             return tool
 
     def _try_open_file(self, filename):
-        try:
+        if(os.path.exists(filename)):
             with open(filename, 'rt') as f:
                 return yaml.load(f)
-        except IOError:
-            raise IOError("The file %s doesn't exist." % filename)
+        else:
+            logging.critical("The file %s doesn't exist." % filename)
+            return None
 
     def generate(self, copy, tool, target_settings, tool_settings):
         """ Exports a project """
-        self.for_tool(tool)
+        if self.for_tool(tool) is None:
+            return None
 
         if target_settings is not None:
             target_settings = self._try_open_file(target_settings)
+            if target_settings is None:
+                return None
             self.project['macros'] = target_settings['macros']
             self.project['mcu'] = target_settings['MCU']
         if tool_settings is not None:
             tool_settings = self._try_open_file(tool_settings)
+            if tool_settings is None:
+                return None
             self.project['misc'] = tool_settings
 
         generated_files = {}
@@ -263,13 +275,17 @@ class Project:
 
         targets = Targets(self.settings.get_env_settings('definitions'))
         self.project['target'] = targets.get_target(self.project['target'])
+        if self.project['target'] is None:
+            return None
 
-        exporter(self.project, self.settings).export_project()
+        result = exporter(self.project, self.settings).export_project()
         return result
 
     def build(self, tool):
         """build the project"""
         self.tool = self._resolve_tool(tool)
+        if self.tool is None:
+            return None
         self._set_output_dir_path()
         build_tool = self.tool
         result = 0
@@ -279,7 +295,7 @@ class Project:
             result = -1
 
         logging.debug("Building for tool: %s", build_tool)
-        builder(self.project, self.settings).build_project()
+        result = builder(self.project, self.settings).build_project()
         return result
 
     @staticmethod

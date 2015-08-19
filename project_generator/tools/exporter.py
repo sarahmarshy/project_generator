@@ -26,15 +26,6 @@ class Exporter(object):
     TEMPLATE_DIR = join(dirname(__file__), '..', 'templates')
     DOT_IN_RELATIVE_PATH = False
 
-    def gen_file_raw(self, target_text, output, dest_path):
-        if not os.path.exists(dest_path):
-            os.makedirs(dest_path)
-        output = join(dest_path, output)
-        logging.debug("Generating: %s" % output)
-
-        open(output, "w").write(target_text)
-        return dirname(output), output
-
     def gen_file_jinja(self, template_file, data, output, dest_path):
         if not os.path.exists(dest_path):
             os.makedirs(dest_path)
@@ -44,7 +35,6 @@ class Exporter(object):
         """ Fills data to the project template, using jinja2. """
         template_path = join(self.TEMPLATE_DIR, template_file)
         template_text = open(template_path).read()
-        # TODO: undefined=StrictUndefined - this needs fixes in templates
         template = Template(template_text)
         target_text = template.render(data)
 

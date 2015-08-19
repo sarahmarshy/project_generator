@@ -142,8 +142,8 @@ class IAREmbeddedWorkbench(Builder, Exporter):
         if proj_path.split('.')[-1] != 'ewp':
             proj_path += '.ewp'
         if not os.path.exists(proj_path):
-            logging.debug("The file: %s does not exists, exported prior building?" % proj_path)
-            return
+            logging.debug("The file: %s does not exist. You must call generate before build." % proj_path)
+            return None
         logging.debug("Building IAR project: %s" % proj_path)
         proj_name = proj_path.split(os.path.sep)[-1]
 
@@ -165,6 +165,8 @@ class IAREmbeddedWorkbench(Builder, Exporter):
         self._parse_specific_options(expanded_dic)
 
         mcu_def_dic = expanded_dic['target'].get_tool_configuration('iar')
+        if mcu_def_dic is None:
+            return None
         self._normalize_mcu_def(mcu_def_dic)
         logging.debug("Mcu definitions: %s" % mcu_def_dic)
         expanded_dic['iar_settings'].update(mcu_def_dic)
@@ -173,6 +175,7 @@ class IAREmbeddedWorkbench(Builder, Exporter):
             self.workspace['name'], expanded_dic['output_dir']['path'])
         self.gen_file_jinja('iar.eww.tmpl', expanded_dic, '%s.eww' %
             self.workspace['name'], expanded_dic['output_dir']['path'])
+        return 0
 
     def get_generated_project_files(self):
         return {'path': self.workspace['path'], 'files': [self.workspace['files']['ewp'], self.workspace['files']['eww'],

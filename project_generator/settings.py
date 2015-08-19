@@ -40,7 +40,7 @@ class ProjectSettings:
             'Keil', 'UV4', 'UV4.exe')
         self.paths['iar'] = os.environ.get('IARBUILD') or join(
             'C:', sep, 'Program Files (x86)',
-            'IAR Systems', 'Embedded Workbench 7.0',
+            'IAR Systems', 'Embedded Workbench 7.2',
             'common', 'bin')
         self.paths['gcc'] = os.environ.get('ARM_GCC_PATH') or ''
         self.paths['definitions_default'] = join(expanduser('~/.pg'), 'definitions')

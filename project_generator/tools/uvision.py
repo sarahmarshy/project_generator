@@ -229,7 +229,8 @@ class Uvision(Builder, Exporter):
 
     def build_project(self):
         # > UV4 -b [project_path]
-        path = join(os.getcwd(), self.workspace['files']['uvproj'])
+        print self.workspace
+        path = join(os.getcwd(), self.workspace['files']['uvproj'][0])
         if path.split('.')[-1] != 'uvproj':
             path = path + '.uvproj'
         if not os.path.exists(path):

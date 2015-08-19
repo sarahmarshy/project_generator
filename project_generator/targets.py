@@ -19,8 +19,20 @@ from os.path import join, splitext, exists
 from os import listdir, makedirs, getcwd
 
 from .settings import ProjectSettings
-from .target import Target
 import logging
+
+class Target:
+    def __init__(self, name, tools, config):
+        self.name = name
+        self.supported_tools = tools
+        self.config = config
+        self.core = self.config['mcu']['core']
+
+    def get_tool_configuration(self, tool):
+        if not(tool in self.supported_tools):
+            raise RuntimeError("Target %s does not support %s." % (self.name,tool))
+        return self.config['tool_specific'][tool]
+
 
 class Targets:
 

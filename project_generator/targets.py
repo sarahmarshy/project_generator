@@ -20,7 +20,6 @@ from os import listdir, makedirs, getcwd
 
 from .settings import ProjectSettings
 import logging
-import sys
 
 class Target:
     def __init__(self, name, tools, config):

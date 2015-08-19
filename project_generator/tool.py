@@ -26,7 +26,7 @@ from .tools.gccarm import MakefileGccArm
 from .tools.sublimetext import SublimeTextMakeGccARM
 from .tools.gdb import GDB
 from .tools.gdb import ARMNoneEABIGDB
-import sys
+
 class ToolsSupported:
     """ Represents all tools available """
 

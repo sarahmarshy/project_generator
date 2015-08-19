@@ -14,7 +14,7 @@
 import logging
 import subprocess
 import sys
-import os
+
 class Builder:
     @staticmethod
     def build_command(args, tool, tool_name, proj_name):

@@ -16,6 +16,7 @@ import logging
 
 from ..generate import Generator
 import sys
+
 help = 'Build a project'
 
 

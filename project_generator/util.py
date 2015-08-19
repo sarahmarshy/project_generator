@@ -20,7 +20,6 @@ import operator
 import subprocess
 from .settings import ProjectSettings
 import logging
-import sys
 
 from functools import reduce
 

@@ -1,6 +1,5 @@
 from project import *
 import logging
-import sys
 class Generator:
     def __init__(self, projects_file):
         if type(projects_file) is not dict:

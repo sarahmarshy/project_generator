@@ -22,7 +22,6 @@ from os import getcwd
 from .exporter import Exporter
 from .builder import Builder
 from ..targets import Targets
-import sys
 
 class uVisionDefinitions():
     debuggers = {

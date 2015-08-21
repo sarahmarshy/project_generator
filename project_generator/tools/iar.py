@@ -29,6 +29,12 @@ class IAREmbeddedWorkbench(Builder, Exporter):
 
     SUCCESSVALUE = 0
     ERRORVALUE = 1
+    WARNVALUE = 0 #undetermined
+
+    ERRORLEVEL = {
+        0: '(0 warnings, 0 errors)',
+        1: 'errors'
+    }
 
     source_files_dic = [
         'source_files_c', 'source_files_s', 'source_files_cpp', 'source_files_a', 'source_files_obj']

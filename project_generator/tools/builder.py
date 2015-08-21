@@ -32,18 +32,13 @@ class Builder:
             elif tool_name == "IAR":
                 sys.stdout.write(" ERROR whilst calling IarBuild. \nPlease check IARBUILD path in the user_settings.py file.\n")
         else:
-            if tool_name != "IAR" and ret_code != tool.SUCCESSVALUE:
+            if ret_code != tool.SUCCESSVALUE:
                 # Seems like something went wrong.
                 if ret_code == tool.WARNVALUE:
                     sys.stdout.write(" succeeded with %s\n" % tool.ERRORLEVEL[ret_code])
                 else:
                     sys.stdout.write(" failed with %s\n" % tool.ERRORLEVEL[ret_code])
                 return -1
-            elif tool_name != "IAR":
+            else:
                 sys.stdout.write(" succeeded with %s\n" % tool.ERRORLEVEL[ret_code])
                 return 0
-            else:
-                if ret_code == tool.ERRORVALUE:
-                    return -1
-                else:
-                    return 0

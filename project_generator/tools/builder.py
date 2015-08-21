@@ -26,11 +26,11 @@ class Builder:
         except:
             if tool_name == "Uvision":
                 sys.stdout.write(
-                    " ERROR whilst calling UV4: '%s'. \nPlease set uvision path in the projects.yaml file.\n" % tool.env_settings.get_env_settings('uvision'))
+                    " ERROR whilst calling UV4: '%s'. \nPlease check uvision path in the settings.py file.\n" % tool.env_settings.get_env_settings('uvision'))
             elif tool_name == "GCC":
                 sys.stdout.write(" ERROR whilst calling make. \nIs it in your PATH?\n")
             elif tool_name == "IAR":
-                sys.stdout.write(" ERROR whilst calling IarBuild. \nPlease check IARBUILD path in the user_settings.py file.\n")
+                sys.stdout.write(" ERROR whilst calling IarBuild. \nPlease check IARBUILD path in the settings.py file.\n")
         else:
             if ret_code != tool.SUCCESSVALUE:
                 # Seems like something went wrong.

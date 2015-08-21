@@ -120,8 +120,9 @@ class Uvision(Builder, Exporter):
         default_set = copy.deepcopy(self.definitions.uvision_settings)
         data['uvision_settings'].update(default_set)  # set specific options to default values
         for k, v in data['misc'].items():
+            for setting in v:
                 if k == 'MiscControls':
-                    data['uvision_settings']['Cads']['MiscControls'] = "--"+str(v)
+                    data['uvision_settings']['Cads']['MiscControls'].append(str(setting))
 
     def _get_groups(self, data):
         """ Get all groups defined. """

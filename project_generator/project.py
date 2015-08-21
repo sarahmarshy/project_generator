@@ -255,7 +255,6 @@ class Project:
             if target_settings is None:
                 return None
             self.project['macros'] = target_settings['macros']
-            self.project['mcu'] = target_settings['MCU']
         if tool_settings is not None:
             tool_settings = self._try_open_file(tool_settings)
             if tool_settings is None:

@@ -15,7 +15,7 @@
       <ToolsetName>ARM-ADS</ToolsetName>
       <TargetOption>
         <TargetCommonOption>
-          <Device></Device>
+          <Device>{% if uvision_settings['Device'] %}{{uvision_settings['Device']}}{% endif %}</Device>
           <Vendor></Vendor>
           <Cpu>{{uvision_settings['Cpu']}}</Cpu>
           <FlashUtilSpec></FlashUtilSpec>
@@ -264,7 +264,7 @@
             <uC99>1</uC99>
             <useXO>0</useXO>
             <VariousControls>
-              <MiscControls>{% for f in uvision_settings['Cads']['MiscControls'] %}{{f}} {% endfor %}</MiscControls>
+              <MiscControls>{% for f in uvision_settings['Cads']['MiscControls'] %}--{{f}} {% endfor %}</MiscControls>
               <Define>{% for s in macros %} {{s}}, {% endfor %}</Define>
               <Undefine></Undefine>
               <IncludePath> {% for path in includes %} {{path}}; {% endfor %} </IncludePath>

@@ -38,15 +38,6 @@ class IAREmbeddedWorkbench(Builder, Exporter):
         "cortex-m4f": 40,
     }
 
-    generated_project = {
-        'path': '',
-        'files': {
-            'ewp': '',
-            'ewd': '',
-            'eww': '',
-        }
-    }
-
     def __init__(self, workspace, env_settings):
         self.workspace = workspace
         self.env_settings = env_settings

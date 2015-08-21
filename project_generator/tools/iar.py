@@ -165,7 +165,7 @@ class IAREmbeddedWorkbench(Builder, Exporter):
         mcu_def_dic = expanded_dic['target'].get_tool_configuration('iar')
         if mcu_def_dic is None:
             return None
-        
+
         if expanded_dic['target'].fpu:
             expanded_dic['iar_settings']['fpu'] = True
         self._normalize_mcu_def(mcu_def_dic)

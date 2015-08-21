@@ -28,7 +28,7 @@ from ..targets import Targets
 class IAREmbeddedWorkbench(Builder, Exporter):
 
     source_files_dic = [
-        'source_files_c', 'source_files_s', 'source_files_cpp']
+        'source_files_c', 'source_files_s', 'source_files_cpp', 'source_files_a', 'source_files_obj']
 
     core_dic = {
         "cortex-m0":  34,
@@ -114,16 +114,6 @@ class IAREmbeddedWorkbench(Builder, Exporter):
     def _fix_paths(self, data, rel_path):
         """ All paths needs to be fixed - add PROJ_DIR prefix + normalize """
         data['includes'] = [join('$PROJ_DIR$', rel_path, normpath(path)) for path in data['includes']]
-
-        data['libs'] =[]
-        for k in data['source_files_a'].keys():
-            data['libs'].extend([
-                join('$PROJ_DIR$', rel_path, normpath(path)) for path in data['source_files_a'][k]])
-
-        data['objs'] =[]
-        for k in data['source_files_obj'].keys():
-             data['objs'].extend([
-                join('$PROJ_DIR$', rel_path, normpath(path)) for path in data['source_files_obj'][k]])
             
         if data['linker_file']:
             data['linker_file'] = join('$PROJ_DIR$', rel_path, normpath(data['linker_file']))

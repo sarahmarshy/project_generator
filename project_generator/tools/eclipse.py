@@ -51,7 +51,7 @@ class EclipseGnuARM(Exporter, Builder):
     def get_toolchain():
         return 'make_gcc_arm'
 
-    def _expand_data(self, old_data, new_data, attribute, group, rel_path):
+    def _expand_data(self, old_data, new_data, group):
         """ data expansion - uvision needs filename and path separately. """
         if group == 'Sources':
             old_group = None
@@ -86,10 +86,10 @@ class EclipseGnuARM(Exporter, Builder):
                     group = 'Sources'
                 else:
                     group = k
-                self._expand_data(data[attribute], expanded_data, attribute, group, rel_path)
+                self._expand_data(data[attribute], expanded_data, group)
 
-    def export_workspace(self):
-        logging.debug("Current version of CoIDE does not support workspaces")
+    def build_project(self):
+        self.exporter.build_project()
 
     def export_project(self):
         """ Processes groups and misc options specific for eclipse, and run generator """
@@ -100,17 +100,35 @@ class EclipseGnuARM(Exporter, Builder):
         data_for_make = self.workspace.copy()
 
         self.exporter.process_data_for_makefile(data_for_make)
+
         output['path'], output['files']['makefile'] = self.gen_file_jinja('makefile_gcc.tmpl', data_for_make, 'Makefile', data_for_make['output_dir']['path'])
 
         expanded_dic = self.workspace.copy()
+
+        libs = [lib for k,libs in expanded_dic['source_files_a'].items() for lib in libs]
+
+        expanded_dic['lib_paths'] =[]
+        expanded_dic['libs'] =[]
+        for path, lib in self.exporter._lib_names(libs):
+            expanded_dic['lib_paths'].append(path)
+            expanded_dic['libs'].append(lib)
+
+        expanded_dic ['core'] = expanded_dic ['target'].core[0]
+        if expanded_dic['core'] == 'cortex-m4f':
+            expanded_dic['core'] = 'cortex-m4'
+
+        # change cortex-m0+ to cortex-m0plus
+        if expanded_dic['core'] == 'cortex-m0+':
+            expanded_dic['core'] = 'cortex-m0plus'
+
         expanded_dic['rel_path'] = data_for_make['output_dir']['rel_path']
         groups = self._get_groups(expanded_dic)
         expanded_dic['groups'] = {}
         for group in groups:
             expanded_dic['groups'][group] = []
         self._iterate(self.workspace, expanded_dic, expanded_dic['rel_path'])
-
         # Project file
+
         project_path, output['files']['cproj'] = self.gen_file_jinja(
             'eclipse_makefile.cproject.tmpl', expanded_dic, '.cproject', data_for_make['output_dir']['path'])
         project_path, output['files']['proj_file'] = self.gen_file_jinja(

@@ -48,7 +48,8 @@
           </TargetStatus>
           <OutputDirectory>{{build_dir}}</OutputDirectory>
           <OutputName>{{name}}</OutputName>
-          <CreateExecutable>{% if output_type == 'exe' %}1{% else %}0{% endif %}</CreateExecutable>
+          <CreateExecutable>
+          </CreateExecutable>
           <CreateLib>{% if output_type == 'lib' %}1{% else %}0{% endif %}</CreateLib>
           <CreateHexFile></CreateHexFile>
           <DebugInformation>1</DebugInformation>

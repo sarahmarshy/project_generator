@@ -27,13 +27,13 @@ class Target:
         self.supported_tools = tools
         self.config = config
         self.core = self.config['mcu']['core']
+        self.fpu = self.core[-1] == 'f'
 
     def get_tool_configuration(self, tool):
         if not(tool in self.supported_tools):
             logging.critical("Target %s does not support %s." % (self.name,tool))
             return None
         return self.config['tool_specific'][tool]
-
 
 class Targets:
 

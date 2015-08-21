@@ -143,10 +143,6 @@ class Uvision(Builder, Exporter):
             # does not exist, create it
             data['uvision_settings'] = mcu_def['TargetOption']
 
-    def _normalize_mcu_def(self, mcu_def):
-        for k, v in mcu_def['TargetOption'].items():
-            mcu_def['TargetOption'][k] = v[0]
-
     def _fix_paths(self, data, rel_path):
         data['includes'] = [join(rel_path, normpath(path)) for path in data['includes']]
 
@@ -192,15 +188,21 @@ class Uvision(Builder, Exporter):
         if mcu_def_dic is None:
             return None
             # self.normalize_mcu_def(mcu_def_dic)
-        self._normalize_mcu_def(mcu_def_dic)
         logging.debug("Mcu definitions: %s" % mcu_def_dic)
         self.append_mcu_def(expanded_dic, mcu_def_dic)
-            # self.append_mcu_def(expanded_dic, mcu_def_dic)
         # load debugger
         driver = self.definitions.debuggers[expanded_dic['debugger']]['TargetDlls']['Driver']
         expanded_dic['uvision_settings']['TargetDlls']['Driver'] = driver
         # optimization set to correct value, default not used
         expanded_dic['uvision_settings']['Cads']['Optim'][0] = 1
+
+        expanded_dic ['core'] = expanded_dic ['target'].core
+        if expanded_dic ['target'].fpu:
+            expanded_dic['core'] = expanded_dic['core'][:-1]
+            expanded_dic['uvision_settings']['Cpu'] = "CPUTYPE(\""+expanded_dic['core']+"\")"
+            expanded_dic['uvision_settings']['Cpu'] += " FPU2"
+        else:
+            expanded_dic['uvision_settings']['Cpu'] = "CPUTYPE(\""+expanded_dic['core']+"\")"
 
         # Project file
         self.gen_file_jinja(

@@ -28,7 +28,7 @@ FILES_EXTENSIONS = {
     'source_files_s': ['s'],
     'source_files_c': ['c'],
     'source_files_cpp': ['cpp', 'cc'],
-    'source_files_lib': ['_lib', 'ar', 'a'],
+    'source_files_a': ['ar', 'a'],
     'source_files_obj': ['o', 'obj'],
     'linker_file': ['sct', 'ld', 'lin', 'icf'],
 }

@@ -108,10 +108,8 @@ class IAREmbeddedWorkbench(Builder, Exporter):
     def _normalize_mcu_def(self, mcu_def):
         for k,v in mcu_def['OGChipSelectEditMenu'].items():
             # hack to insert tab as IAR using tab for MCU definitions
-            v[0] = v[0].replace(' ', '\t', 1)
-            mcu_def['OGChipSelectEditMenu'][k] = v[0]
-        for k,v in mcu_def['OGCoreOrChip'].items():
-            mcu_def['OGCoreOrChip'][k] = v[0]
+            v = v.replace(' ', '\t', 1)
+            mcu_def['OGChipSelectEditMenu'][k] = v
 
     def _fix_paths(self, data, rel_path):
         """ All paths needs to be fixed - add PROJ_DIR prefix + normalize """
@@ -167,6 +165,9 @@ class IAREmbeddedWorkbench(Builder, Exporter):
         mcu_def_dic = expanded_dic['target'].get_tool_configuration('iar')
         if mcu_def_dic is None:
             return None
+        
+        if expanded_dic['target'].fpu:
+            expanded_dic['iar_settings']['fpu'] = True
         self._normalize_mcu_def(mcu_def_dic)
         logging.debug("Mcu definitions: %s" % mcu_def_dic)
         expanded_dic['iar_settings'].update(mcu_def_dic)

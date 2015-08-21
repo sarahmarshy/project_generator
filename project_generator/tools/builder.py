@@ -43,4 +43,7 @@ class Builder:
                 sys.stdout.write(" succeeded with %s\n" % tool.ERRORLEVEL[ret_code])
                 return 0
             else:
-                return 0
+                if ret_code == tool.ERRORVALUE:
+                    return -1
+                else:
+                    return 0

@@ -27,6 +27,9 @@ from ..targets import Targets
 
 class IAREmbeddedWorkbench(Builder, Exporter):
 
+    SUCCESSVALUE = 0
+    ERRORVALUE = 1
+
     source_files_dic = [
         'source_files_c', 'source_files_s', 'source_files_cpp', 'source_files_a', 'source_files_obj']
 

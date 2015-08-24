@@ -23,7 +23,7 @@ GCC_BIN_PATH
 import os
 from collections import defaultdict
 from os.path import expanduser, normpath, join, pardir, sep
-
+import logging
 
 class ProjectSettings:
     PROJECT_ROOT = os.environ.get('PROJECT_GENERATOR_ROOT') or join(pardir, pardir)
@@ -67,6 +67,7 @@ class ProjectSettings:
                 self.export_location_format = normpath(settings['export_dir'][0])
 
     def update_definitions_dir(self, def_dir):
+        logging.info("Updating target definitions directory to %s."%normpath(def_dir))
         self.paths['definitions'] = normpath(def_dir)
 
     def get_env_settings(self, env_set):

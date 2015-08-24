@@ -148,10 +148,13 @@ class Project:
                  if attribute in self.project.keys():  # Is this also a key is self.project?
                      if type(self.project[attribute]) is list:
                          if type(data) is list:
+                             logging.debug("Setting %s to %s"%(attribute,", ".join(data)))
                              self.project[attribute].extend(data)
                          else:
+                            logging.debug("Setting %s to %s"%(attribute,data))
                             self.project[attribute].append(data)
                      else:
+                         logging.debug("Setting %s to %s"%(attribute,data[0]))
                          self.project[attribute] = data[0]  # self.project attribute is a string, only room for 1 value
 
     def _fix_includes_and_sources(self):
@@ -279,6 +282,7 @@ class Project:
             return None
         if copy:
             self.project['copy_sources'] = True
+            logging.info("Copying sources to output directory.")
             self.copy_files()
         if self.project['target'] is None:
             return None
@@ -298,7 +302,7 @@ class Project:
         # None is an error
         if builder is None:
             return None
-        logging.debug("Building for tool: %s", build_tool)
+        logging.info("Building for tool: %s", build_tool)
         result = builder(self.project, self.settings).build_project()
         return result
 

@@ -212,6 +212,6 @@ class MakefileGccArm(Exporter):
 
         ret = Builder.build_command(args, self, "GCC", path.split(os.path.sep)[-1])
         if ret < 0 and logging.getLogger().isEnabledFor(logging.DEBUG) and sys.platform.startswith('win'):
-            logging.debug("If the build failed because of unfound files, check that the paths are less than 260 chars."
-                          " Windows limits paths to this length, so try moving files to a shorter path.")
+            logging.debug("If the build failed because of unfound files, try to shorten path lengths."
+                          " Windows limits the length when paths are long.")
         return ret

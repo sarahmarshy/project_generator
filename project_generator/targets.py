@@ -46,6 +46,7 @@ class Targets:
     }
 
     def __init__(self, directory=None):
+        logging.debug("Target definitions captured from %s."%directory)
         if directory:
             self.definitions_directory = directory
             self.targets = [Target(splitext(f)[0],self._find_tools(f),self._load_record(f)) for f in listdir(directory)

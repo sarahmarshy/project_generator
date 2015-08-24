@@ -52,11 +52,16 @@ def _scan(section, root, directory, extensions):
     return l
 
 def _generate_file(filename,root,directory,data):
-    logging.debug('Generating yaml file ' + filename)
+    logging.debug('Writing the follwoing to %s:\n%s'%(filename,yaml.dump(data)))
     if os.path.isfile(os.path.join(directory, filename)):
         os.remove(filename)
-    with open(os.path.join(root, filename), 'w+') as f:
-        f.write(yaml.dump(data, default_flow_style=False))
+    try:
+        with open(os.path.join(root, filename), 'w+') as f:
+            f.write(yaml.dump(data, default_flow_style=False))
+    except:
+        logging.error("Unable to open %s for writing!"%filename)
+        return -1
+    logging.info("Wrote to file %s."%filename)
     p = os.popen('attrib +h ' + filename) # make the file hidden
     p.close()
     return 0
@@ -65,6 +70,7 @@ def _generate_file(filename,root,directory,data):
 def create_yaml(root, directory, project_name, board):
     # lay out what the common section a project yaml file will look like
     # The value mapped to by each key are the file extensions that will help us get valid files for each section
+    logging.debug("Project name: %s, Target: %s"%(project_name,board))
     common_section = {
         'linker_file': FILES_EXTENSIONS['linker_file'],
         'sources': FILES_EXTENSIONS['source_files_c'] + FILES_EXTENSIONS['source_files_cpp'] +

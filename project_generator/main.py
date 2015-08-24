@@ -46,7 +46,7 @@ def main():
     parser.add_argument('-v', dest='verbosity', action='count', default=0,
                         help='Increase the verbosity of the output (repeat for more verbose output)')
     parser.add_argument('-q', dest='quietness', action='count', default=0,
-                        help='Decrease the verbosity of the output (repeat for more verbose output)')
+                        help='Decrease the verbosity of the output (repeat for less verbose output)')
 
     parser.add_argument("--version", action='version',
                         version=pkg_resources.require("project_generator")[0].version, help="Display version")
@@ -63,9 +63,8 @@ def main():
 
     # set the verbosity
     verbosity = args.verbosity - args.quietness
-
     logging_level = max(logging.INFO - (10 * verbosity), 0)
-    logging.basicConfig(format="%(levelname)s\t%(message)s", level=logging_level)
+    logging.basicConfig(format="%(levelname)s: %(message)s", level=logging_level)
 
     logging.debug('This should be the project root: %s', os.getcwd())
 

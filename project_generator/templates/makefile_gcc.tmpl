@@ -68,7 +68,11 @@ else
 endif
 
 COMPILER_OPTIONS  = {% for option in compiler_options %} -{{option}} {% endfor %}
-C_COMPILER_OPTIONS += -mcpu=$(CPU) -m$(INSTRUCTION_MODE) -mfpu=$(FPU) $(COMPILER_OPTIONS) $(CC_SYMBOLS)
+C_COMPILER_OPTIONS += -mcpu=$(CPU) -m$(INSTRUCTION_MODE)
+{% if fpu %}
+	C_COMPILER_OPTIONS += -mfpu=$(FPU)
+{% endif %}
+C_COMPILER_OPTIONS +=  $(COMPILER_OPTIONS) $(CC_SYMBOLS)
 AS_COMPILER_OPTIONS += -mcpu=$(CPU) -m$(INSTRUCTION_MODE) -c -x assembler-with-cpp
 
 # Flags

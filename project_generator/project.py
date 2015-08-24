@@ -56,7 +56,7 @@ class Project:
         self.supported = list(set(self.supported))
         #if tool is default, we are just extracting yaml ingformation to see what tools are possible
         if self.tool not in self.supported and tool != "default":
-            logging.critical("The tool name \"%s\" is not supported in yaml!"%self.tool)
+            logging.error("The tool name \"%s\" is not supported in yaml!"%self.tool, exc_info = False)
             return None
 
         self._fix_includes_and_sources()
@@ -68,6 +68,7 @@ class Project:
         self._set_output_dir_path()  # determines where generated projects will go
         # ignore any path that has the output directory in it
         self.ignore_dirs.append(str(".*"+self.project['output_dir']['path']+".*"))
+        logging.debug("Ignoring the following directories: %s"%", ".join(self.ignore_dirs))
         return 1
 
     def _fill_project_defaults(self):
@@ -90,6 +91,7 @@ class Project:
             'source_files_a': {},   # [internal] libraries
             'macros': [],               # macros (defines)
             'mcu'   : {},
+            'fpu'   : None,
             'misc': {},                 # misc tools settings, which are parsed by tool
             'output_dir': {             # [internal] The generated path dict
                 'path': '',             # path with all name mangling we add to export_dir
@@ -233,14 +235,16 @@ class Project:
         if tool is None:
             options = ToolsSupported().get_supported() + ToolsSupported().TOOLS_ALIAS.keys()
             options.sort()
-            logging.critical("The tool name \"%s\" is not valid! \nChoose from: \n%s"% (alias, ", ".join(options)))
+            logging.error("The tool name \"%s\" is not valid! \nChoose from: \n%s"% (alias, ", ".join(options)),exc_info= False)
             return None
         else:
+            logging.debug("%s resolved to %s"%(alias,tool))
             return tool
 
     def _try_open_file(self, filename):
         if(os.path.exists(filename)):
             with open(filename, 'rt') as f:
+                logging.info("Settings captured from %s."%filename)
                 return yaml.load(f)
         else:
             logging.critical("The file %s doesn't exist." % filename)
@@ -250,12 +254,16 @@ class Project:
         """ Exports a project """
         if self.for_tool(tool) is None:
             return None
+        targets = Targets(self.settings.get_env_settings('definitions'))
+        self.project['target'] = targets.get_target(self.project['target'])
 
         if target_settings is not None:
             target_settings = self._try_open_file(target_settings)
             if target_settings is None:
                 return None
             self.project['macros'] = target_settings['macros']
+            if 'MCU' in target_settings and 'fpu' in target_settings['MCU']:
+                self.project['fpu']= target_settings['MCU']['fpu']
         if tool_settings is not None:
             tool_settings = self._try_open_file(tool_settings)
             if tool_settings is None:
@@ -269,12 +277,10 @@ class Project:
         if copy:
             self.project['copy_sources'] = True
             self.copy_files()
-
-        targets = Targets(self.settings.get_env_settings('definitions'))
-        self.project['target'] = targets.get_target(self.project['target'])
         if self.project['target'] is None:
             return None
 
+        logging.info("Project %s being generated for %s."%(self.project['name'],self.tool))
         result = exporter(self.project, self.settings).generate_project()
         return result
 
@@ -324,6 +330,7 @@ class Project:
         self.project['output_dir']['path'] = os.path.normpath(location)
         path = self.project['output_dir']['path']
         self.project['output_dir']['rel_path'], self.project['output_dir']['rel_count'] = self._generate_output_dir(path)
+        logging.debug("Output directory: %s"%self.project['output_dir']['rel_path']+self.project['output_dir']['path'])
 
     def copy_files(self):
         """" Copies all project files to specified directory - generated dir"""

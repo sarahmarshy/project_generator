@@ -20,13 +20,12 @@ help = 'Create a project record'
 
 
 def run(args):
-    logging.debug("Generating the records.")
-
     root = os.getcwd()
     directory = root if not args.directory else os.path.join(root, args.directory)
+    logging.info("Generating the records for %s."%directory)
     name = os.path.split(directory)[1] if not args.name else args.name
     create_yaml(root, directory, name, args.target.lower())
-
+    logging.info("Yaml files generated.")
 
 def setup(subparser):
     subparser.add_argument(

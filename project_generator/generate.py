@@ -2,6 +2,7 @@ from project import *
 import logging
 class Generator:
     def __init__(self, projects_file):
+        logging.debug("Reading from %s"%projects_file)
         if type(projects_file) is not dict:
             with open(projects_file, 'rt') as f:
                 self.projects_dict = yaml.load(f)
@@ -15,6 +16,7 @@ class Generator:
                 # Check if the name they specified is even in the yaml ile
                 if name not in self.projects_dict['projects'].keys():
                     logging.critical("You specified an invalid project name.")
+                    yield None
                 else:
                     # Get the portion of the yaml that is just the project specified
                     records = self.projects_dict['projects'][name]
@@ -33,7 +35,7 @@ class Generator:
                     else:
                         yield None
         else:
-            logging.debug("No projects found in the main record file.")
+            logging.warning("No projects found in the main record file.")
 
 
 

@@ -22,6 +22,7 @@ from ..targets import Targets
 import logging
 import ntpath
 import shutil
+import sys
 
 class MakefileGccArm(Exporter):
 
@@ -182,7 +183,7 @@ class MakefileGccArm(Exporter):
 
         target = Targets(self.env_settings.get_env_settings('definitions'))
 
-        data['core'] = data['target'].core[0]
+        data['core'] = data['target'].core
         # gcc arm is funny about cortex-m4f.
         # gcc arm is funny about cortex-m4f.
         if data['core'] == 'cortex-m4f':
@@ -202,16 +203,15 @@ class MakefileGccArm(Exporter):
         path = self.workspace['output_dir']['path']
         os.chdir(path)
         if os.path.exists("build"):
-            answer = raw_input('\nBuild directory exists. Delete? (y/n)')
-            answer = answer.lower()
-            if answer == 'y':
-                    shutil.rmtree("build")
-            else:
-                return
+            shutil.rmtree("build")
 
         if logging.getLogger().isEnabledFor(logging.DEBUG):
             args = ['make', 'all']
         else:
             args =['make','-s','all']
 
-        Builder.build_command(args, self, "GCC", path.split(os.path.sep)[-1])
+        ret = Builder.build_command(args, self, "GCC", path.split(os.path.sep)[-1])
+        if ret < 0 and logging.getLogger().isEnabledFor(logging.DEBUG) and sys.platform.startswith('win'):
+            logging.debug("If the build failed because of unfound files, check that the paths are less than 260 chars."
+                          " Windows limits paths to this length, so try moving files to a shorter path.")
+        return ret

@@ -26,7 +26,9 @@ def run(args):
         for project in generator.generate(args.project, args.ignore):
             #generate a project file for each one for the specified tool
             if project is None or project.generate(args.copy, args.tool, args.target, args.settings) is None:
+                logging.critical("Failed to generate project files for %s.",project.name)
                 sys.exit(1)
+            logging.info("%s generated successfully for %s."%(project.name,project.tool))
     else:
         # not project known by pgen
         logging.warning("%s not found." % args.file)

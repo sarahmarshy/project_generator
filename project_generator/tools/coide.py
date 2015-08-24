@@ -65,7 +65,7 @@ class Coide(Exporter, Builder):
 
     @staticmethod
     def get_toolnames():
-        return ['gcc_arm']
+        return ['coide', 'make_gcc_arm']
 
     @staticmethod
     def get_toolchain():

@@ -28,15 +28,6 @@ class EclipseGnuARM(Exporter, Builder):
                         'source_files_cpp', 'source_files_obj']
     file_types = {'cpp': 1, 'c': 1, 's': 1, 'obj': 1, 'o': 1,'lib': 1}
 
-    generated_project = {
-        'path': '',
-        'files': {
-            'proj_file': '',
-            'cproj': '',
-            'makefile': '',
-        }
-    }
-
     def __init__(self, workspace, env_settings):
         self.definitions = 0
         self.exporter = MakefileGccArm(workspace, env_settings)
@@ -94,14 +85,11 @@ class EclipseGnuARM(Exporter, Builder):
     def generate_project(self):
         """ Processes groups and misc options specific for eclipse, and run generator """
 
-        generated_projects = {}
-
-        output = copy.deepcopy(self.generated_project)
         data_for_make = self.workspace.copy()
 
         self.exporter.process_data_for_makefile(data_for_make)
 
-        output['path'], output['files']['makefile'] = self.gen_file_jinja('makefile_gcc.tmpl', data_for_make, 'Makefile', data_for_make['output_dir']['path'])
+        self.gen_file_jinja('makefile_gcc.tmpl', data_for_make, 'Makefile', data_for_make['output_dir']['path'])
 
         expanded_dic = self.workspace.copy()
 

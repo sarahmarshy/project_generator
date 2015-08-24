@@ -130,6 +130,7 @@ class Project:
                         # Example case. Tool = Sublime, but yaml defines info for GCC
                         # Pgen should pick up the yaml settings for GCC
                         self._set_project_attributes(project_file_data['tool_specific'],toolchain)
+
                 if 'linker_file' in settings and self.project['output_type'] == 'exe':
                     """ Yield this valid tool so we can determine what tools the project can be
                         succesfully generated for """

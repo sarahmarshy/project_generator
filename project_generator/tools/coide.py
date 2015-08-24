@@ -175,7 +175,7 @@ class Coide(Exporter, Builder):
             i += 1
         return None
 
-    def export_project(self):
+    def generate_project(self):
         """ Processes groups and misc options specific for CoIDE, and run generator """
         expanded_dic = self.workspace.copy()
 

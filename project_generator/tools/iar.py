@@ -138,7 +138,7 @@ class IAREmbeddedWorkbench(Builder, Exporter):
         args = [join(self.env_settings.get_env_settings('iar'), 'IarBuild.exe'), proj_path, '-build', os.path.splitext(os.path.basename(proj_path))[0]]
         Builder().build_command(args,self,"IAR",proj_name)
 
-    def export_project(self):
+    def generate_project(self):
         """ Processes groups and misc options specific for IAR, and run generator """
         expanded_dic = self.workspace.copy()
 

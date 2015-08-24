@@ -22,34 +22,22 @@ from project_generator.project import Project
 from project_generator.settings import ProjectSettings
 from project_generator.tools.gccarm import MakefileGccArm
 
-from .simple_project import project_1_yaml, projects_1_yaml
+from simple_project import project_1, projects_yaml, make_files, delete_files
 
 class TestProject(TestCase):
 
     """test things related to the gccarm tool"""
 
     def setUp(self):
-        if not os.path.exists('test_workspace'):
-            os.makedirs('test_workspace')
-        # write project file
-        with open(os.path.join(os.getcwd(), 'test_workspace/project_1.yaml'), 'wt') as f:
-            f.write(yaml.dump(project_1_yaml, default_flow_style=False))
-        # write projects file
-        with open(os.path.join(os.getcwd(), 'test_workspace/projects.yaml'), 'wt') as f:
-            f.write(yaml.dump(projects_1_yaml, default_flow_style=False))
+        make_files()
 
-        self.project = next(Generator(projects_1_yaml).generate('project_1'))
-
+        self.project = next(Generator(projects_yaml).generate('project_1'))
         self.gccarm = MakefileGccArm(self.project.project, ProjectSettings())
 
     def tearDown(self):
         # remove created directory
-        shutil.rmtree('test_workspace', ignore_errors=True)
-        shutil.rmtree('generated_projects', ignore_errors=True)
+        delete_files()
 
     def test_export_project(self):
-        result = self.project.generate('make_gcc_arm', False)
-        projectfiles = self.project.get_generated_project_files('make_gcc_arm')
-
+        result = self.project.generate(False,'make_gcc_arm')
         assert result == 0
-        assert projectfiles

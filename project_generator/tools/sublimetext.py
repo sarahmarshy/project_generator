@@ -44,7 +44,7 @@ class SublimeTextMakeGccARM(MakefileGccArm):
             fixed_paths.append(path.replace('\\', '/'))
         data['source_paths'] = fixed_paths
 
-    def export_project(self):
+    def generate_project(self):
         """ Processes misc options specific for GCC ARM, and run generator. """
         output = copy.deepcopy(self.generated_project)
         self.process_data_for_makefile(self.workspace)
@@ -53,13 +53,9 @@ class SublimeTextMakeGccARM(MakefileGccArm):
 
         output['path'], output['files']['makefile'] = self.gen_file_jinja('makefile_gcc.tmpl', self.workspace, 'Makefile', self.workspace['output_dir']['path'])
 
-        self.workspace['buildsys_name'] = 'Make'
-        self.workspace['buildsys_cmd'] = 'make all'
-
-        path, output['files']['sublimetext'] = self.gen_file_jinja(
-            'sublimetext.sublime-project.tmpl', self.workspace, '%s.sublime-project' % self.workspace['name'], self.workspace['output_dir']['path'])
-        generated_projects = output
-        return generated_projects
+        self.gen_file_jinja('sublimetext.sublime-project.tmpl', self.workspace,
+                            '%s.sublime-project' % self.workspace['name'], self.workspace['output_dir']['path'])
+        return 0
 
     def get_generated_project_files(self):
         return {'path': self.workspace['path'], 'files': [self.workspace['files']['sublimetext'], self.workspace['files']['makefile']]}

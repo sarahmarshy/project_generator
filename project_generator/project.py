@@ -45,10 +45,6 @@ class Project:
             if self.tool is None:
                 return None
         self._fill_project_defaults()  # default dictionary needed for project
-        self._set_output_dir_path()  # determines where generated projects will go
-
-        # ignore any path that has the output directory in it
-        self.ignore_dirs.append(str(".*"+self.project['output_dir']['path']+".*"))
 
         self.supported = []  # tools that project's yaml files define
         for dict in self.project_dicts:  # iterates over the dictionaries defined in yaml file
@@ -57,6 +53,7 @@ class Project:
                 for tools in self._find_supported_tools(t):
                     # iterate over these valid tools and find what tools user can generate for in command line
                     self.supported.extend(tools)
+        self.supported = list(set(self.supported))
         #if tool is default, we are just extracting yaml ingformation to see what tools are possible
         if self.tool not in self.supported and tool != "default":
             logging.critical("The tool name \"%s\" is not supported in yaml!"%self.tool)
@@ -67,6 +64,10 @@ class Project:
         if self.project['linker_file'] is None and tool!="default":
             logging.critical("No linker file found")
             return None
+
+        self._set_output_dir_path()  # determines where generated projects will go
+        # ignore any path that has the output directory in it
+        self.ignore_dirs.append(str(".*"+self.project['output_dir']['path']+".*"))
         return 1
 
     def _fill_project_defaults(self):
@@ -214,7 +215,6 @@ class Project:
 
             extension = source_file.split('.')[-1]
             extension = FILE_MAP[extension] if extension in FILE_MAP else extension
-
             if extension not in MAIN_FILES:
                 continue
 
@@ -245,7 +245,7 @@ class Project:
             logging.critical("The file %s doesn't exist." % filename)
             return None
 
-    def generate(self, copy, tool, target_settings, tool_settings):
+    def generate(self, copy, tool, target_settings=None, tool_settings=None):
         """ Exports a project """
         if self.for_tool(tool) is None:
             return None
@@ -261,13 +261,10 @@ class Project:
                 return None
             self.project['misc'] = tool_settings
 
-        generated_files = {}
-        result = 0
         exporter = ToolsSupported().get_tool(self.tool)
-
         # None is an error
         if exporter is None:
-            result = -1
+            return None
         if copy:
             self.project['copy_sources'] = True
             self.copy_files()
@@ -277,13 +274,12 @@ class Project:
         if self.project['target'] is None:
             return None
 
-        result = exporter(self.project, self.settings).export_project()
+        result = exporter(self.project, self.settings).generate_project()
         return result
 
     def build(self, tool):
         """build the project"""
-        self.tool = self._resolve_tool(tool)
-        if self.tool is None:
+        if self.for_tool(tool) is None:
             return None
         self._set_output_dir_path()
         build_tool = self.tool
@@ -292,7 +288,6 @@ class Project:
         # None is an error
         if builder is None:
             result = -1
-
         logging.debug("Building for tool: %s", build_tool)
         result = builder(self.project, self.settings).build_project()
         return result
@@ -314,11 +309,15 @@ class Project:
             else:
                 location_format = self.settings.export_location_format
 
+        try:
+            target = self.project['target'].name
+        except:
+            target = self.project['target']
         # substitute all of the different dynamic values
         location = PartialFormatter().format(location_format, **{
             'project_name': self.name,
             'tool': self.tool,
-            'target': self.project['target']
+            'target': target
         })
 
         self.project['output_dir']['path'] = os.path.normpath(location)

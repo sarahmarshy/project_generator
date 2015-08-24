@@ -158,10 +158,7 @@ class MakefileGccArm(Exporter):
         for k,v in data['mcu'].items():
             data[k] = v
 
-    def export_workspace(self):
-        logging.debug("Current version of CoIDE does not support workspaces")
-
-    def export_project(self):
+    def generate_project(self):
         """ Processes misc options specific for GCC ARM, and run generator. """
         generated_projects = copy.deepcopy(self.generated_projects)
         self.process_data_for_makefile(self.workspace)

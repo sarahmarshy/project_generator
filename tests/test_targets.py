@@ -17,7 +17,6 @@ from unittest import TestCase
 
 from project_generator.targets import Targets
 from project_generator.settings import ProjectSettings
-from project_generator.commands.update import update
 
 class TestProject(TestCase):
 
@@ -25,26 +24,21 @@ class TestProject(TestCase):
 
     def setUp(self):
         settings = ProjectSettings()
-        update(False, settings)
         self.targets = Targets(settings.get_env_settings('definitions'))
 
     def test_target(self):
-        target = self.targets.get_mcu_record('frdm-k64f')
+        target = self.targets.get_target('k64f')
         # it's not empty dictionary and has at least mcu and tool specific
         assert bool(target)
-        assert bool(target['mcu'])
-        assert bool(target['tool_specific'])
+        assert bool(target.config['mcu'])
+        assert bool(target.config['tool_specific'])
 
     def test_core(self):
-        core = self.targets.get_mcu_core('frdm-k64f')
-        assert core[0] == 'cortex-m4f'
-
-    def test_tool_def_nonexist(self):
-        tool_def = self.targets.get_tool_def('frdm-k64f', 'notexists')
-        assert tool_def is None
+        core = self.targets.get_target('k64f').core
+        assert core == 'cortex-m4f'
 
     def test_tool_def(self):
         # test k64f for uvision, should not be empty
-        tool_def = self.targets.get_tool_def('frdm-k64f', 'uvision')
+        tool_def = self.targets.get_target('k64f').get_tool_configuration('uvision')
         assert bool(tool_def)
 

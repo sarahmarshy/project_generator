@@ -166,7 +166,7 @@ class Uvision(Builder, Exporter):
         if data['linker_file']:
             data['linker_file'] = join(rel_path, normpath(data['linker_file']))
 
-    def export_project(self):
+    def generate_project(self):
         expanded_dic = self.workspace.copy()
 
         groups = self._get_groups(self.workspace)

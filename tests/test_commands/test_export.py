@@ -19,7 +19,7 @@ import shutil
 
 from unittest import TestCase
 
-from project_generator.commands import generate
+import subprocess
 from simple_project import project_1_yaml, projects_yaml, project_2_yaml
 
 class TestgenerateCommand(TestCase):
@@ -39,87 +39,55 @@ class TestgenerateCommand(TestCase):
         with open(os.path.join(os.getcwd(), 'test_workspace/projects.yaml'), 'wt') as f:
             f.write(yaml.dump(projects_yaml, default_flow_style=False))
 
-        self.parser = argparse.ArgumentParser()
-        subparsers = self.parser.add_subparsers(help='commands')
-        self.subparser = subparsers.add_parser('generate', help=generate.help)
-
     def tearDown(self):
         # remove created directory
         shutil.rmtree('test_workspace', ignore_errors=True)
         shutil.rmtree('generated_projects', ignore_errors=True)
 
     def test_generate_one_project_uvision(self):
-        generate.setup(self.subparser)
-        args = self.parser.parse_args(['generate','-f','test_workspace/projects.yaml','-p','project_2',
-            '-t', 'uvision'])
-        result = generate.run(args)
-
-        # TODO 0xc0170: we need to return valid values, then we enable this assert
-        # assert result == 0
-
-        # this should generate a project to generated_projects/uvision_project_2/project_2.uvproj
+        #generate.setup(self.subparser)
+        args = ['pgen','generate','-f','test_workspace/projects.yaml','-p','project_2',
+            '-t', 'uvision']
+        subprocess.call(args)
         assert os.path.isfile('generated_projects/uvision_project_2/project_2.uvproj')
 
     def test_generate_one_project_iar_arm(self):
-        generate.setup(self.subparser)
-        args = self.parser.parse_args(['generate','-f','test_workspace/projects.yaml','-p','project_2',
-            '-t', 'iar_arm'])
-        result = generate.run(args)
+        args = ['pgen','generate','-f','test_workspace/projects.yaml','-p','project_2',
+            '-t', 'iar_arm']
+        subprocess.call(args)
 
-        # TODO 0xc0170: we need to return valid values, then we enable this assert
-        # assert result == 0
-
-        # this should generate a project to generated_projects/uvision_project_2/project_2.ewp/ewd/eww
         assert os.path.isfile('generated_projects/iar_arm_project_2/project_2.ewp')
-        assert os.path.isfile('generated_projects/iar_arm_project_2/project_2.ewd')
         assert os.path.isfile('generated_projects/iar_arm_project_2/project_2.eww')
 
     def test_generate_one_project_make_gcc_arm(self):
-        generate.setup(self.subparser)
-        args = self.parser.parse_args(['generate','-f','test_workspace/projects.yaml','-p','project_2',
-            '-t', 'make_gcc_arm'])
-        result = generate.run(args)
-
-        # TODO 0xc0170: we need to return valid values, then we enable this assert
-        # assert result == 0
-        # this should generate a project to generated_projects/uvision_project_2/Makefile
+        args = ['pgen','generate','-f','test_workspace/projects.yaml','-p','project_2',
+            '-t', 'make_gcc_arm']
+        subprocess.call(args)
         assert os.path.isfile('generated_projects/make_gcc_arm_project_2/Makefile')
 
     def test_generate_one_project_coide(self):
-        generate.setup(self.subparser)
-        args = self.parser.parse_args(['generate','-f','test_workspace/projects.yaml','-p','project_2',
-            '-t', 'coide'])
-        result = generate.run(args)
-
-        # TODO 0xc0170: we need to return valid values, then we enable this assert
-        # assert result == 0
-
-        # this should generate a project to generated_projects/uvision_project_2/project_2.coproj
+        args = ['pgen','generate','-f','test_workspace/projects.yaml','-p','project_2',
+            '-t', 'coide']
+        subprocess.call(args)
         assert os.path.isfile('generated_projects/coide_project_2/project_2.coproj')
 
     def test_generate_one_project_arm_none_eabi_gdb(self):
-        generate.setup(self.subparser)
-        args = self.parser.parse_args(['generate','-f','test_workspace/projects.yaml','-p','project_2',
-            '-t', 'arm_none_eabi_gdb'])
-        result = generate.run(args)
-
-        # TODO 0xc0170: we need to return valid values, then we enable this assert
-        # assert result == 0
+        args = ['pgen','generate','-f','test_workspace/projects.yaml','-p','project_2',
+            '-t', 'arm_none_eabi_gdb']
+        subprocess.call(args)
 
     def test_generate_one_project_sublime_make_gcc_arm(self):
-        generate.setup(self.subparser)
-        args = self.parser.parse_args(['generate','-f','test_workspace/projects.yaml','-p','project_2',
-            '-t', 'sublime_make_gcc_arm'])
-        result = generate.run(args)
+        args = ['pgen','generate','-f','test_workspace/projects.yaml','-p','project_2',
+            '-t', 'sublime_make_gcc_arm']
+        subprocess.call(args)
 
         # TODO 0xc0170: we need to return valid values, then we enable this assert
         # assert result == 0
 
     def test_generate_one_project_eclipse_make_gcc_arm(self):
-        generate.setup(self.subparser)
-        args = self.parser.parse_args(['generate','-f','test_workspace/projects.yaml','-p','project_2',
-            '-t', 'eclipse_make_gcc_arm'])
-        result = generate.run(args)
+        args = ['pgen','generate','-f','test_workspace/projects.yaml','-p','project_2',
+            '-t', 'eclipse_make_gcc_arm']
+        subprocess.call(args)
 
         # TODO 0xc0170: we need to return valid values, then we enable this assert
         # assert result == 0

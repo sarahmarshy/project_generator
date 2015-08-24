@@ -63,7 +63,7 @@ class ARMNoneEABIGDB(GDB):
     def get_toolchain():
         return None
 
-    def export_project(self):
+    def generate_project(self):
         generated_projects = copy.deepcopy(self.generated_project)
         expanded_dic = self.workspace.copy()
         

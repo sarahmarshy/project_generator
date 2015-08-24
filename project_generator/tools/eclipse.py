@@ -91,7 +91,7 @@ class EclipseGnuARM(Exporter, Builder):
     def build_project(self):
         self.exporter.build_project()
 
-    def export_project(self):
+    def generate_project(self):
         """ Processes groups and misc options specific for eclipse, and run generator """
 
         generated_projects = {}
@@ -129,11 +129,11 @@ class EclipseGnuARM(Exporter, Builder):
         self._iterate(self.workspace, expanded_dic, expanded_dic['rel_path'])
         # Project file
 
-        project_path, output['files']['cproj'] = self.gen_file_jinja(
+        self.gen_file_jinja(
             'eclipse_makefile.cproject.tmpl', expanded_dic, '.cproject', data_for_make['output_dir']['path'])
-        project_path, output['files']['proj_file'] = self.gen_file_jinja(
+        self.gen_file_jinja(
             'eclipse.project.tmpl', expanded_dic, '.project', data_for_make['output_dir']['path'])
-        return output
+        return 0
 
     def get_generated_project_files(self):
         return {'path': self.workspace['path'], 'files': [self.workspace['files']['proj_file'], self.workspace['files']['cproj'],

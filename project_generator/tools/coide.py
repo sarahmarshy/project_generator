@@ -273,12 +273,10 @@ class Coide(Exporter, Builder):
     def get_generated_project_files(self):
         return {'path': self.workspace['path'], 'files': [self.workspace['files']['coproj']]}
 
-    def get_mcu_definition(self, project_file):
+    def get_mcu_definition(self, project_file, mcu):
         """ Parse project file to get mcu definition """
         project_file = join(getcwd(), project_file)
         coproj_dic = xmltodict.parse(file(project_file), dict_constructor=dict)
-
-        mcu = Targets().get_mcu_definition()
 
         IROM1_index = self._coproj_find_option(coproj_dic['Project']['Target']['BuildOption']['Link']['MemoryAreas']['Memory'], '@name', 'IROM1')
         IROM2_index = self._coproj_find_option(coproj_dic['Project']['Target']['BuildOption']['Link']['MemoryAreas']['Memory'], '@name', 'IROM2')

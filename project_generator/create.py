@@ -120,7 +120,7 @@ def create_yaml(root, directory, project_name, board):
             # The project directory defined more than one linker for a tool
             print "\nMultipe linkers found for " + tool + "\n"
             for i, file in enumerate(linker):
-                print str(i) + ": " + file
+                print(str(i) + ": " + file)
             answer = raw_input('\nWhich file do you want? ')
             while int(answer) not in range(0,len(linker)):
                 answer = raw_input('Answer not in list. Which file do you want? ')

@@ -254,7 +254,10 @@ class Project:
         """ Exports a project """
         if self.for_tool(tool) is None:
             return None
+        #Targets object
         targets = Targets(self.settings.get_env_settings('definitions'))
+        #Targets keeps a list of available targets in definitions directory
+        #We get the target object with the project's target name
         self.project['target'] = targets.get_target(self.project['target'])
 
         if target_settings is not None:
@@ -294,7 +297,7 @@ class Project:
         builder = ToolsSupported().get_tool(build_tool)
         # None is an error
         if builder is None:
-            result = -1
+            return None
         logging.debug("Building for tool: %s", build_tool)
         result = builder(self.project, self.settings).build_project()
         return result

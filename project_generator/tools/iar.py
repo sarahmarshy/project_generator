@@ -172,12 +172,10 @@ class IAREmbeddedWorkbench(Builder, Exporter):
         return {'path': self.workspace['path'], 'files': [self.workspace['files']['ewp'], self.workspace['files']['eww'],
             self.workspace['files']['ewd']]}
 
-    def get_mcu_definition(self, project_file):
+    def get_mcu_definition(self, project_file, mcu):
         """ Parse project file to get mcu definition """
         project_file = join(getcwd(), project_file)
         ewp_dic = xmltodict.parse(file(project_file), dict_constructor=dict)
-
-        mcu = Targets().get_mcu_definition()
 
         # we take 0 configuration or just configuration, as multiple configuration possibl
         # debug, release, for mcu - does not matter, try and adjust
@@ -190,14 +188,12 @@ class IAREmbeddedWorkbench(Builder, Exporter):
         index_option = self._get_option(configuration['settings'][index_general]['data']['option'], 'OGChipSelectEditMenu')
         OGChipSelectEditMenu = configuration['settings'][index_general]['data']['option'][index_option]
 
-        mcu['tool_specific'] = {
-            'iar' : {
-                'OGChipSelectEditMenu' : {
-                    'state' : [OGChipSelectEditMenu['state'].replace('\t', ' ', 1)],
-                },
-                'OGCoreOrChip' : {
-                    'state' : [1],
-                },
+        mcu['tool_specific']['iar'] = {
+            'OGChipSelectEditMenu' : {
+                'state' : OGChipSelectEditMenu['state'].replace('\t', ' ', 1),
+            },
+            'OGCoreOrChip' : {
+                'state' : 1,
             }
         }
         return mcu

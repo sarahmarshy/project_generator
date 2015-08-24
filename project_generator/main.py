@@ -19,13 +19,14 @@ from .util import update
 
 import pkg_resources
 
-from .commands import build, generate, create, tools
+from .commands import build, generate, create, tools, create_mcu
 
 subcommands = {
     'create': create,
     'generate': generate,
     'build': build,
-    'tools': tools
+    'tools': tools,
+    'import': create_mcu
 }
 help = {
     'create': "Create a yaml file describing a given directory. If no directory is specified, the current working "
@@ -34,7 +35,8 @@ help = {
                 ".projects.yaml will be used",
     'build': "Build a generated project for a specified tool. `generate` must be run before a call to `build`.",
     'tools': "List all tools supported by a given yaml file and given project. If no project is specified, `tools` "
-             "will list all possible tools for all projects in a yaml file."
+             "will list all possible tools for all projects in a yaml file.",
+    'import': "Create an MCU record for a tool given a valid project file."
 }
 
 def main():
@@ -63,7 +65,7 @@ def main():
 
     # set the verbosity
     verbosity = args.verbosity - args.quietness
-    logging_level = max(logging.INFO - (10 * verbosity), 0)
+    logging_level = max(logging.WARNING - (10 * verbosity), 0)
     logging.basicConfig(format="%(levelname)s: %(message)s", level=logging_level)
 
     logging.debug('This should be the project root: %s', os.getcwd())

@@ -22,7 +22,7 @@ from os import getcwd
 from .exporter import Exporter
 from .builder import Builder
 from ..targets import Targets
-
+import re
 class uVisionDefinitions():
     debuggers = {
         'cmsis-dap': {
@@ -198,9 +198,13 @@ class Uvision(Builder, Exporter):
         expanded_dic['uvision_settings']['Cads']['Optim'][0] = 1
 
         expanded_dic ['core'] = expanded_dic ['target'].core
-        if expanded_dic ['target'].fpu:
+
+        #Target has f postfix, IE cortex-m4f
+        if expanded_dic['target'].fpu:
+            #Remove the f from the end
             expanded_dic['core'] = expanded_dic['core'][:-1]
             expanded_dic['uvision_settings']['Cpu'] = "CPUTYPE(\""+expanded_dic['core']+"\")"
+            #Add FPU option to CPU info
             expanded_dic['uvision_settings']['Cpu'] += " FPU2"
         else:
             expanded_dic['uvision_settings']['Cpu'] = "CPUTYPE(\""+expanded_dic['core']+"\")"
@@ -237,24 +241,23 @@ class Uvision(Builder, Exporter):
                 logging.debug(" BUILD LOG\n" + "\n".join(f.readlines()))
         return ret
 
-    def get_mcu_definition(self, project_file):
+    def get_mcu_definition(self, project_file, mcu):
         """ Parse project file to get target definition """
         project_file = join(getcwd(), project_file)
         uvproj_dic = xmltodict.parse(file(project_file), dict_constructor=dict)
         # Generic Target, should get from Target class !
-        mcu = Targets().get_mcu_definition()
+        core = uvproj_dic['Project']['Targets']['Target']['TargetOption']['TargetCommonOption']['Cpu']
+        regex = r"CPUTYPE\(\"([\w-]+)\"\)\s*(FPU2)?"
+        match = re.search(regex,core)
+        if match:
+            mcu['mcu']['core'] = match.group(1)
+            if match.group(2):
+                mcu['mcu']['core']+='f'
 
-        mcu['tool_specific'] = {
-            # legacy device
-            'uvision' : {
-                'TargetOption' : {
-                    'Device' : [uvproj_dic['Project']['Targets']['Target']['TargetOption']['TargetCommonOption']['Device']],
-                    'Vendor' : [uvproj_dic['Project']['Targets']['Target']['TargetOption']['TargetCommonOption']['Vendor']],
-                    'Cpu' : [uvproj_dic['Project']['Targets']['Target']['TargetOption']['TargetCommonOption']['Cpu']],
-                    'FlashDriverDll' : [uvproj_dic['Project']['Targets']['Target']['TargetOption']['TargetCommonOption']['FlashDriverDll']],
-                    'DeviceId' : [int(uvproj_dic['Project']['Targets']['Target']['TargetOption']['TargetCommonOption']['DeviceId'])],
-                    'SFDFile' : [uvproj_dic['Project']['Targets']['Target']['TargetOption']['TargetCommonOption']['SFDFile']],
-                }
+        mcu['tool_specific']['uvision'] = {
+            'TargetOption' : {
+                'Device' : uvproj_dic['Project']['Targets']['Target']['TargetOption']['TargetCommonOption']['Device'],
+                'DeviceId' : int(uvproj_dic['Project']['Targets']['Target']['TargetOption']['TargetCommonOption']['DeviceId']),
             }
         }
         return mcu

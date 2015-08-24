@@ -39,14 +39,6 @@ class IAREmbeddedWorkbench(Builder, Exporter):
     source_files_dic = [
         'source_files_c', 'source_files_s', 'source_files_cpp', 'source_files_a', 'source_files_obj']
 
-    core_dic = {
-        "cortex-m0":  34,
-        "cortex-m0+": 35,
-        "cortex-m3":  38,
-        "cortex-m4":  39,
-        "cortex-m4f": 40,
-    }
-
     def __init__(self, workspace, env_settings):
         self.workspace = workspace
         self.env_settings = env_settings

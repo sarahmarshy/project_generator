@@ -255,9 +255,9 @@ class Uvision(Builder, Exporter):
                 mcu['mcu']['core']+='f'
 
         mcu['tool_specific']['uvision'] = {
-            'TargetOption' : {
-                'Device' : uvproj_dic['Project']['Targets']['Target']['TargetOption']['TargetCommonOption']['Device'],
-                'DeviceId' : int(uvproj_dic['Project']['Targets']['Target']['TargetOption']['TargetCommonOption']['DeviceId']),
-            }
+                'TargetOption' : {
+                    'Device' : uvproj_dic['Project']['Targets']['Target']['TargetOption']['TargetCommonOption']['Device'],
+                    'DeviceId' : int(uvproj_dic['Project']['Targets']['Target']['TargetOption']['TargetCommonOption']['DeviceId']),
+                }
         }
         return mcu

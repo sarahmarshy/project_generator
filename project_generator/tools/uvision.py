@@ -59,7 +59,7 @@ class Uvision(Builder, Exporter):
 
     optimization_options = ['O0', 'O1', 'O2', 'O3']
     source_files_dic = ['source_files_c', 'source_files_s', 'source_files_cpp', 'source_files_a', 'source_files_obj']
-    file_types = {'cpp': 8, 'c': 1, 's': 2, 'obj': 3,'o':3, 'lib': 4, 'ar': 4}
+    file_types = {'cpp': 8, 'c': 1, 's': 2, 'S':2,'obj': 3,'o':3, 'lib': 4, 'ar': 4}
 
     ERRORLEVEL = {
         0: '(0 warnings, 0 errors)',
@@ -119,11 +119,13 @@ class Uvision(Builder, Exporter):
         """ Parse all uvision specific setttings. """
         default_set = copy.deepcopy(self.definitions.uvision_settings)
         data['uvision_settings'].update(default_set)  # set specific options to default values
-        for k, v in data['misc'].items():
-            for setting in v:
-                if k == 'MiscControls':
-                    data['uvision_settings']['Cads']['MiscControls'].append(str(setting))
-
+        for section, controls in data['misc'].items():
+            for k,v in controls.items():
+                for setting in v:
+                    if section == "C" and k == 'MiscControls':
+                        data['uvision_settings']['Cads']['MiscControls'].append(str(setting))
+                    if section == "ASM" and k == 'MiscControls':
+                        data['uvision_settings']['Aads']['MiscControls'].append(str(setting))
     def _get_groups(self, data):
         """ Get all groups defined. """
         groups = []

@@ -25,20 +25,18 @@ from functools import reduce
 
 FILES_EXTENSIONS = {
     'includes': ['h', 'hpp', 'inc'],
-    'source_files_s': ['s'],
+    'source_files_s': ['s','S'],
     'source_files_c': ['c'],
     'source_files_cpp': ['cpp', 'cc'],
     'source_files_a': ['ar', 'a'],
     'source_files_obj': ['o', 'obj'],
     'linker_file': ['sct', 'ld', 'lin', 'icf'],
 }
-MAIN_FILES = ['cpp', 'c', 's', 'obj', 'a']
-
-FILE_MAP = {
-    'o' : 'obj',
-    'ar' : 'a',
-    'cc' : 'cpp'
-}
+VALID_EXTENSIONS = FILES_EXTENSIONS['source_files_s'] + FILES_EXTENSIONS['source_files_c'] + FILES_EXTENSIONS['source_files_cpp'] + FILES_EXTENSIONS['source_files_a'] + FILES_EXTENSIONS['source_files_obj']
+FILE_MAP = {}
+for key,values in FILES_EXTENSIONS.items():
+    for value in values:
+        FILE_MAP[value] = key
 
 
 def rmtree_if_exists(directory):
@@ -91,6 +89,7 @@ class PartialFormatter(string.Formatter):
             first, _ = field_name._formatter_field_name_split()
             val = '{' + field_name + '}', first
         return val
+
 def update(force=True, settings=ProjectSettings()):
     defdir_exists = True
     if not os.path.exists(settings.paths['definitions']):
@@ -101,7 +100,7 @@ def update(force=True, settings=ProjectSettings()):
     if settings.get_env_settings('definitions') == settings.get_env_settings('definitions_default'):
         if not defdir_exists:
             cmd = ('git', 'clone', '--quiet',
-                   'https://github.com/project-generator/project_generator_definitions.git', '.')
+                   'https://github.com/sarahmarshy/pgen_definitions.git', '.')
             subprocess.call(cmd, cwd=settings.paths['definitions'])
         elif force:
             # rebase only if force, otherwise use the current version

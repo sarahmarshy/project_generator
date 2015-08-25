@@ -204,6 +204,8 @@ class MakefileGccArm(Exporter):
         os.chdir(path)
         if os.path.exists("build"):
             shutil.rmtree("build")
+        if os.path.exists("bin"):
+            shutil.rmtree("bin")
 
         if logging.getLogger().isEnabledFor(logging.DEBUG):
             args = ['make', 'all']
@@ -211,7 +213,4 @@ class MakefileGccArm(Exporter):
             args =['make','-s','all']
 
         ret = Builder.build_command(args, self, "GCC", path.split(os.path.sep)[-1])
-        if ret < 0 and logging.getLogger().isEnabledFor(logging.DEBUG) and sys.platform.startswith('win'):
-            logging.debug("If the build failed because of unfound files, try to shorten path lengths."
-                          " Windows limits the length when paths are long.")
         return ret

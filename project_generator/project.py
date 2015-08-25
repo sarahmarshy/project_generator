@@ -31,7 +31,6 @@ class Project:
             self.settings.update(settings_dict['settings'])
 
         self.name = name
-        self.source_groups = {}
         self.project = {}
         self.project_dicts = project_dicts
         self.tool = ''
@@ -179,14 +178,6 @@ class Project:
                     self._process_source_files(sources, group_name)
             else:
                 self._process_source_files(source_files, 'default') # no group defined, put it in the default group
-        for group_name in self.source_groups.keys():
-            for extension,files in self.source_groups[group_name].items():
-                files = self.source_groups[group_name][extension]
-                key = 'source_files_'+extension
-                if group_name in self.project[key]:
-                    self.project[key][group_name].extend(files)
-                else:
-                     self.project[key][group_name] = files
 
     def _process_include_files(self, files):
         # If it's dic add it , if file, add it to files
@@ -207,8 +198,6 @@ class Project:
     def _process_source_files(self, files, group_name):
         """Sorts source files into groups in the form of source_groups[group_name][extension]
             extensions will be mapped to 5 main types 'cpp', 'c', 's', 'obj', 'a'"""
-        if group_name not in self.source_groups:
-            self.source_groups[group_name] = {}
 
         for source_file in files:
             if any(re.match(ignore,source_file) for ignore in self.ignore_dirs):
@@ -220,14 +209,13 @@ class Project:
                     source_file) if os.path.isfile(os.path.join(os.path.normpath(source_file), f))], group_name)
 
             extension = source_file.split('.')[-1]
-            extension = FILE_MAP[extension] if extension in FILE_MAP else extension
-            if extension not in MAIN_FILES:
+            if extension not in VALID_EXTENSIONS:
                 continue
+            source_group = FILE_MAP[extension]
 
-            if extension not in self.source_groups[group_name]:
-                self.source_groups[group_name][extension] = []
-
-            self.source_groups[group_name][extension].append(os.path.normpath(source_file))
+            if group_name not in self.project[source_group]:
+                self.project[source_group][group_name] = []
+            self.project[source_group][group_name].append(os.path.normpath(source_file))
 
             if not os.path.dirname(source_file) in self.project['source_paths']:
                 self.project['source_paths'].append(os.path.normpath(os.path.dirname(source_file)))

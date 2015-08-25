@@ -40,6 +40,7 @@ help = {
 }
 
 def main():
+    update()
     # Parse Options
     parser = argparse.ArgumentParser(
         description = 'Generate and build project files for many different tools.'
@@ -71,7 +72,6 @@ def main():
     logging.debug('This should be the project root: %s', os.getcwd())
 
     args.func(args)
-    #update()
 
 if __name__ == '__main__':
     main()

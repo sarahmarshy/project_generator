@@ -210,7 +210,7 @@
             <AdsLsxf>1</AdsLsxf>
             <RvctClst>0</RvctClst>
             <GenPPlst>0</GenPPlst>
-            <AdsCpuType>"Cortex-M4"</AdsCpuType>
+            <AdsCpuType>"{{core}}"</AdsCpuType>
             <RvctDeviceName></RvctDeviceName>
             <mOS>0</mOS>
             <uocRom>0</uocRom>
@@ -264,7 +264,7 @@
             <uC99>1</uC99>
             <useXO>0</useXO>
             <VariousControls>
-              <MiscControls>{% for f in uvision_settings['Cads']['MiscControls'] %}--{{f}} {% endfor %}</MiscControls>
+              <MiscControls>{% for f in uvision_settings['Cads']['MiscControls'] %} {{f}} {% endfor %}</MiscControls>
               <Define>{% for s in macros %} {{s}}, {% endfor %}</Define>
               <Undefine></Undefine>
               <IncludePath> {% for path in includes %} {{path}}; {% endfor %} </IncludePath>
@@ -281,7 +281,7 @@
             <uSurpInc>0</uSurpInc>
             <useXO>0</useXO>
             <VariousControls>
-              <MiscControls>{% for f in uvision_settings['Aads']['MiscControls'] %}{{f}} {% endfor %}</MiscControls>
+              <MiscControls>{% for f in uvision_settings['Aads']['MiscControls'] %} {{f}} {% endfor %}</MiscControls>
               <Define>{% for s in macros %} {{s}}, {% endfor %}</Define>
               <Undefine></Undefine>
               <IncludePath>{% for path in uvision_settings['Aads']['IncludePath'] %} {{path}}; {% endfor %}</IncludePath>

@@ -21,8 +21,8 @@ from os.path import basename, join, normpath
 from os import getcwd
 from .exporter import Exporter
 from .builder import Builder
-from ..targets import Targets
 import re
+
 class uVisionDefinitions():
     debuggers = {
         'cmsis-dap': {
@@ -126,6 +126,7 @@ class Uvision(Builder, Exporter):
                         data['uvision_settings']['Cads']['MiscControls'].append(str(setting))
                     if section == "ASM" and k == 'MiscControls':
                         data['uvision_settings']['Aads']['MiscControls'].append(str(setting))
+
     def _get_groups(self, data):
         """ Get all groups defined. """
         groups = []
@@ -168,55 +169,57 @@ class Uvision(Builder, Exporter):
         if data['linker_file']:
             data['linker_file'] = join(rel_path, normpath(data['linker_file']))
 
-    def generate_project(self):
-        expanded_dic = self.workspace.copy()
-
+    def parse_data(self, tool, data):
         groups = self._get_groups(self.workspace)
-        expanded_dic['groups'] = {}
+        data['groups'] = {}
         for group in groups:
-            expanded_dic['groups'][group] = []
+            data['groups'][group] = []
 
         # get relative path and fix all paths within a project
-        self._iterate(self.workspace, expanded_dic, expanded_dic['output_dir']['rel_path'])
-        self._fix_paths(expanded_dic, expanded_dic['output_dir']['rel_path'])
+        self._iterate(self.workspace, data, data['output_dir']['rel_path'])
+        self._fix_paths(data, data['output_dir']['rel_path'])
 
-        expanded_dic['uvision_settings'] = {}
-        self.parse_specific_options(expanded_dic)
+        data['uvision_settings'] = {}
+        self.parse_specific_options(data)
 
-        expanded_dic['build_dir'] = '.\\' + expanded_dic['build_dir'] + '\\'
+        data['build_dir'] = '.\\' + data['build_dir'] + '\\'
 
         # set target only if defined, otherwise use from template/default one
 
-        mcu_def_dic = expanded_dic['target'].get_tool_configuration('uvision')
+        mcu_def_dic = data['target'].get_tool_configuration(tool)
         if mcu_def_dic is None:
             return None
-            # self.normalize_mcu_def(mcu_def_dic)
         logging.debug("Mcu definitions: %s" % mcu_def_dic)
-        self.append_mcu_def(expanded_dic, mcu_def_dic)
-        # load debugger
-        driver = self.definitions.debuggers[expanded_dic['debugger']]['TargetDlls']['Driver']
-        expanded_dic['uvision_settings']['TargetDlls']['Driver'] = driver
-        # optimization set to correct value, default not used
-        expanded_dic['uvision_settings']['Cads']['Optim'][0] = 1
+        self.append_mcu_def(data, mcu_def_dic)
 
-        expanded_dic ['core'] = expanded_dic ['target'].core
+        # load debugger
+        driver = self.definitions.debuggers[data['debugger']]['TargetDlls']['Driver']
+        data['uvision_settings']['TargetDlls']['Driver'] = driver
+        # optimization set to correct value, default not used
+        data['uvision_settings']['Cads']['Optim'][0] = 1
+
+        data ['core'] = data ['target'].core
 
         #Target has f postfix, IE cortex-m4f
-        if expanded_dic['target'].fpu:
+        if data['target'].fpu:
             #Remove the f from the end
-            expanded_dic['core'] = expanded_dic['core'][:-1]
-            expanded_dic['uvision_settings']['Cpu'] = "CPUTYPE(\""+expanded_dic['core']+"\")"
+            data['core'] = data['core'][:-1]
+            data['uvision_settings']['Cpu'] = "CPUTYPE(\""+data['core']+"\")"
             #Add FPU option to CPU info
-            expanded_dic['uvision_settings']['Cpu'] += " FPU2"
+            data['uvision_settings']['Cpu'] += " FPU2"
         else:
-            expanded_dic['uvision_settings']['Cpu'] = "CPUTYPE(\""+expanded_dic['core']+"\")"
+            data['uvision_settings']['Cpu'] = "CPUTYPE(\""+data['core']+"\")"
 
+    def generate_project(self):
+        expanded_dic = self.workspace.copy()
+        self.parse_data('uvision',expanded_dic)
         # Project file
-        self.gen_file_jinja(
-            'uvision4.uvproj.tmpl', expanded_dic, '%s.uvproj' % self.workspace['name'], expanded_dic['output_dir']['path'])
-        self.gen_file_jinja(
-            'uvision4.uvopt.tmpl', expanded_dic, '%s.uvopt' % self.workspace['name'], expanded_dic['output_dir']['path'])
+        self.generate_file('uvision4.uvproj.tmpl',expanded_dic,'uvproj')
         return 0
+
+    def generate_file(self,tmpl,data,ext):
+         self.gen_file_jinja(
+            tmpl, data, '%s.%s'%(self.workspace['name'],ext), data['output_dir']['path'])
 
     def get_generated_project_files(self):
         return {'path': self.workspace['path'], 'files': [self.workspace['files']['uvproj']]}
@@ -226,9 +229,12 @@ class Uvision(Builder, Exporter):
 
     def build_project(self):
         # > UV4 -b [project_path]
-        path = join(self.workspace['output_dir']['path'],self.workspace['name'])
-        if path.split('.')[-1] != 'uvproj':
-            path = path + '.uvproj'
+        path = ''
+        pattern = str(self.workspace['name']) + r"\.uvproj[x]?"
+        for file in os.listdir(self.workspace['output_dir']['path']):
+            if re.match(pattern,file):
+                path = join(self.workspace['output_dir']['path'],file)
+
         if not os.path.exists(path):
             logging.critical("The file: %s does not exist. You must call generate before build." % path)
             return None
@@ -262,4 +268,5 @@ class Uvision(Builder, Exporter):
                     'DeviceId' : int(uvproj_dic['Project']['Targets']['Target']['TargetOption']['TargetCommonOption']['DeviceId']),
                 }
         }
+
         return mcu

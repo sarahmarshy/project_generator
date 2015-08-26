@@ -256,13 +256,14 @@ class Project:
             if target_settings is None:
                 return None
             self.project['macros'] = target_settings['macros']
-            if 'MCU' in target_settings and 'fpu' in target_settings['MCU']:
-                self.project['fpu']= target_settings['MCU']['fpu']
         if tool_settings is not None:
             tool_settings = self._try_open_file(tool_settings)
             if tool_settings is None:
                 return None
             self.project['misc'] = tool_settings
+
+        if self.project['target'].fpu:
+            self.project['fpu'] = self.project['target'].fpu_convention
 
         exporter = ToolsSupported().get_tool(self.tool)
         # None is an error

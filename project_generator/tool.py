@@ -20,6 +20,7 @@ import yaml
 from .targets import Targets
 from .tools.iar import IAREmbeddedWorkbench
 from .tools.uvision import Uvision
+from .tools.uvision5 import Uvision5
 from .tools.coide import Coide
 from .tools.eclipse import EclipseGnuARM
 from .tools.gccarm import MakefileGccArm
@@ -47,6 +48,7 @@ class ToolsSupported:
     TOOLS_DICT = {
         'iar_arm':              IAREmbeddedWorkbench,
         'uvision':              Uvision,
+        'uvision5':              Uvision5,
         'coide':                Coide,
         'make_gcc_arm':         MakefileGccArm,
         'eclipse_make_gcc_arm': EclipseGnuARM,

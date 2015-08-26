@@ -13,7 +13,7 @@
 # limitations under the License.
 
 from .uvision import *
-import yaml
+
 class Uvision5(Uvision):
     def __init__(self, workspace, env_settings):
         super(Uvision5,self).__init__(workspace, env_settings)

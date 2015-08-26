@@ -58,16 +58,16 @@ class Project:
             logging.error("The tool name \"%s\" is not supported in yaml!"%self.tool, exc_info = False)
             return None
 
+        self._set_output_dir_path()  # determines where generated projects will go
+        # ignore any path that has the output directory in it
+        self.ignore_dirs.append(str(".*"+self.project['output_dir']['path']+".*"))
+        logging.debug("Ignoring the following directories: %s"%", ".join(self.ignore_dirs))
+
         self._fix_includes_and_sources()
 
         if self.project['linker_file'] is None and tool!="default":
             logging.critical("No linker file found")
             return None
-
-        self._set_output_dir_path()  # determines where generated projects will go
-        # ignore any path that has the output directory in it
-        self.ignore_dirs.append(str(".*"+self.project['output_dir']['path']+".*"))
-        logging.debug("Ignoring the following directories: %s"%", ".join(self.ignore_dirs))
         return 1
 
     def _fill_project_defaults(self):

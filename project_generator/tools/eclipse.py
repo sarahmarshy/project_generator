@@ -12,10 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import copy
-import logging
-
-# eclipse works with linux paths
 from posixpath import normpath, join, basename
 
 from .exporter import Exporter

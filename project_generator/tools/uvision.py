@@ -22,6 +22,7 @@ from os import getcwd
 from .exporter import Exporter
 from .builder import Builder
 import re
+from ..util import FILES_EXTENSIONS,SOURCE_KEYS
 
 class uVisionDefinitions():
     debuggers = {
@@ -58,8 +59,22 @@ class uVisionDefinitions():
 class Uvision(Builder, Exporter):
 
     optimization_options = ['O0', 'O1', 'O2', 'O3']
-    source_files_dic = ['source_files_c', 'source_files_s', 'source_files_cpp', 'source_files_a', 'source_files_obj']
-    file_types = {'cpp': 8, 'c': 1, 's': 2, 'S':2,'obj': 3,'o':3, 'lib': 4, 'ar': 4}
+    file_types = {}
+    for key in SOURCE_KEYS:
+        for extension in FILES_EXTENSIONS[key]:
+            type = key.split("_")[-1]
+            if type == 'cpp':
+                file_types[extension] = 8
+            if type == 'c':
+                file_types[extension] = 1
+            if type == 's':
+                file_types[extension] = 2
+            if type == 'a':
+                file_types[extension] = 4
+            if type == 'obj':
+                file_types[extension] = 3
+
+    #file_types = {'cpp': 8, 'c': 1, 's': 2, 'S':2,'obj': 3,'o':3, 'lib': 4, 'ar': 4}
 
     ERRORLEVEL = {
         0: '(0 warnings, 0 errors)',
@@ -107,7 +122,7 @@ class Uvision(Builder, Exporter):
 
     def _iterate(self, data, expanded_data, rel_path):
         """ Iterate through all data, store the result expansion in extended dictionary. """
-        for attribute in self.source_files_dic:
+        for attribute in SOURCE_KEYS:
             for k, v in data[attribute].items():
                 if k == None:
                     group = 'Sources'
@@ -130,7 +145,7 @@ class Uvision(Builder, Exporter):
     def _get_groups(self, data):
         """ Get all groups defined. """
         groups = []
-        for attribute in self.source_files_dic:
+        for attribute in SOURCE_KEYS:
                 if data[attribute]:
                     for k, v in data[attribute].items():
                         if k == None:

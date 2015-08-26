@@ -38,6 +38,8 @@ class ProjectSettings:
         self.templates = {}
         self.paths['uvision'] = os.environ.get('UV4') or join('C:', sep,
             'Keil', 'UV4', 'UV4.exe')
+        self.paths['uvision5'] = os.environ.get('UV5') or join('C:', sep,
+            'Keil_v5', 'UV4', 'UV4.exe')
         self.paths['iar'] = os.environ.get('IARBUILD') or join(
             'C:', sep, 'Program Files (x86)',
             'IAR Systems', 'Embedded Workbench 7.2',

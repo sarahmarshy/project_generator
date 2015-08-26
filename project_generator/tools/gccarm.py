@@ -64,10 +64,12 @@ class MakefileGccArm(Exporter):
         data['linker_options'] = []
         for k, v in data['misc'].items():
             if type(v) is list:
-                data[k] = []
+                if k not in data:
+                    data[k] = []
                 data[k].extend(v)
             else:
-                data[k] = ''
+                if k not in data:
+                    data[k] = ''
                 data[k] = v
 
     def _get_libs(self, data):
@@ -103,6 +105,7 @@ class MakefileGccArm(Exporter):
         for key in SOURCE_KEYS:
             data[key] = list(chain(*data[key].values()))
             data['source_paths'].extend([ntpath.split(path)[0] for path in data[key]])
+        data['source_paths'] = set(data['source_paths'])
 
         self._get_libs(data)
 

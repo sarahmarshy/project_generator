@@ -183,7 +183,7 @@ class MakefileGccArm(Exporter):
 
         target = Targets(self.env_settings.get_env_settings('definitions'))
 
-        data['core'] = data['target'].core
+        data['core'] = data['target'].core.lower()
         # gcc arm is funny about cortex-m4f.
         # gcc arm is funny about cortex-m4f.
         if data['core'] == 'cortex-m4f':

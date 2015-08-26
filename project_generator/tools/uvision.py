@@ -104,31 +104,19 @@ class Uvision(Builder, Exporter):
     def get_toolchain():
         return 'uvision'
 
-    def _expand_data(self, old_data, new_data, attribute, group, rel_path):
+    def _expand_data(self, file, new_data, group):
         """ data expansion - uvision needs filename and path separately. """
-        if group == 'Sources':
-            old_group = None
-        else:
-            old_group = group
-        for file in old_data[old_group]:
-            if file:
-                extension = file.split(".")[-1]
-                if extension in self.file_types:
-                    new_file = {"FilePath": rel_path + normpath(file), "FileName": basename(file),
+        extension = file.split(".")[-1]
+        new_file = {"FilePath": file, "FileName": basename(file),
                                 "FileType": self.file_types[extension]}
-                    new_data['groups'][group].append(new_file)
-                else:
-                    continue
+        new_data['groups'][group].append(new_file)
 
-    def _iterate(self, data, expanded_data, rel_path):
+    def _iterate(self, data, expanded_data):
         """ Iterate through all data, store the result expansion in extended dictionary. """
         for attribute in SOURCE_KEYS:
             for k, v in data[attribute].items():
-                if k == None:
-                    group = 'Sources'
-                else:
-                    group = k
-                self._expand_data(data[attribute], expanded_data, attribute, group, rel_path)
+                for file in v:
+                    self._expand_data(file, expanded_data, k)
 
     def parse_specific_options(self, data):
         """ Parse all uvision specific setttings. """
@@ -162,37 +150,13 @@ class Uvision(Builder, Exporter):
             # does not exist, create it
             data['uvision_settings'] = mcu_def['TargetOption']
 
-    def _fix_paths(self, data, rel_path):
-        data['includes'] = [join(rel_path, normpath(path)) for path in data['includes']]
-
-        if type(data['source_files_a']) == type(dict()):
-            for k in data['source_files_a'].keys():
-                data['source_files_a'][k] = [
-                    join(rel_path, normpath(path)) for path in data['source_files_a'][k]]
-        else:
-            data['source_files_a'] = [
-                join(rel_path, normpath(path)) for path in data['source_files_a']]
-
-        if type(data['source_files_obj']) == type(dict()):
-            for k in data['source_files_obj'].keys():
-                data['source_files_obj'][k] = [
-                    join(rel_path, normpath(path)) for path in data['source_files_obj'][k]]
-        else:
-            data['source_files_obj'] = [
-                join(rel_path, normpath(path)) for path in data['source_files_obj']]
-
-        if data['linker_file']:
-            data['linker_file'] = join(rel_path, normpath(data['linker_file']))
-
     def parse_data(self, tool, data):
         groups = self._get_groups(self.workspace)
         data['groups'] = {}
         for group in groups:
             data['groups'][group] = []
 
-        # get relative path and fix all paths within a project
-        self._iterate(self.workspace, data, data['output_dir']['rel_path'])
-        self._fix_paths(data, data['output_dir']['rel_path'])
+        self._iterate(self.workspace, data)
 
         data['uvision_settings'] = {}
         self.parse_specific_options(data)

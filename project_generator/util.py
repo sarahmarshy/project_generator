@@ -37,7 +37,7 @@ FILE_MAP = {}
 for key,values in FILES_EXTENSIONS.items():
     for value in values:
         FILE_MAP[value] = key
-SOURCE_KEYS = source_files_dic = ['source_files_c', 'source_files_s', 'source_files_cpp', 'source_files_a', 'source_files_obj']
+SOURCE_KEYS = ['source_files_c', 'source_files_s', 'source_files_cpp', 'source_files_a', 'source_files_obj']
 
 def rmtree_if_exists(directory):
     if os.path.exists(directory):

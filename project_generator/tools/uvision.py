@@ -159,8 +159,8 @@ class Uvision(Builder, Exporter):
         data['uvision_settings'] = {}
         self.parse_specific_options(data)
 
-        data['build_dir'] = join('.',os.path.sep,data['build_dir'],os.path.sep)
-
+        data['build_dir'] = '.\\' + data['build_dir'] + '\\'
+        print data['build_dir']
         # set target only if defined, otherwise use from template/default one
 
         mcu_def_dic = data['target'].get_tool_configuration(tool)

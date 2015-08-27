@@ -218,7 +218,6 @@ class Project:
 
     def _fix_paths(self):
         relpath = self.project['output_dir']['rel_path']
-        keys = FILES_EXTENSIONS.keys()
         for key in FILES_EXTENSIONS.keys():
             if type(self.project[key]) is dict:
                 for k,v in self.project[key].items():

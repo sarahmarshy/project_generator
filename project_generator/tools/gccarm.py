@@ -110,6 +110,8 @@ class MakefileGccArm(Exporter):
         self._get_libs(data)
 
         self._parse_specific_options(data)
+        if 'instruction_mode' not in data:
+            data['instruction_mode']= 'thumb'
         self._process_mcu(data)
         data['toolchain'] = 'arm-none-eabi-'
         data['toolchain_bin_path'] = self.env_settings.get_env_settings('gcc')

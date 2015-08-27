@@ -45,10 +45,10 @@ class ProjectSettings:
             'IAR Systems', 'Embedded Workbench 7.2',
             'common', 'bin')
         self.paths['gcc'] = os.environ.get('ARM_GCC_PATH') or ''
-        self.paths['definitions_default'] = join(expanduser('~/.pg'), 'definitions')
+        self.paths['definitions_default'] = join(expanduser('~/.defs'), 'definitions')
         self.paths['definitions'] = self.paths['definitions_default']
-        if not os.path.exists(join(expanduser('~/.pg'))):
-            os.mkdir(join(expanduser('~/.pg')))
+        if not os.path.exists(join(expanduser('~/.defs'))):
+            os.mkdir(join(expanduser('~/.defs')))
 
         self.export_location_format = self.DEFAULT_EXPORT_LOCATION_FORMAT
 

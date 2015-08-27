@@ -115,7 +115,6 @@ class EclipseGnuARM(Exporter, Builder):
         data_for_make = self.workspace.copy()
 
         self.exporter.process_data_for_makefile(data_for_make)
-
         self.gen_file_jinja('makefile_gcc.tmpl', data_for_make, 'Makefile', data_for_make['output_dir']['path'])
 
         expanded_dic = self.workspace.copy()
@@ -136,8 +135,6 @@ class EclipseGnuARM(Exporter, Builder):
         self._iterate(self.workspace, expanded_dic, expanded_dic['rel_path'])
 
         self._get_libs(expanded_dic)
-        print expanded_dic['lib_paths']
-        print expanded_dic['libraries']
         # Project file
 
         self.gen_file_jinja(

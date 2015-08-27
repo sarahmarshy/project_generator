@@ -68,7 +68,6 @@ class Project:
         if self.project['linker_file'] is None and tool!="default":
             logging.critical("No linker file found")
             return None
-        self._fix_paths()
 
         return 1
 
@@ -282,6 +281,7 @@ class Project:
             self.project['copy_sources'] = True
             logging.info("Copying sources to output directory.")
             self.copy_files()
+        self._fix_paths()
         if self.project['target'] is None:
             return None
 

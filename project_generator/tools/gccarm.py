@@ -83,6 +83,7 @@ class MakefileGccArm(Exporter):
             else:
                 file = file.replace(".a","")
                 data['lib_paths'].append(head)
+                print head
                 data['libraries'].append(file.replace("lib",''))
 
     def _process_mcu(self, data):

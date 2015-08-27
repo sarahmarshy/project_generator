@@ -136,8 +136,6 @@ class Uvision(Builder, Exporter):
         for attribute in SOURCE_KEYS:
                 if data[attribute]:
                     for k, v in data[attribute].items():
-                        if k == None:
-                            k = 'Sources'
                         if k not in groups:
                             groups.append(k)
         return groups
@@ -161,7 +159,7 @@ class Uvision(Builder, Exporter):
         data['uvision_settings'] = {}
         self.parse_specific_options(data)
 
-        data['build_dir'] = '.\\' + data['build_dir'] + '\\'
+        data['build_dir'] = join('.',os.path.sep,data['build_dir'],os.path.sep)
 
         # set target only if defined, otherwise use from template/default one
 

@@ -68,6 +68,7 @@ class Project:
         if self.project['linker_file'] is None and tool!="default":
             logging.critical("No linker file found")
             return None
+
         return 1
 
     def _fill_project_defaults(self):
@@ -82,7 +83,6 @@ class Project:
             'copy_sources': False,      # [internal] Copy sources to destination flag
             'include_files': [],        # [internal] files to be included
             'sources': [],
-            'source_paths': [], # [internal] source paths
             'source_files_c': {},       # [internal] c source files
             'source_files_cpp': {},     # [internal] c++ source files
             'source_files_s': {},       # [internal] assembly source files
@@ -204,7 +204,6 @@ class Project:
                 continue
 
             if os.path.isdir(source_file):
-                self.project['source_paths'].append(os.path.normpath(source_file))
                 self._process_source_files([os.path.join(os.path.normpath(source_file), f) for f in os.listdir(
                     source_file) if os.path.isfile(os.path.join(os.path.normpath(source_file), f))], group_name)
 
@@ -217,8 +216,16 @@ class Project:
                 self.project[source_group][group_name] = []
             self.project[source_group][group_name].append(os.path.normpath(source_file))
 
-            if not os.path.dirname(source_file) in self.project['source_paths']:
-                self.project['source_paths'].append(os.path.normpath(os.path.dirname(source_file)))
+    def _fix_paths(self):
+        relpath = self.project['output_dir']['rel_path']
+        for key in FILES_EXTENSIONS.keys():
+            if type(self.project[key]) is dict:
+                for k,v in self.project[key].items():
+                    self.project[key][k] = [join(relpath,normpath(path)) for path in v]
+            elif type(self.project[key]) is list:
+                self.project[key] = [join(relpath,(normpath(path))) for path in self.project[key]]
+            else:
+                self.project[key] = join(relpath,(normpath(self.project[key])))
 
     def _resolve_tool(self, alias):
         """will resolve any alias user writes in command line. IE iar => iar_arm"""
@@ -273,6 +280,7 @@ class Project:
             self.project['copy_sources'] = True
             logging.info("Copying sources to output directory.")
             self.copy_files()
+        self._fix_paths()
         if self.project['target'] is None:
             return None
 

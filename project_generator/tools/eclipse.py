@@ -17,12 +17,16 @@ from posixpath import normpath, join, basename
 from .exporter import Exporter
 from .builder import Builder
 from .gccarm import MakefileGccArm
-
+from ..util import FILES_EXTENSIONS, SOURCE_KEYS
+import os
+from itertools import chain
+import ntpath
 
 class EclipseGnuARM(Exporter, Builder):
-    source_files_dic = ['source_files_c', 'source_files_s',
-                        'source_files_cpp', 'source_files_obj']
-    file_types = {'cpp': 1, 'c': 1, 's': 1, 'obj': 1, 'o': 1,'lib': 1}
+    file_types = {}
+    for key in SOURCE_KEYS:
+        for extension in FILES_EXTENSIONS[key]:
+            file_types[extension] = 1
 
     def __init__(self, workspace, env_settings):
         self.definitions = 0
@@ -49,6 +53,7 @@ class EclipseGnuARM(Exporter, Builder):
                 extension = source.split(".")[-1]
                 # TODO: fix - workaround for windows, seems posixpath does not work
                 source = source.replace('\\', '/')
+                #source = source.replace(new_data['rel_path'], '')
                 new_file = {"path": join('PARENT-%s-PROJECT_LOC' % new_data['output_dir']['rel_path'], normpath(source)), "name": basename(
                     source), "type": self.file_types[extension]}
                 new_data['groups'][group].append(new_file)
@@ -56,7 +61,7 @@ class EclipseGnuARM(Exporter, Builder):
     def _get_groups(self, data):
         """ Get all groups defined. """
         groups = []
-        for attribute in self.source_files_dic:
+        for attribute in SOURCE_KEYS:
                 if data[attribute]:
                     for k, v in data[attribute].items():
                         if k == None:
@@ -67,7 +72,19 @@ class EclipseGnuARM(Exporter, Builder):
 
     def _iterate(self, data, expanded_data, rel_path):
         """ Iterate through all data, store the result expansion in extended dictionary. """
-        for attribute in self.source_files_dic:
+
+        relpath = expanded_data['rel_path']
+        for key in FILES_EXTENSIONS.keys():
+            if type(expanded_data[key]) is dict:
+                for k,v in expanded_data[key].items():
+                    expanded_data[key][k] = [path.replace(relpath, '') for path in v]
+            elif type(expanded_data[key]) is list:
+                expanded_data[key] = [path.replace(relpath, '') for path in expanded_data[key]]
+            else:
+                expanded_data[key] = expanded_data[key].replace(relpath, '')
+        
+
+        for attribute in SOURCE_KEYS:
             for k, v in data[attribute].items():
                 if k == None:
                     group = 'Sources'
@@ -77,6 +94,20 @@ class EclipseGnuARM(Exporter, Builder):
 
     def build_project(self):
         self.exporter.build_project()
+
+    def _get_libs(self, data):
+        data['lib_paths'] =[]
+        data['libraries'] =[]
+        data['source_files_a'] = list(chain(*data['source_files_a'].values()))
+        for lib in data['source_files_a']:
+            head, tail = ntpath.split(lib)
+            file = tail
+            if (os.path.splitext(file)[1] != ".a"):
+                continue
+            else:
+                file = file.replace(".a","")
+                data['lib_paths'].append(head)
+                data['libraries'].append(file.replace("lib",''))
 
     def generate_project(self):
         """ Processes groups and misc options specific for eclipse, and run generator """
@@ -89,15 +120,7 @@ class EclipseGnuARM(Exporter, Builder):
 
         expanded_dic = self.workspace.copy()
 
-        libs = [lib for k,libs in expanded_dic['source_files_a'].items() for lib in libs]
-
-        expanded_dic['lib_paths'] =[]
-        expanded_dic['libs'] =[]
-        for path, lib in self.exporter._lib_names(libs):
-            expanded_dic['lib_paths'].append(path)
-            expanded_dic['libs'].append(lib)
-
-        expanded_dic ['core'] = expanded_dic ['target'].core[0]
+        expanded_dic ['core'] = expanded_dic ['target'].core.lower()
         if expanded_dic['core'] == 'cortex-m4f':
             expanded_dic['core'] = 'cortex-m4'
 
@@ -111,6 +134,10 @@ class EclipseGnuARM(Exporter, Builder):
         for group in groups:
             expanded_dic['groups'][group] = []
         self._iterate(self.workspace, expanded_dic, expanded_dic['rel_path'])
+
+        self._get_libs(expanded_dic)
+        print expanded_dic['lib_paths']
+        print expanded_dic['libraries']
         # Project file
 
         self.gen_file_jinja(

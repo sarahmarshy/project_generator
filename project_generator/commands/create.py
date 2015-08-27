@@ -24,13 +24,16 @@ def run(args):
     directory = root if not args.directory else os.path.join(root, args.directory)
     logging.info("Generating the records for %s."%directory)
     name = os.path.split(directory)[1] if not args.name else args.name
-    create_yaml(root, directory, name, args.target.lower())
+    create_yaml(root, directory, name, args.target.lower(),args.output)
     logging.info("Yaml files generated.")
 
 def setup(subparser):
     subparser.add_argument(
         '-name', help='Project name')
+
     subparser.add_argument(
         '-tar', '--target', action='store', help='Target definition', default = "cortex-m0")
     subparser.add_argument(
         '-dir', '--directory', action='store', help='Directory selection', default=None)
+    subparser.add_argument(
+        '-output', '--output', action='store', help='Where to store generated projects', default=os.getcwd())

@@ -54,9 +54,9 @@ def _scan(section, root, directory, extensions):
 def _generate_file(filename,root,directory,data):
     logging.debug('Writing the follwoing to %s:\n%s'%(filename,yaml.dump(data)))
     if os.path.isfile(os.path.join(directory, filename)):
-        os.remove(filename)
+        os.remove(os.path.join(directory, filename))
     try:
-        with open(os.path.join(root, filename), 'w+') as f:
+        with open(os.path.join(directory, filename), 'w+') as f:
             f.write(yaml.dump(data, default_flow_style=False))
     except:
         logging.error("Unable to open %s for writing!"%filename)
@@ -67,7 +67,7 @@ def _generate_file(filename,root,directory,data):
     return 0
 
 
-def create_yaml(root, directory, project_name, board):
+def create_yaml(root, directory, project_name, board,output_dir):
     # lay out what the common section a project yaml file will look like
     # The value mapped to by each key are the file extensions that will help us get valid files for each section
     logging.debug("Project name: %s, Target: %s"%(project_name,board))
@@ -78,14 +78,13 @@ def create_yaml(root, directory, project_name, board):
         'includes': FILES_EXTENSIONS['includes'],
         'target': [],
     }
-    export_dir = os.path.join("generated_projects","{tool}","{project_name}")
 
     # will be written to .projects.yaml
     projects_yaml = {
         'projects': {
             project_name: ['.project.yaml']
         },
-        'settings': {'export_dir': [export_dir]}
+        'settings': {'export_dir': [output_dir]}
     }
 
     # will be written to .project.yaml

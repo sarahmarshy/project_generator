@@ -17,7 +17,7 @@ def _determine_tool(files):
             yield (str(file),"iar_arm")
 
 
-def _scan(section, root, directory, extensions):
+def _scan(section, directory, extensions):
     if section == "sources":
         data_dict = defaultdict(list)  # sources can have group names, making them a dict
     else:
@@ -25,7 +25,7 @@ def _scan(section, root, directory, extensions):
     for dirpath, dirnames, files in os.walk(directory):
         for filename in files:
             ext = filename.split('.')[-1]
-            relpath = os.path.relpath(dirpath, root)
+            relpath = os.path.relpath(dirpath, directory)
             if ext in extensions: # Check if the files extension is an acceptable one for this section of yaml
                 if section == "sources":
                     #get the directory one below root
@@ -51,23 +51,24 @@ def _scan(section, root, directory, extensions):
     l.sort()
     return l
 
-def _generate_file(filename,root,directory,data):
+def _generate_file(filename,data):
     logging.debug('Writing the follwoing to %s:\n%s'%(filename,yaml.dump(data)))
-    if os.path.isfile(os.path.join(directory, filename)):
-        os.remove(os.path.join(directory, filename))
+    file = os.path.join(os.getcwd(), filename)
+    if os.path.isfile(file):
+        os.remove(file)
     try:
-        with open(os.path.join(directory, filename), 'w+') as f:
+        with open(file, 'w+') as f:
             f.write(yaml.dump(data, default_flow_style=False))
     except:
-        logging.error("Unable to open %s for writing!"%filename)
+        logging.error("Unable to open %s for writing!"%file)
         return -1
-    logging.info("Wrote to file %s."%filename)
-    p = os.popen('attrib +h ' + filename) # make the file hidden
+    logging.info("Wrote to file %s."%file)
+    p = os.popen('attrib +h ' + file) # make the file hidden
     p.close()
     return 0
 
 
-def create_yaml(root, directory, project_name, board,output_dir):
+def create_yaml(directory, project_name, board,output_dir):
     # lay out what the common section a project yaml file will look like
     # The value mapped to by each key are the file extensions that will help us get valid files for each section
     logging.debug("Project name: %s, Target: %s"%(project_name,board))
@@ -80,11 +81,12 @@ def create_yaml(root, directory, project_name, board,output_dir):
     }
 
     # will be written to .projects.yaml
+    root = os.path.relpath(directory)
     projects_yaml = {
         'projects': {
             project_name: ['.project.yaml']
         },
-        'settings': {'export_dir': [output_dir]}
+        'settings': {'export_dir': os.path.relpath(output_dir,root),'root': root}
     }
 
     # will be written to .project.yaml
@@ -92,12 +94,11 @@ def create_yaml(root, directory, project_name, board,output_dir):
         'common': {},
         'tool_specific': {}
     }
-
     # iterate over the common section defined above
     for section, extensions in common_section.items():
         if len(common_section[section]) > 0:
             # look for files in this directory that have the defined extensions, and add them to our project file
-            project_yaml['common'][section] = _scan(section, root, directory,extensions)
+            project_yaml['common'][section] = _scan(section, directory,extensions)
 
     project_yaml['common']['target'] = [board] # user passes target in command line
 
@@ -130,10 +131,10 @@ def create_yaml(root, directory, project_name, board,output_dir):
     # linker file is now in tool_specific section
     del project_yaml['common']['linker_file']
 
-    ret = _generate_file(".projects.yaml", root, directory, projects_yaml)
+    ret = _generate_file(".projects.yaml", projects_yaml)
     if ret < 0: # make sure the first file generated correctly
         return -1
-    _generate_file(".project.yaml", root, directory, project_yaml)
+    _generate_file(".project.yaml", project_yaml)
 
 
 

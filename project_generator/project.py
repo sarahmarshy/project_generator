@@ -13,8 +13,6 @@
 # limitations under the License.
 
 
-import logging
-
 from .tool import ToolsSupported
 from .util import *
 from .settings import *
@@ -36,6 +34,7 @@ class Project:
         self.tool = ''
         self.ignore_dirs = ignore
         self._fill_project_defaults()
+        self.root = os.getcwd()
 
     def for_tool(self, tool = "default"):
         if tool != "default":
@@ -60,7 +59,6 @@ class Project:
 
         self._set_output_dir_path()  # determines where generated projects will go
         # ignore any path that has the output directory in it
-        self.ignore_dirs.append(str(".*"+self.project['output_dir']['path']+".*"))
         logging.debug("Ignoring the following directories: %s"%", ".join(self.ignore_dirs))
 
         self._fix_includes_and_sources()
@@ -202,7 +200,6 @@ class Project:
         for source_file in files:
             if any(re.match(ignore,source_file) for ignore in self.ignore_dirs):
                 continue
-
             if os.path.isdir(source_file):
                 self._process_source_files([os.path.join(os.path.normpath(source_file), f) for f in os.listdir(
                     source_file) if os.path.isfile(os.path.join(os.path.normpath(source_file), f))], group_name)
@@ -214,6 +211,7 @@ class Project:
 
             if group_name not in self.project[source_group]:
                 self.project[source_group][group_name] = []
+
             self.project[source_group][group_name].append(os.path.normpath(source_file))
 
     def _fix_paths(self):
@@ -250,6 +248,9 @@ class Project:
 
     def generate(self, copy, tool, target_settings=None, tool_settings=None):
         """ Exports a project """
+        target_settings = os.path.join(os.getcwd(),target_settings) if target_settings is not None else None
+        tool_settings = os.path.join(os.getcwd(),tool_settings) if tool_settings is not None else None
+        os.chdir(self.settings.project_root)
         if self.for_tool(tool) is None:
             return None
         #Targets object
@@ -290,6 +291,7 @@ class Project:
 
     def build(self, tool):
         """build the project"""
+        os.chdir(self.settings.project_root)
         if self.for_tool(tool) is None:
             return None
         self._set_output_dir_path()
@@ -303,8 +305,7 @@ class Project:
         result = builder(self.project, self.settings).build_project()
         return result
 
-    @staticmethod
-    def _generate_output_dir(path):
+    def _generate_output_dir(self, path):
         """this is a separate function, so that it can be more easily tested."""
         relpath = os.path.relpath(os.getcwd(),path)
         count = relpath.count(os.sep) + 1
@@ -312,13 +313,7 @@ class Project:
         return relpath+os.path.sep, count
 
     def _set_output_dir_path(self):
-        if self.settings.export_location_format != self.settings.DEFAULT_EXPORT_LOCATION_FORMAT:
-            location_format = self.settings.export_location_format
-        else:
-            if 'export_dir' in self.project:
-                location_format = self.project['export_dir']
-            else:
-                location_format = self.settings.export_location_format
+        location_format = self.settings.export_location_format
 
         try:
             target = self.project['target'].name

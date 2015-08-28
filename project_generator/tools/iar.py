@@ -14,15 +14,14 @@
 
 import xmltodict
 import logging
-import copy
 
 import os
 from os import getcwd
-from os.path import join, normpath
+from os.path import join
 
 from .builder import Builder
 from .exporter import Exporter
-from ..util import FILES_EXTENSIONS,SOURCE_KEYS
+from ..util import SOURCE_KEYS
 
 
 class IAREmbeddedWorkbench(Builder, Exporter):

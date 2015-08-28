@@ -16,7 +16,7 @@ import yaml
 import subprocess
 
 from os.path import join, splitext, exists
-from os import listdir, makedirs, getcwd
+from os import listdir
 
 from .settings import ProjectSettings
 import logging

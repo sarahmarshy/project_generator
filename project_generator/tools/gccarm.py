@@ -22,7 +22,6 @@ import ntpath
 import shutil
 from ..util import SOURCE_KEYS
 from itertools import chain
-from operator import add
 
 
 class MakefileGccArm(Exporter):

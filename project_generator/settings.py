@@ -21,7 +21,6 @@ GCC_BIN_PATH
 """
 
 import os
-from collections import defaultdict
 from os.path import expanduser, normpath, join, pardir, sep
 import logging
 
@@ -30,6 +29,7 @@ class ProjectSettings:
     DEFAULT_TOOL = os.environ.get('PROJECT_GENERATOR_DEFAULT_TOOL') or 'uvision'
 
     DEFAULT_EXPORT_LOCATION_FORMAT = join('generated_projects', '{tool}_{project_name}')
+    DEFAULT_ROOT = os.getcwd()
 
     def __init__(self):
         """ This are default enviroment settings for build tools. To override,
@@ -51,6 +51,7 @@ class ProjectSettings:
             os.mkdir(join(expanduser('~/.defs')))
 
         self.export_location_format = self.DEFAULT_EXPORT_LOCATION_FORMAT
+        self.project_root = self.DEFAULT_ROOT
 
     def update(self, settings):
         if settings:
@@ -65,8 +66,11 @@ class ProjectSettings:
             if 'definitions_dir' in settings:
                 self.paths['definitions'] = normpath(settings['definitions_dir'][0])
 
+            if 'root' in settings:
+                self.project_root = normpath(settings['root'])
+
             if 'export_dir' in settings:
-                self.export_location_format = normpath(settings['export_dir'][0])
+                self.export_location_format = normpath(settings['export_dir'])
 
     def update_definitions_dir(self, def_dir):
         logging.info("Updating target definitions directory to %s."%normpath(def_dir))

@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from posixpath import normpath, join, basename
+from posixpath import normpath
 
 from .exporter import Exporter
 from .builder import Builder
@@ -42,34 +42,6 @@ class EclipseGnuARM(Exporter, Builder):
     def get_toolchain():
         return 'make_gcc_arm'
 
-    def _expand_data(self, old_data, new_data, group):
-        """ data expansion - uvision needs filename and path separately. """
-        if group == 'Sources':
-            old_group = None
-        else:
-            old_group = group
-        for source in old_data[old_group]:
-            if source:
-                extension = source.split(".")[-1]
-                # TODO: fix - workaround for windows, seems posixpath does not work
-                source = source.replace('\\', '/')
-                #source = source.replace(new_data['rel_path'], '')
-                new_file = {"path": join('PARENT-%s-PROJECT_LOC' % new_data['output_dir']['rel_path'], normpath(source)), "name": basename(
-                    source), "type": self.file_types[extension]}
-                new_data['groups'][group].append(new_file)
-
-    def _get_groups(self, data):
-        """ Get all groups defined. """
-        groups = []
-        for attribute in SOURCE_KEYS:
-                if data[attribute]:
-                    for k, v in data[attribute].items():
-                        if k == None:
-                            k = 'Sources'
-                        if k not in groups:
-                            groups.append(k)
-        return groups
-
     def _iterate(self, data, expanded_data, rel_path):
         """ Iterate through all data, store the result expansion in extended dictionary. """
 
@@ -77,20 +49,11 @@ class EclipseGnuARM(Exporter, Builder):
         for key in FILES_EXTENSIONS.keys():
             if type(expanded_data[key]) is dict:
                 for k,v in expanded_data[key].items():
-                    expanded_data[key][k] = [path.replace(relpath, '') for path in v]
+                    expanded_data[key][k] = [normpath(path.replace(relpath, '')) for path in v]
             elif type(expanded_data[key]) is list:
-                expanded_data[key] = [path.replace(relpath, '') for path in expanded_data[key]]
+                expanded_data[key] = [normpath(path.replace(relpath, '')) for path in expanded_data[key]]
             else:
-                expanded_data[key] = expanded_data[key].replace(relpath, '')
-        
-
-        for attribute in SOURCE_KEYS:
-            for k, v in data[attribute].items():
-                if k == None:
-                    group = 'Sources'
-                else:
-                    group = k
-                self._expand_data(data[attribute], expanded_data, group)
+                expanded_data[key] = normpath(expanded_data[key].replace(relpath, ''))
 
     def build_project(self):
         self.exporter.build_project()
@@ -111,7 +74,6 @@ class EclipseGnuARM(Exporter, Builder):
 
     def generate_project(self):
         """ Processes groups and misc options specific for eclipse, and run generator """
-
         data_for_make = self.workspace.copy()
 
         self.exporter.process_data_for_makefile(data_for_make)
@@ -128,15 +90,12 @@ class EclipseGnuARM(Exporter, Builder):
             expanded_dic['core'] = 'cortex-m0plus'
 
         expanded_dic['rel_path'] = data_for_make['output_dir']['rel_path']
-        groups = self._get_groups(expanded_dic)
-        expanded_dic['groups'] = {}
-        for group in groups:
-            expanded_dic['groups'][group] = []
         self._iterate(self.workspace, expanded_dic, expanded_dic['rel_path'])
 
         self._get_libs(expanded_dic)
-        # Project file
 
+        expanded_dic['includes'].append('.')
+        # Project file
         self.gen_file_jinja(
             'eclipse_makefile.cproject.tmpl', expanded_dic, '.cproject', data_for_make['output_dir']['path'])
         self.gen_file_jinja(

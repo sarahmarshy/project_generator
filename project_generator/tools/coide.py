@@ -15,14 +15,12 @@
 import logging
 import xmltodict
 from collections import OrderedDict
-import copy
 
 from os.path import basename, join, normpath
 from os import getcwd
 
 from .builder import Builder
 from .exporter import Exporter
-from ..targets import Targets
 
 class CoIDEdefinitions():
 

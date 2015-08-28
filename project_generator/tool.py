@@ -12,12 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import os
-import logging
-import subprocess
-import yaml
 
-from .targets import Targets
 from .tools.iar import IAREmbeddedWorkbench
 from .tools.uvision import Uvision
 from .tools.uvision5 import Uvision5

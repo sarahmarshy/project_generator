@@ -11,21 +11,11 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-import copy
 
 from .gccarm import MakefileGccArm
 
 
 class SublimeTextMakeGccARM(MakefileGccArm):
-
-    generated_project = {
-        'path': '',
-        'files': {
-            'sublimetext': '',
-            'makefile': '',
-        }
-    }
-
     def __init__(self, workspace, env_settings):
         super(SublimeTextMakeGccARM, self).__init__(workspace, env_settings)
 
@@ -46,16 +36,12 @@ class SublimeTextMakeGccARM(MakefileGccArm):
 
     def generate_project(self):
         """ Processes misc options specific for GCC ARM, and run generator. """
-        output = copy.deepcopy(self.generated_project)
         self.process_data_for_makefile(self.workspace)
         self._fix_sublime_paths(self.workspace)
         self.workspace['linker_options'] =[]
 
-        output['path'], output['files']['makefile'] = self.gen_file_jinja('makefile_gcc.tmpl', self.workspace, 'Makefile', self.workspace['output_dir']['path'])
+        self.gen_file_jinja('makefile_gcc.tmpl', self.workspace, 'Makefile', self.workspace['output_dir']['path'])
 
         self.gen_file_jinja('sublimetext.sublime-project.tmpl', self.workspace,
                             '%s.sublime-project' % self.workspace['name'], self.workspace['output_dir']['path'])
         return 0
-
-    def get_generated_project_files(self):
-        return {'path': self.workspace['path'], 'files': [self.workspace['files']['sublimetext'], self.workspace['files']['makefile']]}

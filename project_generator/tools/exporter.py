@@ -17,7 +17,6 @@ import logging
 
 from os.path import join, dirname
 from jinja2 import Template
-import yaml
 
 class Exporter(object):
 
@@ -37,7 +36,6 @@ class Exporter(object):
         template_text = open(template_path).read()
         template = Template(template_text)
         target_text = template.render(data)
-
         open(output, "w").write(target_text)
         return dirname(output), output
 

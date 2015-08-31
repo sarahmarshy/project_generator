@@ -23,14 +23,14 @@ import logging
 
 class Target:
     def __init__(self, name, tools, config):
-        self.name = name
-        self.supported_tools = tools
-        self.config = config
-        self.core = self.config['mcu']['core']
-        self.vendor = self.config['mcu']['vendor']
-        self.fpu = self.core[-1] == 'f'
+        self.name = name # name of the target
+        self.supported_tools = tools # list of tools supported (defined in MCU definition)
+        self.config = config # entire dictionary
+        self.core = self.config['mcu']['core'] # name of core i.e. cortex-m4f
+        self.vendor = self.config['mcu']['vendor'] # vendor of target i.e. Freescale
+        self.fpu = self.core[-1] == 'f' # boolean, true if target has an FPU
         if self.fpu:
-            self.fpu_convention = 'fpv4-sp-d16'
+            self.fpu_convention = 'fpv4-sp-d16' # default FPU convention
 
     def get_tool_configuration(self, tool):
         if not(tool in self.supported_tools):

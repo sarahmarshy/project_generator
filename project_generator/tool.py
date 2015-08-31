@@ -43,7 +43,7 @@ class ToolsSupported:
     TOOLS_DICT = {
         'iar_arm':              IAREmbeddedWorkbench,
         'uvision':              Uvision,
-        'uvision5':              Uvision5,
+        'uvision5':             Uvision5,
         'coide':                Coide,
         'make_gcc_arm':         MakefileGccArm,
         'eclipse_make_gcc_arm': EclipseGnuARM,

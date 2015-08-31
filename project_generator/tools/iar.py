@@ -54,16 +54,11 @@ class IAREmbeddedWorkbench(Builder, Exporter):
         """ Parse all IAR specific settings. """
         for dic in data['misc']:
             # for k,v in dic.items():
-            self.set_specific_settings(dic, data)
+            self._set_specific_settings(dic, data)
 
     def _set_specific_settings(self, value_list, data):
-        for k, v in value_list.items():
-            for option in v.items():
-                for key, value in v['data']['option'].items():
-                    result = 0
-                    if value[0] == 'enable':
-                        result = 1
-                    data['iar_settings'][k]['data']['option'][key]['state'] = result
+        #not implemted
+        return
 
     def _normalize_mcu_def(self, mcu_def):
         for k,v in mcu_def['OGChipSelectEditMenu'].items():

@@ -73,32 +73,28 @@ class Project:
 
         self.project = {
             'name': self.name,          # project name
-            'core': '',                 # core
             'linker_file': None,        # linker command file
             'build_dir' : 'build',      # Build output path
             'debugger' : 'cmsis-dap',   # Debugger
             'includes': [],             # include paths
             'copy_sources': False,      # [internal] Copy sources to destination flag
-            'include_files': [],        # [internal] files to be included
-            'sources': [],
-            'source_files_c': {},       # [internal] c source files
-            'source_files_cpp': {},     # [internal] c++ source files
-            'source_files_s': {},       # [internal] assembly source files
-            'source_files_obj': {},   # [internal] object files
-            'source_files_a': {},   # [internal] libraries
+            'sources': [],              # [internal]
+            'source_files_c': {},       # c source files
+            'source_files_cpp': {},     # c++ source files
+            'source_files_s': {},       # assembly source files
+            'source_files_obj': {},     # object files
+            'source_files_a': {},       #  libraries
             'macros': [],               # macros (defines)
             'mcu'   : {},
             'fpu'   : None,
             'misc': {},                 # misc tools settings, which are parsed by tool
             'output_dir': {             # [internal] The generated path dict
                 'path': '',             # path with all name mangling we add to export_dir
-                'rel_path': '',         # how far we are from root
-                'rel_count': '',        # Contains count of how far we are from root, used for eclipse for example
+                'rel_path': ''         # how far we are from root
             },
             'target': '',       # target
             'template' : '',    # tool template
             'output_type': 'exe',           # output type, default - exe
-            'singular'   : True
 
         }
 
@@ -184,8 +180,6 @@ class Project:
             if include_file:
                 if os.path.isfile(include_file):
                     # file, add it to the list (for copying or if tool requires it)
-                    if not include_file in self.project['include_files']:
-                        self.project['include_files'].append(os.path.normpath(include_file))
                     dir_path = os.path.dirname(include_file)
                 else:
                     # its a directory

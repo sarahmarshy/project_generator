@@ -25,13 +25,8 @@ from .tools.gdb import ARMNoneEABIGDB
 
 class ToolsSupported:
     """ Represents all tools available """
-
-    # Tools dictionary
-    # Each of this tool needs to support at least:
-    # - get_toolchain (toolchain is a list of toolchains supported by tool)
-    # - get_toolname (returns name string)
-    # - export_project (basic functionality to be covered by a tool)
-    TOOLS_ALIAS ={
+    
+    TOOLS_ALIAS ={  # The values of each key should correspond to a key in TOOLS_DICT
         'iar':          'iar_arm',
         'make_gcc':     'make_gcc_arm',
         'gcc_arm':      'make_gcc_arm',

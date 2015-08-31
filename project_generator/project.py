@@ -302,9 +302,8 @@ class Project:
     def _generate_output_dir(self, path):
         """this is a separate function, so that it can be more easily tested."""
         relpath = os.path.relpath(os.getcwd(),path)
-        count = relpath.count(os.sep) + 1
 
-        return relpath+os.path.sep, count
+        return relpath+os.path.sep
 
     def _set_output_dir_path(self):
         location_format = self.settings.export_location_format
@@ -322,7 +321,7 @@ class Project:
 
         self.project['output_dir']['path'] = os.path.normpath(location)
         path = self.project['output_dir']['path']
-        self.project['output_dir']['rel_path'], self.project['output_dir']['rel_count'] = self._generate_output_dir(path)
+        self.project['output_dir']['rel_path'] = self._generate_output_dir(path)
         logging.debug("Output directory: %s"%self.project['output_dir']['rel_path']+self.project['output_dir']['path'])
 
     def copy_files(self):

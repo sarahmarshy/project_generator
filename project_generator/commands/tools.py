@@ -14,9 +14,6 @@
 
 from .generate import *
 
-help = 'List tools pgen supports'
-
-
 def run(args):
     logging.debug("Finding tools.")
     if os.path.exists(args.file):
@@ -31,9 +28,8 @@ def run(args):
         # not project known by pgen
         logging.warning("%s not found." % args.file)
 
-
 def setup(subparser):
         subparser.add_argument(
-        "-f", "--file", help="YAML projects file", default='.projects.yaml')
+            "-f", "--file", help="YAML projects file", default='.projects.yaml')
         subparser.add_argument(
-        "-p", "--project", help="Project to be generated", default = '')
+            "-p", "--project", help="Project to list tools for", default = '')

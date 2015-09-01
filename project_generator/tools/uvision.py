@@ -17,7 +17,7 @@ import logging
 import xmltodict
 import copy
 
-from os.path import basename, join, normpath
+from os.path import basename, join
 from os import getcwd
 from .exporter import Exporter
 from .builder import Builder
@@ -210,19 +210,26 @@ class Uvision(Builder, Exporter):
         for file in os.listdir(self.workspace['output_dir']['path']):
             if re.match(pattern,file):
                 path = join(self.workspace['output_dir']['path'],file)
+                break
+
+        tool = "uvision"
+        if path[-1] == 'x':
+            tool = "uvision5"
 
         if not os.path.exists(path):
             logging.critical("The file: %s does not exist. You must call generate before build." % path)
             return None
 
         proj_name = path.split(os.path.sep)[-1]
+        build_path = join('.', 'build', 'build_log.txt')
 
-        args = [self.env_settings.get_env_settings('uvision'), '-r', '-j0', '-o', './build/build_log.txt', path]
+        args = [self.env_settings.get_env_settings(tool), '-r', path, '-o', build_path, '-j0']
         ret = Builder.build_command(args, self, "Uvision", proj_name)
-        if ret < 0 and logging.getLogger().isEnabledFor(logging.DEBUG):
+        if ret != 0 and logging.getLogger().isEnabledFor(logging.DEBUG):
             build_path = join(self.workspace['output_dir']['path'], 'build', 'build_log.txt')
-            with open(build_path, 'r+') as f:
-                logging.debug(" BUILD LOG\n" + "\n".join(f.readlines()))
+            if os.path.exists(build_path):
+                with open(build_path, 'r+') as f:
+                    logging.debug(" BUILD LOG\n" + "\n".join(f.readlines()))
         return ret
 
     def get_mcu_definition(self, project_file, mcu):

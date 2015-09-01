@@ -16,9 +16,6 @@ import os
 import logging
 from ..create import create_yaml
 
-help = 'Create a project record'
-
-
 def run(args):
     root = os.getcwd()
     directory = root if not args.directory else os.path.normpath(os.path.join(root, args.directory))

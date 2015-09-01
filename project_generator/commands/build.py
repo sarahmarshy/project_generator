@@ -17,9 +17,6 @@ import logging
 from ..generate import Generator
 import sys
 
-help = 'Build a project'
-
-
 def run(args):
 
     # Export if we know how, otherwise return
@@ -46,8 +43,6 @@ def setup(subparser):
         "-t", "--tool", help="Build a project files for provided tool", type = str.lower)
     subparser.add_argument(
         "-i", "--ignore", nargs='+', help="Directories to be ignored", type = str, default=['generated_projects'])
-    subparser.add_argument(
-        "-dir", "--directory", help="The projects directory")
     subparser.add_argument("-tar", "--target", help="Target configuration file")
     subparser.add_argument("-settings", "--settings", help="Tool configuration file")
     subparser.add_argument(

@@ -25,7 +25,7 @@ from .tools.gdb import ARMNoneEABIGDB
 
 class ToolsSupported:
     """ Represents all tools available """
-    
+
     TOOLS_ALIAS ={  # The values of each key should correspond to a key in TOOLS_DICT
         'iar':          'iar_arm',
         'make_gcc':     'make_gcc_arm',

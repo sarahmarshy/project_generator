@@ -14,9 +14,6 @@
 
 import sys
 import logging
-
-help = 'Import mcu to pgen. Provide a valid project file, pgen will parse to create mcu definition'
-
 from ..tool import ToolsSupported
 from ..targets import mcu_create
 

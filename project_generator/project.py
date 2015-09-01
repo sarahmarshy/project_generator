@@ -20,6 +20,7 @@ import re
 from .targets import Targets
 import os
 from os.path import *
+from itertools import chain
 
 class Project:
 
@@ -48,11 +49,7 @@ class Project:
         self.supported = []  # tools that project's yaml files define
         for dict in self.project_dicts:  # iterates over the dictionaries defined in yaml file
             self._set_project_attributes(dict, "common")  # self.project dict values according to yaml common section
-
-             # _find_tool_settings yields valid tools defined in yaml
-            self.supported = reduce(lambda x,y:x+y,
-                                    [self._find_supported_tools(t) for t in self._find_tool_settings(dict)])
-
+            self._find_tool_settings(dict) #get tool specifc settings and supported tools
         #if tool is default, we are just extracting yaml information to see what tools are possible
         if self.tool not in self.supported and tool != "default":
             logging.error("The tool name \"%s\" is not supported in yaml!"%self.tool, exc_info = False)
@@ -100,9 +97,9 @@ class Project:
         }
 
     def _find_supported_tools(self, toolchain):
-        # Iterate over all possible pgen tools, return only the ones where the toolchain is a valid toolname
+        # Iterate over all possible pgen tools, return only the ones where the toolchain is a valid toolname of a tool
         supported = ToolsSupported()
-        return filter(lambda t:toolchain in supported.get_toolnames(t),supported.get_supported())
+        return [tool for tool in supported.get_supported() if toolchain in supported.get_toolnames(tool)]
 
     def _resolve_toolchain(self, tool):
         return ToolsSupported().get_toolchain(tool)
@@ -121,12 +118,11 @@ class Project:
                         self._set_project_attributes(project_file_data['tool_specific'],toolchain)
 
                 if 'linker_file' in settings and self.project['output_type'] == 'exe':
-                    """ Yield this valid tool so we can determine what tools the project can be
-                        succesfully generated for """
-                    yield tool
-                else:
+                    # Determine what tools the project can be succesfully generated for
+                    self.supported.extend(self._find_supported_tools(tool))
+                elif self.project['output_type'] != 'exe':
                     # Output library, linker file not needed
-                    yield tool
+                    self.supported.extend(self._find_supported_tools(tool))
 
     def _set_project_attributes(self,project_file_data, section):
         """Set attributes in self.project according to dict and section(key) of that dict"""
@@ -184,8 +180,9 @@ class Project:
     def _process_source_files(self, files, group_name):
         """Sorts source files into groups in the form of source_groups[group_name][extension]
             extensions will be mapped to 5 main types 'cpp', 'c', 's', 'obj', 'a'"""
-        ignore = lambda f: not(any(re.match(ignore,f) for ignore in self.ignore_dirs))
-        for source_file in filter(ignore,files):
+        for source_file in files:
+            if any(re.match(ignore,source_file) for ignore in self.ignore_dirs):
+                continue
             if isdir(source_file):
                 self._process_source_files([join(normpath(source_file), f) for f in os.listdir(
                     source_file) if isfile(join(normpath(source_file), f))], group_name)
@@ -324,11 +321,11 @@ class Project:
                 no_ignore.extend(self.project[key])
             else:
                 no_ignore.append(self.project[key])
-        dst = join(self.project['output_dir']['path'],'copy')
+        dst = join(self.project['output_dir']['path'],"copy")
         if exists(dst):
             shutil.rmtree(dst)
         src = relpath(os.getcwd())
-        for item in filter(lambda x: x in no_ignore,os.listdir(src)):
+        for item in [x for x in os.listdir(src) if x in no_ignore]:
             s = join(src,item)
             d = join(dst,item)
             if isdir(s):

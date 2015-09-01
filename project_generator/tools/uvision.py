@@ -186,7 +186,7 @@ class Uvision(Builder, Exporter):
 
     def generate_project(self):
         expanded_dic = self.workspace.copy()
-        self.parse_data('uvision',expanded_dic)
+        self.parse_data('uvision',expanded_dic) #broken out so uvision5 can call super with uvision5 as parameter
         # Project file
         self.generate_file('uvision4.uvproj.tmpl',expanded_dic,'uvproj')
         return 0
@@ -194,9 +194,6 @@ class Uvision(Builder, Exporter):
     def generate_file(self,tmpl,data,ext):
          self.gen_file_jinja(
             tmpl, data, '%s.%s'%(self.workspace['name'],ext), data['output_dir']['path'])
-
-    def get_generated_project_files(self):
-        return {'path': self.workspace['path'], 'files': [self.workspace['files']['uvproj']]}
 
     def supports_target(self, target):
         return target in self.definitions.mcu_def

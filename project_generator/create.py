@@ -76,8 +76,7 @@ def create_yaml(directory, project_name, board,output_dir):
         'linker_file': FILES_EXTENSIONS['linker_file'],
         'sources': FILES_EXTENSIONS['source_files_c'] + FILES_EXTENSIONS['source_files_cpp'] +
                    FILES_EXTENSIONS['source_files_s'] + FILES_EXTENSIONS['source_files_obj'],
-        'includes': FILES_EXTENSIONS['includes'],
-        'target': [],
+        'includes': FILES_EXTENSIONS['includes']
     }
 
     # will be written to .projects.yaml
@@ -96,9 +95,8 @@ def create_yaml(directory, project_name, board,output_dir):
     }
     # iterate over the common section defined above
     for section, extensions in common_section.items():
-        if len(common_section[section]) > 0:
-            # look for files in this directory that have the defined extensions, and add them to our project file
-            project_yaml['common'][section] = _scan(section, directory,extensions)
+        # look for files in this directory that have the defined extensions, and add them to our project file
+        project_yaml['common'][section] = _scan(section, directory,extensions)
 
     project_yaml['common']['target'] = [board] # user passes target in command line
 

@@ -134,10 +134,8 @@ class Uvision(Builder, Exporter):
         """ Get all groups defined. """
         groups = []
         for attribute in SOURCE_KEYS:
-                if data[attribute]:
-                    for k, v in data[attribute].items():
-                        if k not in groups:
-                            groups.append(k)
+            if data[attribute]:
+                groups.extend(filter(lambda k:k not in groups,data[attribute].keys()))
         return groups
 
     def append_mcu_def(self, data, mcu_def):

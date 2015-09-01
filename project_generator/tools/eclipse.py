@@ -11,7 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
+import yaml
 from posixpath import normpath
 
 from .exporter import Exporter
@@ -42,18 +42,19 @@ class EclipseGnuARM(Exporter, Builder):
     def get_toolchain():
         return 'make_gcc_arm'
 
-    def _iterate(self, data, expanded_data, rel_path):
+    def _iterate(self, expanded_data):
         """ Iterate through all data, store the result expansion in extended dictionary. """
 
         relpath = expanded_data['rel_path']
+        norm_func = lambda path : normpath(path.replace(relpath, ''))
         for key in FILES_EXTENSIONS.keys():
             if type(expanded_data[key]) is dict:
                 for k,v in expanded_data[key].items():
-                    expanded_data[key][k] = [normpath(path.replace(relpath, '')) for path in v]
+                    expanded_data[key][k] = map(norm_func, v)
             elif type(expanded_data[key]) is list:
-                expanded_data[key] = [normpath(path.replace(relpath, '')) for path in expanded_data[key]]
+                expanded_data[key] = map(norm_func, expanded_data[key])
             else:
-                expanded_data[key] = normpath(expanded_data[key].replace(relpath, ''))
+                expanded_data[key] = norm_func(expanded_data[key])
 
     def build_project(self):
         self.exporter.build_project()
@@ -90,7 +91,7 @@ class EclipseGnuARM(Exporter, Builder):
             expanded_dic['core'] = 'cortex-m0plus'
 
         expanded_dic['rel_path'] = data_for_make['output_dir']['rel_path']
-        self._iterate(self.workspace, expanded_dic, expanded_dic['rel_path'])
+        self._iterate(expanded_dic)
 
         self._get_libs(expanded_dic)
 

@@ -70,10 +70,7 @@ class Targets:
         return config['tool_specific'].keys()
 
     def get_target(self, alias):
-        targs = []
-        for target in self.targets:
-            if alias.lower() in target.name.lower():
-                targs.append(target)
+        targs = filter(lambda x: alias.lower() in x.name.lower(),self.targets)
         if len(targs) == 1:
             return targs[0]
         elif len(targs) > 1:

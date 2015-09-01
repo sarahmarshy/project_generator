@@ -16,7 +16,6 @@ import yaml
 import locale
 import shutil
 import string
-import operator
 import subprocess
 from .settings import ProjectSettings
 import logging
@@ -32,12 +31,9 @@ FILES_EXTENSIONS = {
     'source_files_obj': ['o', 'obj'],
     'linker_file': ['sct', 'ld', 'lin', 'icf'],
 }
-VALID_EXTENSIONS = FILES_EXTENSIONS['source_files_s'] + FILES_EXTENSIONS['source_files_c'] + FILES_EXTENSIONS['source_files_cpp'] + FILES_EXTENSIONS['source_files_a'] + FILES_EXTENSIONS['source_files_obj']
-FILE_MAP = {}
-for key,values in FILES_EXTENSIONS.items():
-    for value in values:
-        FILE_MAP[value] = key
+FILE_MAP = {v:k for k,values in FILES_EXTENSIONS.items() for v in values}
 SOURCE_KEYS = ['source_files_c', 'source_files_s', 'source_files_cpp', 'source_files_a', 'source_files_obj']
+VALID_EXTENSIONS = reduce(lambda x,y:x+y,[FILES_EXTENSIONS[key] for key in SOURCE_KEYS])
 
 def rmtree_if_exists(directory):
     if os.path.exists(directory):
@@ -46,19 +42,6 @@ def rmtree_if_exists(directory):
 def uniqify(_list):
     # see: http://stackoverflow.com/questions/480214/how-do-you-remove-duplicates-from-a-list-in-python-whilst-preserving-order/29898968#29898968
     return reduce(lambda r, v: v in r[1] and r or (r[0].append(v) or r[1].add(v)) or r, _list, ([], set()))[0]
-
-def merge_recursive(*args):
-    if all(isinstance(x, dict) for x in args):
-        output = {}
-        keys = reduce(operator.or_, [set(x) for x in args])
-
-        for key in keys:
-            # merge all of the ones that have them
-            output[key] = merge_recursive(*[x[key] for x in args if key in x])
-
-        return output
-    else:
-        return reduce(operator.add, args)
 
 def flatten(S):
     if S == []:

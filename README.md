@@ -55,3 +55,4 @@ Dependencies for Project generator
  * [pyYAML](https://github.com/yaml/pyyaml)
  * [Setuptools](https://pypi.python.org/pypi/distribute)
  * [Jinja2](https://pypi.python.org/pypi/Jinja2)
+ * [xmltodict](https://pypi.python.org/pypi/xmltodict)

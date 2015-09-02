@@ -32,4 +32,4 @@ def setup(subparser):
         subparser.add_argument(
             "-f", "--file", help="YAML projects file", default='.projects.yaml')
         subparser.add_argument(
-            "-p", "--project", help="Project to list tools for", default = '')
+            "-p", "--project", help="Name of project to list development tools for", default='')

@@ -82,6 +82,9 @@ def update(force=True, settings=ProjectSettings()):
     # For default, use up to date repo from github
     if settings.get_env_settings('definitions') == settings.get_env_settings('definitions_default'):
         if not defdir_exists:
+            # ToDo chage to project_generaror URL before release
+            #  and also make this a command line option
+            #  and rethink strategy (git dancing vs tmp clone , rm and rename)
             cmd = ('git', 'clone', '--quiet',
                    'https://github.com/sarahmarshy/pgen_definitions.git', '.')
             subprocess.call(cmd, cwd=settings.paths['definitions'])

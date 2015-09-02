@@ -13,20 +13,19 @@
 # limitations under the License.
 
 import argparse
-import os
 import logging
 from .util import update
 
 import pkg_resources
 
-from .commands import build, generate, create, tools, create_mcu
+from .commands import build, generate, create, tools, extract
 
 subcommands = {
     'create': create,
     'generate': generate,
     'build': build,
     'tools': tools,
-    'import': create_mcu
+    'extract': extract
 }
 help = {
     'create': "Create a yaml file describing a given directory. If no directory is specified, the current working "

@@ -1,0 +1,6 @@
+common:
+  includes: []
+  sources: {}
+  target:
+  - cortex-m0
+tool_specific: {}

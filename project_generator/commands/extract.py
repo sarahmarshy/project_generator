@@ -21,21 +21,19 @@ import os
 def run(args):
 
     if not os.path.exists(args.file):
-        logging.critical("The file %s does not exist!"%(args.file))
+        logging.critical("The file %s does not exist!" % args.file)
         sys.exit(1)
-    extension_dic = {'uvproj':'uvision','uvprojx':'uvision5','ewp':'iar'}
+    extension_dic = {'uvproj': 'uvision', 'uvprojx': 'uvision5', 'ewp': 'iar'}
     extension = args.file.split('.')[-1]
     if extension not in extension_dic:
-        options = ("\n").join(extension_dic.keys())
-        logging.critical("The extension provided does not have an import command. \nChoose from: \n %s"%(options))
+        options = "\n".join(extension_dic.keys())
+        logging.critical("The extension provided does not have an import command. \nChoose from: \n %s" % options)
         sys.exit(1)
     tool = ToolsSupported().get_tool(extension_dic[extension])
     return mcu_create(tool, args.mcu, args.file)
 
 def setup(subparser):
     subparser.add_argument(
-        '-mcu', action='store', required = True, help='MCU name')
+        '-m', '--mcu', action='store', required=True, help='MCU name that setting are being extracted for')
     subparser.add_argument(
-        '-f', '--file', action='store', required = True, help='Project file to be parsed (a valid tool project)')
-    subparser.add_argument(
-        '-dir', '--directory', action='store', required = False, help='Directory to store mcu record in, otherwise default (~/.pg/definitions) is used')
+        '-f', '--file', action='store', required=True, help='Development tool project file to be parsed. Must be valid')

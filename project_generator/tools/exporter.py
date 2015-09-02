@@ -38,10 +38,3 @@ class Exporter(object):
         target_text = template.render(data)
         open(output, "w").write(target_text)
         return dirname(output), output
-
-    def fixup_executable(self, exe_path):
-        return exe_path
-
-    @staticmethod
-    def is_supported_by_default(target):
-        return False

@@ -18,19 +18,19 @@ from ..create import create_yaml
 
 def run(args):
     root = os.getcwd()
-    directory = root if not args.directory else os.path.normpath(os.path.join(root, args.directory))
+    directory = root if not args.dir else os.path.normpath(os.path.join(root, args.dir))
     output = directory if not args.output else args.output
-    logging.info("Generating the records for %s."%directory)
+    logging.info("Generating the yaml records for %s."%directory)
     name = os.path.split(directory)[1] if not args.name else args.name
-    create_yaml(os.path.normpath(directory), name, args.target.lower(),output)
+    create_yaml(os.path.normpath(directory), name, args.mcu.lower(), output)
     logging.info("Yaml files generated.")
 
 def setup(subparser):
     subparser.add_argument(
-        '-name', help='Project name')
+        '-p', '--project', help='Project name')
     subparser.add_argument(
-        '-tar', '--target', action='store', help='Target definition', default = "cortex-m0")
+        '-m', '--mcu', action='store', help='Microcontroller part name', default="cortex-m0")
     subparser.add_argument(
-        '-dir', '--directory', action='store', help='Directory selection', default=None)
+        '-d', '--dir', action='store', help='Source directory', default=None)
     subparser.add_argument(
-        '-output', '--output', action='store', help='Where to store generated projects', default=None)
+        '-o', '--output', action='store', help='Generated project files directory', default=None)

@@ -87,7 +87,7 @@ def update(force=True, settings=ProjectSettings()):
             subprocess.call(cmd, cwd=settings.paths['definitions'])
         elif force:
             # rebase only if force, otherwise use the current version
-            cmd = ('git', 'pull', '--rebase', '--quiet', 'origin', 'master')
+            cmd = ('git', 'pull', '--quiet', 'origin', 'master')
             subprocess.call(cmd, cwd=settings.paths['definitions'])
         else:
             # check if we are on top of origin/master

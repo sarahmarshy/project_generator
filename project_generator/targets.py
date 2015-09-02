@@ -53,8 +53,8 @@ class Targets:
     }
 
     def __init__(self, directory=None):
-        logging.debug("Target definitions captured from %s."%directory)
         if directory:
+            logging.debug("Target definitions captured from %s."%directory)
             self.definitions_directory = directory
             self.targets = [Target(splitext(f)[0],self._find_tools(f),self._load_record(f)) for f in listdir(directory)
                             if splitext(f)[1] == '.yaml' ]
@@ -92,6 +92,7 @@ class Targets:
 # parses the provided proj_file and creates a valid yaml file, which can be pushed
 # to pgen definitions.
 def mcu_create(ToolParser, mcu_name, proj_file, definitions = None):
+    logging.info("Creating target defintion for %s from %s"%(mcu_name,proj_file))
     settings = ProjectSettings()
     if definitions is not None:
         settings.update_definitions_dir(definitions)

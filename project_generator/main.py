@@ -69,8 +69,6 @@ def main():
     logging_level = max(logging.WARNING - (10 * verbosity), 0)
     logging.basicConfig(format="%(levelname)s: %(message)s", level=logging_level)
 
-    logging.debug('This should be the project root: %s', os.getcwd())
-
     args.func(args)
 
 if __name__ == '__main__':

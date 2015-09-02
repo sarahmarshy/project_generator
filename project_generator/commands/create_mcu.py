@@ -16,24 +16,25 @@ import sys
 import logging
 from ..tool import ToolsSupported
 from ..targets import mcu_create
+import os
 
 def run(args):
 
-    toolname = ToolsSupported().resolve_alias(args.tool)
-    tool = ToolsSupported().get_tool(toolname)
-    if tool is None:
-        options = ToolsSupported().get_supported() + ToolsSupported().TOOLS_ALIAS.keys()
-        options.sort()
-        logging.error("The tool name \"%s\" is not valid! \nChoose from: \n%s"% (args.tool, ", ".join(options)),exc_info= False)
+    if not os.path.exists(args.file):
+        logging.critical("The file %s does not exist!"%(args.file))
         sys.exit(1)
+    extension_dic = {'uvproj':'uvision','uvprojx':'uvision5','ewp':'iar'}
+    extension = args.file.split('.')[-1]
+    if extension not in extension_dic:
+        options = ("\n").join(extension_dic.keys())
+        logging.critical("The extension provided does not have an import command. \nChoose from: \n %s"%(options))
+        sys.exit(1)
+    tool = ToolsSupported().get_tool(extension_dic[extension])
     return mcu_create(tool, args.mcu, args.file)
 
 def setup(subparser):
     subparser.add_argument(
         '-mcu', action='store', required = True, help='MCU name')
-    # we need tool as some tools have same extensions and we might have problems
-    subparser.add_argument(
-        '-t', '--tool', action='store', required = True, help='Tool to be set')
     subparser.add_argument(
         '-f', '--file', action='store', required = True, help='Project file to be parsed (a valid tool project)')
     subparser.add_argument(

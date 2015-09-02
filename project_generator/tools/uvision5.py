@@ -43,6 +43,7 @@ class Uvision5(Uvision):
         # Generic Target, should get from Target class !
         vendor = uvproj_dic['Project']['Targets']['Target']['TargetOption']['TargetCommonOption']['Vendor']
         mcu['mcu']['vendor'] = vendor
+        mcu['mcu']['core'] = mcu_back['mcu']['core']
         device = mcu_back['tool_specific']['uvision']['TargetOption']['Device']
         mcu['tool_specific']['uvision5'] = {
             'TargetOption':{'Device':device}

@@ -139,8 +139,6 @@ class Project:
         for dict in self.project_dicts:  # iterates over the dictionaries defined in yaml file
             self._set_project_attributes(dict, "common")  # self.project dict values according to yaml common section
             self._find_tool_settings(dict)  # get tool specifc settings and supported tools
-            if 'target' in dict['common']:
-                self.target = dict['common']['target']
 
         # if tool is default, we are just extracting yaml information to see what tools are possible
         if self.tool not in self.supported_tools and tool != "default":

@@ -29,7 +29,7 @@ def run(args):
         logging.critical("The extension provided does not have an import command. \nChoose from: \n %s" % options)
         sys.exit(1)
     extractor = ToolsSupported().get_tool(extension_dic[extension])
-    extractor(None, None).extract_mcu_definition(args.file,args.mcu)
+    extractor(None).extract_mcu_definition(args.file,args.mcu)
 
 def setup(subparser):
     subparser.add_argument(

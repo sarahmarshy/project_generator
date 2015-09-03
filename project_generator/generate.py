@@ -7,11 +7,8 @@ from.util import load_yaml_records,uniqify,flatten
 class Generator:
     def __init__(self, pgen_data):
         logging.debug("Reading from %s"%pgen_data)
-        if type(pgen_data) is not dict:
-            with open(pgen_data, 'rt') as f:
-                self.projects_dict = yaml.load(f)
-        else:
-            self.projects_dict = pgen_data
+        with open(pgen_data, 'rt') as f:
+            self.projects_dict = yaml.load(f)
 
     def generate(self, name = '', ignore = []):
         if 'projects' in self.projects_dict:

@@ -14,16 +14,18 @@
 
 import os
 import logging
-
 from os.path import join, dirname
 from jinja2 import Template
 
-class Exporter(object):
+from ..util import FILES_EXTENSIONS
+from os.path import normpath
+
+
+class Generator(object):
 
     """Just a template for subclassing"""
 
     TEMPLATE_DIR = join(dirname(__file__), '..', 'templates')
-    DOT_IN_RELATIVE_PATH = False
 
     def gen_file_jinja(self, template_file, data, output, dest_path):
         if not os.path.exists(dest_path):
@@ -38,3 +40,14 @@ class Exporter(object):
         target_text = template.render(data)
         open(output, "w").write(target_text)
         return dirname(output), output
+
+    def fix_paths(self):
+        norm_func = lambda path : normpath(join(self.project_data['rel_path'],path))
+        for key in FILES_EXTENSIONS.keys():
+            if type(self.project_data[key]) is dict:
+                for k,v in self.project_data[key].items():
+                    self.project_data[key][k] = map(norm_func,v)
+            elif type(self.project_data[key]) is list:
+                self.project_data[key] = map(norm_func,self.project_data[key])
+            else:
+                self.project_data[key] = norm_func(self.project_data[key])

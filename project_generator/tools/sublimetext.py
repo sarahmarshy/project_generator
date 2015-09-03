@@ -16,8 +16,8 @@ from .gccarm import MakefileGccArm
 
 
 class SublimeTextMakeGccARM(MakefileGccArm):
-    def __init__(self, workspace, env_settings):
-        super(SublimeTextMakeGccARM, self).__init__(workspace, env_settings)
+    def __init__(self, project_data):
+        super(SublimeTextMakeGccARM, self).__init__(project_data)
 
     @staticmethod
     def get_toolnames():
@@ -36,12 +36,12 @@ class SublimeTextMakeGccARM(MakefileGccArm):
 
     def generate_project(self):
         """ Processes misc options specific for GCC ARM, and run generator. """
-        self.process_data_for_makefile(self.workspace)
-        self._fix_sublime_paths(self.workspace)
-        self.workspace['linker_options'] =[]
+        self.process_data_for_makefile(self.project_data)
+        self._fix_sublime_paths(self.project_data)
+        self.project_data['linker_options'] =[]
 
-        self.gen_file_jinja('makefile_gcc.tmpl', self.workspace, 'Makefile', self.workspace['output_dir']['path'])
+        self.gen_file_jinja('makefile_gcc.tmpl', self.project_data, 'Makefile', self.project_data['output_dir']['path'])
 
-        self.gen_file_jinja('sublimetext.sublime-project.tmpl', self.workspace,
-                            '%s.sublime-project' % self.workspace['name'], self.workspace['output_dir']['path'])
+        self.gen_file_jinja('sublimetext.sublime-project.tmpl', self.project_data,
+                            '%s.sublime-project' % self.project_data['name'], self.project_data['output_dir']['path'])
         return 0

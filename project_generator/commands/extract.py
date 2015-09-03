@@ -15,7 +15,6 @@
 import sys
 import logging
 from ..tool import ToolsSupported
-from ..targets import mcu_create
 import os
 
 def run(args):
@@ -29,8 +28,8 @@ def run(args):
         options = "\n".join(extension_dic.keys())
         logging.critical("The extension provided does not have an import command. \nChoose from: \n %s" % options)
         sys.exit(1)
-    tool = ToolsSupported().get_tool(extension_dic[extension])
-    return mcu_create(tool, args.mcu, args.file)
+    extractor = ToolsSupported().get_tool(extension_dic[extension])
+    extractor(None, None).extract_mcu_definition(args.file,args.mcu)
 
 def setup(subparser):
     subparser.add_argument(

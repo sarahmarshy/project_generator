@@ -14,17 +14,16 @@
 
 import xmltodict
 import logging
-
 import os
-from os import getcwd
 from os.path import join
 
 from .builder import Builder
-from .exporter import Exporter
+from .generator import Generator
+from .extractor import Extractor
 from ..util import SOURCE_KEYS
 
 
-class IAREmbeddedWorkbench(Builder, Exporter):
+class IAREmbeddedWorkbench(Builder, Generator, Extractor):
 
     SUCCESSVALUE = 0
     ERRORVALUE = 1
@@ -38,9 +37,8 @@ class IAREmbeddedWorkbench(Builder, Exporter):
     source_files_dic = [
         'source_files_c', 'source_files_s', 'source_files_cpp', 'source_files_a', 'source_files_obj']
 
-    def __init__(self, workspace, env_settings):
-        self.workspace = workspace
-        self.env_settings = env_settings
+    def __init__(self, project_data):
+        self.project_data = project_data
 
     @staticmethod
     def get_toolnames():
@@ -50,11 +48,11 @@ class IAREmbeddedWorkbench(Builder, Exporter):
     def get_toolchain():
         return 'iar'
 
-    def _parse_specific_options(self, data):
+    def _parse_specific_options(self, project_data):
         """ Parse all IAR specific settings. """
-        for dic in data['misc']:
+        for dic in project_data['misc']:
             # for k,v in dic.items():
-            self._set_specific_settings(dic, data)
+            self._set_specific_settings(dic, project_data)
 
     def _set_specific_settings(self, value_list, data):
         #not implemted
@@ -66,7 +64,7 @@ class IAREmbeddedWorkbench(Builder, Exporter):
             v = v.replace(' ', '\t', 1)
             mcu_def['OGChipSelectEditMenu'][k] = v
 
-    def _fix_paths(self, data):
+    def _fix_iar_paths(self, data):
         """ All paths needs to be fixed - add PROJ_DIR prefix + normalize """
         data['includes'] = [join('$PROJ_DIR$', path) for path in data['includes']]
             
@@ -85,10 +83,10 @@ class IAREmbeddedWorkbench(Builder, Exporter):
             if option['name'] == find_key:
                 return settings.index(option)
 
-    def build_project(self):
+    def build_project(self, exe_path, project_file_path):
         """ Build IAR project. """
         # > IarBuild [project_path] -build [project_name]
-        proj_path = join(self.workspace['output_dir']['path'],self.workspace['name'])
+        proj_path = join(project_file_path,self.project_data['name'])
         if proj_path.split('.')[-1] != 'ewp':
             proj_path += '.ewp'
         if not os.path.exists(proj_path):
@@ -97,40 +95,37 @@ class IAREmbeddedWorkbench(Builder, Exporter):
         logging.debug("Building IAR project: %s" % proj_path)
         proj_name = proj_path.split(os.path.sep)[-1]
 
-        args = [join(self.env_settings.get_env_settings('iar'), 'IarBuild.exe'), proj_path, '-build', os.path.splitext(os.path.basename(proj_path))[0]]
+        args = [exe_path, proj_path, '-build', os.path.splitext(os.path.basename(proj_path))[0]]
         Builder().build_command(args,self,"IAR",proj_name)
 
-    def generate_project(self):
+    def generate_project(self, output_path):
         """ Processes groups and misc options specific for IAR, and run generator """
-        expanded_dic = self.workspace.copy()
-        self._fix_paths(expanded_dic)
+        self.fix_paths()
+        project_data = self.project_data.copy()
+        self._fix_iar_paths(project_data)
 
-        expanded_dic['iar_settings'] = {}
-        self._parse_specific_options(expanded_dic)
+        project_data['iar_settings'] = {}
+        self._parse_specific_options(project_data)
 
-        mcu_def_dic = expanded_dic['target'].get_tool_configuration('iar')
+        mcu_def_dic = project_data['target'].get_tool_configuration('iar')
         if mcu_def_dic is None:
             return None
 
-        if expanded_dic['target'].fpu:
-            expanded_dic['iar_settings']['fpu'] = True
+        if project_data['target'].fpu:
+            project_data['iar_settings']['fpu'] = True
         self._normalize_mcu_def(mcu_def_dic)
         logging.debug("Mcu definitions: %s" % mcu_def_dic)
-        expanded_dic['iar_settings'].update(mcu_def_dic)
+        project_data['iar_settings'].update(mcu_def_dic)
 
-        self.gen_file_jinja('iar.ewp.tmpl', expanded_dic, '%s.ewp' %
-            self.workspace['name'], expanded_dic['output_dir']['path'])
-        self.gen_file_jinja('iar.eww.tmpl', expanded_dic, '%s.eww' %
-            self.workspace['name'], expanded_dic['output_dir']['path'])
+        self.gen_file_jinja('iar.ewp.tmpl', project_data, '%s.ewp' %
+            self.project_data['name'], output_path)
+        self.gen_file_jinja('iar.eww.tmpl', project_data, '%s.eww' %
+            self.project_data['name'], output_path)
         return 0
 
-    def get_generated_project_files(self):
-        return {'path': self.workspace['path'], 'files': [self.workspace['files']['ewp'], self.workspace['files']['eww'],
-            self.workspace['files']['ewd']]}
-
-    def get_mcu_definition(self, project_file, mcu):
+    def extract_mcu_definition(self, project_file, name):
         """ Parse project file to get mcu definition """
-        project_file = join(getcwd(), project_file)
+        mcu = self.MCU_TEMPLATE
         ewp_dic = xmltodict.parse(file(project_file), dict_constructor=dict)
 
         # we take 0 configuration or just configuration, as multiple configuration possibl
@@ -152,4 +147,5 @@ class IAREmbeddedWorkbench(Builder, Exporter):
                 'state' : 1,
             }
         }
-        return mcu
+
+        self.save_mcu_data(mcu,name)

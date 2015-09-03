@@ -14,8 +14,11 @@
 import logging
 import subprocess
 import sys
+from os.path import join,sep
+import os
 
 class Builder:
+
     @staticmethod
     def build_command(args, tool, tool_name, proj_name):
         logging.debug("Calling command: " +  " ".join(args))

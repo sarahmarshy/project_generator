@@ -69,12 +69,12 @@ class TestProject(TestCase):
         assert self.project.name == 'project_1'
 
     def test_set_output_dir_path(self):
-        self.project.for_tool('make_gcc')
+        self.project._for_tool('make_gcc')
         self.project._set_output_dir_path()
         assert self.project.project['output_dir']['path'] == os.path.join('projects','make_gcc_arm','project_1')
 
     def test_supported(self):
-        self.project.for_tool('make_gcc')
+        self.project._for_tool('make_gcc')
         supported = ['uvision','sublime_make_gcc_arm', 'make_gcc_arm', 'sublime', 'eclipse_make_gcc_arm']
         for x in supported:
             if x not in self.project.supported:

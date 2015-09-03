@@ -21,7 +21,7 @@ def run(args):
     directory = root if not args.dir else os.path.normpath(os.path.join(root, args.dir))
     output = directory if not args.output else args.output
     logging.info("Generating the yaml records for %s."%directory)
-    name = os.path.split(directory)[1] if not args.name else args.name
+    name = os.path.split(directory)[1] if not args.project else args.project
     create_yaml(os.path.normpath(directory), name, args.mcu.lower(), output)
     logging.info("Yaml files generated.")
 
@@ -33,4 +33,4 @@ def setup(subparser):
     subparser.add_argument(
         '-d', '--dir', action='store', help='Source directory', default=None)
     subparser.add_argument(
-        '-o', '--output', action='store', help='Generated project files directory', default=None)
+        '-o', '--output', action='store', help='Generated project files directory')

@@ -19,7 +19,7 @@ def run(args):
     if os.path.exists(args.file):
         generator = Generator(args.file)
         for project in generator.generate(args.project):
-            if project.for_tool() is None:
+            if project._for_tool() is None:
                 sys.exit(1)
             tools = set(project.supported)
             tools = ", ".join(tools)

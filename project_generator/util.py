@@ -17,10 +17,9 @@ import locale
 import shutil
 import string
 import subprocess
-from .settings import ProjectSettings
 import logging
 
-from functools import reduce
+from .settings import ProjectSettings
 
 FILES_EXTENSIONS = {
     'includes': ['h', 'hpp', 'inc'],
@@ -80,26 +79,25 @@ def update(force=True, settings=ProjectSettings()):
         os.mkdir(settings.paths['definitions'])
 
     # For default, use up to date repo from github
-    if settings.get_env_settings('definitions') == settings.get_env_settings('definitions_default'):
-        if not defdir_exists:
-            # ToDo chage to project_generaror URL before release
-            #  and also make this a command line option
-            #  and rethink strategy (git dancing vs tmp clone , rm and rename)
-            cmd = ('git', 'clone', '--quiet',
+    if not defdir_exists:
+        # ToDo chage to project_generaror URL before release
+        #  and also make this a command line option
+        #  and rethink strategy (git dancing vs tmp clone , rm and rename)
+        cmd = ('git', 'clone', '--quiet',
                    'https://github.com/sarahmarshy/pgen_definitions.git', '.')
-            subprocess.call(cmd, cwd=settings.paths['definitions'])
-        elif force:
+        subprocess.call(cmd, cwd=settings.paths['definitions'])
+    elif force:
             # rebase only if force, otherwise use the current version
-            cmd = ('git', 'pull', '--quiet', 'origin', 'master')
-            subprocess.call(cmd, cwd=settings.paths['definitions'])
-        else:
+        cmd = ('git', 'pull', '--quiet', 'origin', 'master')
+        subprocess.call(cmd, cwd=settings.paths['definitions'])
+    else:
             # check if we are on top of origin/master
-            cmd = ('git', 'fetch', 'origin','master', '--quiet')
-            subprocess.call(cmd, cwd=settings.paths['definitions'])
-            cmd = ('git', 'diff', 'master', 'origin/master', '--quiet')
-            p = subprocess.call(cmd, cwd=settings.paths['definitions'])
+        cmd = ('git', 'fetch', 'origin','master', '--quiet')
+        subprocess.call(cmd, cwd=settings.paths['definitions'])
+        cmd = ('git', 'diff', 'master', 'origin/master', '--quiet')
+        p = subprocess.call(cmd, cwd=settings.paths['definitions'])
             # any output means we are behind the master, update
-            if p:
-                logging.debug("Definitions are behind the origin/master, rebasing.")
-                cmd = ('git', 'pull', '--rebase', '--quiet', 'origin', 'master')
-                subprocess.call(cmd, cwd=settings.paths['definitions'])
+        if p:
+            logging.debug("Definitions are behind the origin/master, rebasing.")
+            cmd = ('git', 'pull', '--rebase', '--quiet', 'origin', 'master')
+            subprocess.call(cmd, cwd=settings.paths['definitions'])

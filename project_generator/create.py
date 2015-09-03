@@ -1,9 +1,10 @@
 import os
 import yaml
-from .util import FILES_EXTENSIONS
 import logging
 import bisect
 from collections import defaultdict
+
+from .util import FILES_EXTENSIONS
 
 def _determine_tool(files):
     """Yields tuples in the form of (linker file, tool the file links for"""

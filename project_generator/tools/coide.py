@@ -20,7 +20,7 @@ from os.path import basename, join, normpath
 from os import getcwd
 
 from .builder import Builder
-from .exporter import Exporter
+from .generator import Generator
 
 class CoIDEdefinitions():
 
@@ -43,7 +43,7 @@ class CoIDEdefinitions():
         },
     }
 
-class Coide(Exporter, Builder):
+class Coide(Generator, Builder):
 
     source_files_dic = [
         'source_files_c', 'source_files_s', 'source_files_cpp', 'source_files_obj', 'source_files_a']
@@ -56,10 +56,9 @@ class Coide(Exporter, Builder):
         }
     }
 
-    def __init__(self, workspace, env_settings):
+    def __init__(self, workspace):
         self.definitions = CoIDEdefinitions()
         self.workspace = workspace
-        self.env_settings = env_settings
 
     @staticmethod
     def get_toolnames():

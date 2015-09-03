@@ -15,8 +15,8 @@
 from .uvision import *
 
 class Uvision5(Uvision):
-    def __init__(self, workspace, env_settings):
-        super(Uvision5,self).__init__(workspace, env_settings)
+    def __init__(self, project_data):
+        super(Uvision5,self).__init__(project_data)
 
     @staticmethod
     def get_toolnames():
@@ -26,27 +26,36 @@ class Uvision5(Uvision):
     def get_toolchain():
         return 'uvision'
 
-    def generate_project(self):
-        data = self.workspace.copy()
-        self.parse_data('uvision5',data)
+    def generate_project(self, project_file_path):
+        self.fix_paths()
+        data = self.project_data.copy()
+        self._parse_data('uvision5',data)
         data ['vendor'] = data ['target'].vendor
         # Project file
-        self.generate_file('uvision5.uvprojx.tmpl',data,'uvprojx')
+        self.generate_file('uvision5.uvprojx.tmpl',data,'uvprojx', project_file_path)
         return 0
 
-    def get_mcu_definition(self, project_file, mcu):
+    def extract_mcu_definition(self, project_file, name):
         """ Parse project file to get target definition """
-        mcu_back = copy.deepcopy(mcu)
-        mcu_back = super(Uvision5, self).get_mcu_definition(project_file,mcu_back)
-        project_file = join(getcwd(), project_file)
+        mcu = self.MCU_TEMPLATE
+
         uvproj_dic = xmltodict.parse(file(project_file), dict_constructor=dict)
+
+        core = uvproj_dic['Project']['Targets']['Target']['TargetOption']['TargetCommonOption']['Cpu']
+        regex = r"CPUTYPE\(\"([\w-]+)\"\)\s*(FPU2)?"
+        match = re.search(regex,core)
+        if match:
+            mcu['mcu']['core'] = match.group(1)
+            if match.group(2):
+                mcu['mcu']['core']+='f'
+
         # Generic Target, should get from Target class !
         vendor = uvproj_dic['Project']['Targets']['Target']['TargetOption']['TargetCommonOption']['Vendor']
         mcu['mcu']['vendor'] = vendor
-        mcu['mcu']['core'] = mcu_back['mcu']['core']
-        device = mcu_back['tool_specific']['uvision']['TargetOption']['Device']
-        mcu['tool_specific']['uvision5'] = {
-            'TargetOption':{'Device':device}
+        mcu['tool_specific']['uvision'] = {
+            'TargetOption' : {
+                'Device' : uvproj_dic['Project']['Targets']['Target']['TargetOption']['TargetCommonOption']['Device'],
+            }
         }
 
-        return mcu
+        self.save_mcu_data(mcu,name)

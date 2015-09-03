@@ -13,12 +13,8 @@
 # limitations under the License.
 
 import yaml
-import subprocess
-
-from os.path import join, splitext, exists
+from os.path import join, splitext
 from os import listdir
-
-from .settings import ProjectSettings
 import logging
 
 class Target:
@@ -26,11 +22,12 @@ class Target:
         self.name = name # name of the target
         self.supported_tools = tools # list of tools supported (defined in MCU definition)
         self.config = config # entire dictionary
-        self.core = self.config['mcu']['core'] # name of core i.e. cortex-m4f
-        self.vendor = self.config['mcu']['vendor'] # vendor of target i.e. Freescale
+        self.core = self.mcu_data('core') # name of core i.e. cortex-m4f
+        self.vendor = self.mcu_data('vendor') # vendor of target i.e. Freescale
         self.fpu = self.core[-1] == 'f' # boolean, true if target has an FPU
+        self.fpu_convention = ''
         if self.fpu:
-            self.fpu_convention = 'fpv4-sp-d16' # default FPU convention
+            self.fpu_convention = self.mcu_data('fpu_convention')
 
     def get_tool_configuration(self, tool):
         if not(tool in self.supported_tools):
@@ -41,16 +38,12 @@ class Target:
     def get_device_configuration(self):
         return self.config['mcu']
 
-class Targets:
+    def mcu_data(self, section):
+        if section in self.config['mcu']:
+            return self.config['mcu'][section]
+        return ''
 
-    MCU_TEMPLATE = {
-        'mcu' : {
-            'vendor' : 'Manually add vendor (st, freescale, etc) instead of this text',
-            'name' : '',
-            'core' : '',
-        },
-        'tool_specific':{}
-    }
+class Targets:
 
     def __init__(self, directory=None):
         if directory:
@@ -84,31 +77,3 @@ class Targets:
         targets = [target.name for target in self.targets]
         logging.critical("\n%s must be contained in one of these strings: \n%s" % (alias,"\n".join(targets)))
         return None
-
-    def get_mcu_definition(self):
-        return self.MCU_TEMPLATE
-
-# This helps to create a new target. As target consists of mcu, this function
-# parses the provided proj_file and creates a valid yaml file, which can be pushed
-# to pgen definitions.
-def mcu_create(ToolParser, mcu_name, proj_file, definitions = None):
-    logging.info("Creating target defintion for %s from %s"%(mcu_name,proj_file))
-    settings = ProjectSettings()
-    if definitions is not None:
-        settings.update_definitions_dir(definitions)
-    def_dir = settings.get_env_settings('definitions')
-
-    filename = join(def_dir, mcu_name + '.yaml')
-    mcu = Targets().get_mcu_definition()
-    if exists(filename):
-        with open(filename, 'rt') as f:
-                mcu = yaml.load(f)
-
-    data = ToolParser(None, None).get_mcu_definition(proj_file,mcu)
-    data['mcu']['name'] = mcu_name
-    # we got target, now damp it to root using target.yaml file
-    # we can make it better, and ask for definitions repo clone, and add it
-    # there, at least to MCU folder
-    with open(filename, 'wt') as f:
-        f.write(yaml.safe_dump(data, default_flow_style=False, width=200))
-    return 0

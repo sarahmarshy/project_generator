@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import logging
 
 from .tools.iar import IAREmbeddedWorkbench
 from .tools.uvision import Uvision
@@ -20,8 +21,6 @@ from .tools.coide import Coide
 from .tools.eclipse import EclipseGnuARM
 from .tools.gccarm import MakefileGccArm
 from .tools.sublimetext import SublimeTextMakeGccARM
-from .tools.gdb import GDB
-from .tools.gdb import ARMNoneEABIGDB
 
 class ToolsSupported:
     """ Represents all tools available """
@@ -42,12 +41,9 @@ class ToolsSupported:
         'coide':                Coide,
         'make_gcc_arm':         MakefileGccArm,
         'eclipse_make_gcc_arm': EclipseGnuARM,
-        'sublime_make_gcc_arm': SublimeTextMakeGccARM,
-        'gdb':                  GDB,
-        'arm_none_eabi_gdb':    ARMNoneEABIGDB,
+        'sublime_make_gcc_arm': SublimeTextMakeGccARM
     }
 
-    TOOLCHAINS = list(set([v.get_toolchain() for k, v in TOOLS_DICT.items() if v.get_toolchain() is not None]))
     TOOLS = list(set([v for k, v in TOOLS_DICT.items() if v is not None]))
 
     def get_tool(self, tool):
@@ -56,25 +52,31 @@ class ToolsSupported:
         except KeyError:
             return None
 
-    def get_toolnames(self, tool):
+    def supported_tools(self,toolchain):
+        # Iterate over all possible pgen tools, return only the ones where the toolchain is a valid toolname of a tool
+        return [tool for tool in self._all_supported_tools() if toolchain in self._get_toolnames(tool)]
+
+    def resolve_alias(self, alias):
+        if alias in self.TOOLS_ALIAS.keys():
+            return self.TOOLS_ALIAS[alias]
+        elif alias in self.TOOLS_DICT.keys():
+            return alias
+        options = self._all_supported_tools() + self.TOOLS_ALIAS.keys()
+        options.sort()
+        logging.error("The tool name \"%s\" is not valid! \nChoose from: \n%s"% (alias, ", ".join(options)),exc_info= False)
+        return None
+
+    def _get_toolnames(self, tool):
         try:
             return self.TOOLS_DICT[tool].get_toolnames()
         except KeyError:
             return None
 
-    def get_toolchain(self, tool):
+    def _get_toolchain(self, tool):
         try:
             return self.TOOLS_DICT[tool].get_toolchain()
         except KeyError:
             return None
 
-    def get_supported(self):
+    def _all_supported_tools(self):
         return self.TOOLS_DICT.keys()
-
-    def resolve_alias(self, tool):
-        if tool in self.TOOLS_ALIAS.keys():
-            return self.TOOLS_ALIAS[tool]
-        elif tool in self.TOOLS_DICT.keys():
-            return tool
-        return None
-

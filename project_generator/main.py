@@ -14,11 +14,10 @@
 
 import argparse
 import logging
-from .util import update
-
 import pkg_resources
 
 from .commands import build, generate, create, tools, extract
+from .util import update
 
 subcommands = {
     'create': create,
@@ -35,7 +34,7 @@ help = {
     'build': "Build a generated project for a specified tool. `generate` must be run before a call to `build`.",
     'tools': "List all tools supported by a given yaml file and given project. If no project is specified, `tools` "
              "will list all possible tools for all projects in a yaml file.",
-    'import': "Create an MCU record for a tool given a valid project file."
+    'extract': "Create an MCU record for a tool given a valid project file."
 }
 
 def main():

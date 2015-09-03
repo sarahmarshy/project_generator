@@ -14,7 +14,7 @@
 import yaml
 from posixpath import normpath
 
-from .exporter import Exporter
+from .generator import Generator
 from .builder import Builder
 from .gccarm import MakefileGccArm
 from ..util import FILES_EXTENSIONS, SOURCE_KEYS
@@ -22,17 +22,15 @@ import os
 from itertools import chain
 import ntpath
 
-class EclipseGnuARM(Exporter, Builder):
+class EclipseGnuARM(Generator, Builder):
     file_types = {}
     for key in SOURCE_KEYS:
         for extension in FILES_EXTENSIONS[key]:
             file_types[extension] = 1
 
-    def __init__(self, workspace, env_settings):
-        self.definitions = 0
-        self.exporter = MakefileGccArm(workspace, env_settings)
-        self.workspace = workspace
-        self.env_settings = env_settings
+    def __init__(self, project_data):
+        self.exporter = MakefileGccArm(project_data)
+        self.project_data = project_data
 
     @staticmethod
     def get_toolnames():
@@ -42,21 +40,7 @@ class EclipseGnuARM(Exporter, Builder):
     def get_toolchain():
         return 'make_gcc_arm'
 
-    def _iterate(self, expanded_data):
-        """ Iterate through all data, store the result expansion in extended dictionary. """
-
-        relpath = expanded_data['rel_path']
-        norm_func = lambda path : normpath(path.replace(relpath, ''))
-        for key in FILES_EXTENSIONS.keys():
-            if type(expanded_data[key]) is dict:
-                for k,v in expanded_data[key].items():
-                    expanded_data[key][k] = map(norm_func, v)
-            elif type(expanded_data[key]) is list:
-                expanded_data[key] = map(norm_func, expanded_data[key])
-            else:
-                expanded_data[key] = norm_func(expanded_data[key])
-
-    def build_project(self):
+    def build_project(self, exe_path=None):
         self.exporter.build_project()
 
     def _get_libs(self, data):
@@ -73,37 +57,31 @@ class EclipseGnuARM(Exporter, Builder):
                 data['lib_paths'].append(head)
                 data['libraries'].append(file.replace("lib",''))
 
-    def generate_project(self):
+    def generate_project(self, project_file_path):
         """ Processes groups and misc options specific for eclipse, and run generator """
-        data_for_make = self.workspace.copy()
+        data_for_make = self.project_data.copy()
 
         self.exporter.process_data_for_makefile(data_for_make)
-        self.gen_file_jinja('makefile_gcc.tmpl', data_for_make, 'Makefile', data_for_make['output_dir']['path'])
+        self.gen_file_jinja('makefile_gcc.tmpl', data_for_make, 'Makefile', project_file_path)
 
-        expanded_dic = self.workspace.copy()
+        project_data = self.project_data.copy()
 
-        expanded_dic ['core'] = expanded_dic ['target'].core.lower()
-        if expanded_dic['core'] == 'cortex-m4f':
-            expanded_dic['core'] = 'cortex-m4'
+        project_data ['core'] = project_data ['target'].core.lower()
+        project_data['fpu'] = project_data['target'].fpu_convention.lower()
+        if project_data['core'] == 'cortex-m4f':
+            project_data['core'] = 'cortex-m4'
 
         # change cortex-m0+ to cortex-m0plus
-        if expanded_dic['core'] == 'cortex-m0+':
-            expanded_dic['core'] = 'cortex-m0plus'
+        if project_data['core'] == 'cortex-m0+':
+            project_data['core'] = 'cortex-m0plus'
 
-        expanded_dic['rel_path'] = data_for_make['output_dir']['rel_path']
-        self._iterate(expanded_dic)
+        self._get_libs(project_data)
 
-        self._get_libs(expanded_dic)
-
-        expanded_dic['includes'].append('.')
+        project_data['includes'].append('.')
         # Project file
         self.gen_file_jinja(
-            'eclipse_makefile.cproject.tmpl', expanded_dic, '.cproject', data_for_make['output_dir']['path'])
+            'eclipse_makefile.cproject.tmpl', project_data, '.cproject', project_file_path)
         self.gen_file_jinja(
-            'eclipse.project.tmpl', expanded_dic, '.project', data_for_make['output_dir']['path'])
+            'eclipse.project.tmpl', project_data, '.project', project_file_path)
         return 0
-
-    def get_generated_project_files(self):
-        return {'path': self.workspace['path'], 'files': [self.workspace['files']['proj_file'], self.workspace['files']['cproj'],
-            self.workspace['files']['makefile']]}
 

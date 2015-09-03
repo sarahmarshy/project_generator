@@ -15,8 +15,7 @@
 
 # This project was exported via the project generator.  More information https://github.com/project-generator/project_generator
 
-GCC_BIN = {{toolchain_bin_path}}
-TOOLCHAIN = {{toolchain}}
+TOOLCHAIN = arm-none-eabi-
 PROJECT = {{name}}
 SYS_OBJECTS = {% for file in source_files_obj %}{{file}} {% endfor %}
 INCLUDE_PATHS = {% for path in includes %}-I{{path}} {% endfor %}

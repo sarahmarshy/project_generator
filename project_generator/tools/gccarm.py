@@ -15,8 +15,7 @@
 import copy
 import os
 from .builder import Builder
-from .exporter import Exporter
-from ..targets import Targets
+from .generator import Generator
 import logging
 import ntpath
 import shutil
@@ -24,7 +23,7 @@ from ..util import SOURCE_KEYS
 from itertools import chain
 
 
-class MakefileGccArm(Exporter):
+class MakefileGccArm(Generator, Builder):
 
     # http://www.gnu.org/software/make/manual/html_node/Running.html
     ERRORLEVEL = {
@@ -38,16 +37,8 @@ class MakefileGccArm(Exporter):
 
     optimization_options = ['O0', 'O1', 'O2', 'O3', 'Os']
 
-    generated_projects = {
-        'path': '',
-        'files': {
-            'makefile' : '',
-        }
-    }
-
-    def __init__(self, workspace, env_settings):
-        self.workspace = workspace
-        self.env_settings = env_settings
+    def __init__(self, project_data):
+        self.project_data = project_data
 
     @staticmethod
     def get_toolnames():
@@ -71,71 +62,62 @@ class MakefileGccArm(Exporter):
                     data[k] = ''
                 data[k] = v
 
-    def _get_libs(self, data):
-        data['lib_paths'] =[]
-        data['libraries'] =[]
-        for lib in data['source_files_a']:
+    def _get_libs(self, project_data):
+        project_data['lib_paths'] =[]
+        project_data['libraries'] =[]
+        for lib in project_data['source_files_a']:
             head, tail = ntpath.split(lib)
             file = tail
             if (os.path.splitext(file)[1] != ".a"):
                 continue
             else:
                 file = file.replace(".a","")
-                data['lib_paths'].append(head)
-                data['libraries'].append(file.replace("lib",''))
+                project_data['lib_paths'].append(head)
+                project_data['libraries'].append(file.replace("lib",''))
 
-    def _process_mcu(self, data):
-        for k,v in data['mcu'].items():
-            data[k] = v
-
-    def generate_project(self):
+    def generate_project(self, project_file_path):
         """ Processes misc options specific for GCC ARM, and run generator. """
-        generated_projects = copy.deepcopy(self.generated_projects)
-        self.process_data_for_makefile(self.workspace)
-        self.gen_file_jinja('makefile_gcc.tmpl', self.workspace, 'Makefile', self.workspace['output_dir']['path'])
+        self.fix_paths()
+        self.process_data_for_makefile(self.project_data)
+        self.gen_file_jinja('makefile_gcc.tmpl', self.project_data, 'Makefile', project_file_path)
         return 0
 
     def get_generated_project_files(self):
-        return {'path': self.workspace['path'], 'files': [self.workspace['files']['makefile']]}
+        return {'path': self.project_data['path'], 'files': [self.project_data['files']['makefile']]}
 
-    def process_data_for_makefile(self, data):
+    def process_data_for_makefile(self, project_data):
         #Flatten our dictionary, we don't need groups
-        data['source_paths'] = []
+        project_data['source_paths'] = []
         for key in SOURCE_KEYS:
-            data[key] = list(chain(*data[key].values()))
-            data['source_paths'].extend([ntpath.split(path)[0] for path in data[key]])
-        data['source_paths'] = set(data['source_paths'])
+            project_data[key] = list(chain(*project_data[key].values()))
+            project_data['source_paths'].extend([ntpath.split(path)[0] for path in project_data[key]])
+        project_data['source_paths'] = set(project_data['source_paths'])
 
-        self._get_libs(data)
+        self._get_libs(project_data)
 
-        self._parse_specific_options(data)
-        if 'instruction_mode' not in data:
-            data['instruction_mode']= 'thumb'
-        self._process_mcu(data)
-        data['toolchain'] = 'arm-none-eabi-'
-        data['toolchain_bin_path'] = self.env_settings.get_env_settings('gcc')
+        self._parse_specific_options(project_data)
+        if 'instruction_mode' not in project_data:
+            project_data['instruction_mode']= 'thumb'
 
-        target = Targets(self.env_settings.get_env_settings('definitions'))
-
-        data['core'] = data['target'].core.lower()
+        project_data['core'] = project_data['target'].core.lower()
+        project_data['fpu'] = project_data['target'].fpu_convention.lower()
         # gcc arm is funny about cortex-m4f.
         # gcc arm is funny about cortex-m4f.
-        if data['core'] == 'cortex-m4f':
-            data['core'] = 'cortex-m4'
+        if project_data['core'] == 'cortex-m4f':
+            project_data['core'] = 'cortex-m4'
 
         # change cortex-m0+ to cortex-m0plus
-        if data['core'] == 'cortex-m0+':
-            data['core'] = 'cortex-m0plus'
+        if project_data['core'] == 'cortex-m0+':
+            project_data['core'] = 'cortex-m0plus'
 
         # set default values
-        if 'optimization_level' not in data:
-            data['optimization_level'] = self.optimization_options[0]
+        if 'optimization_level' not in project_data:
+            project_data['optimization_level'] = self.optimization_options[0]
 
-    def build_project(self):
+    def build_project(self, exe_path, project_file_path):
         # cwd: relpath(join(project_path, ("gcc_arm" + project)))
         # > make all
-        path = self.workspace['output_dir']['path']
-        os.chdir(path)
+        os.chdir(project_file_path)
         if os.path.exists("build"):
             shutil.rmtree("build")
         if os.path.exists("bin"):
@@ -146,5 +128,5 @@ class MakefileGccArm(Exporter):
         else:
             args =['make','-s','all']
 
-        ret = Builder.build_command(args, self, "GCC", path.split(os.path.sep)[-1])
+        ret = Builder.build_command(args, self, "GCC", project_file_path.split(os.path.sep)[-1])
         return ret

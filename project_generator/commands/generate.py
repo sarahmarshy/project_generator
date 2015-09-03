@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import sys
-from ..main import *
+import os
 from ..generate import Generator
 import logging
 
@@ -34,15 +34,11 @@ def setup(subparser):
     subparser.add_argument(
         "-f", "--file", help="YAML projects file (.projects.yaml by default)", default='.projects.yaml')
     subparser.add_argument(
-        "-p", "--project", help="Project to be generated", default='')
+        "-p", "--project", help="Project to be generated defined in .projects.yaml", default='')
     subparser.add_argument(
-        "-t", "--tool", help="Create project files for provided tool", type = str.lower)
+        "-d", "--dev", help="Create project files for specified development tool", type=str.lower)
     subparser.add_argument(
-        "-i", "--ignore", nargs='+', help="Directories to be ignored", type = str, default= ['generated_projects'])
-    subparser.add_argument("-tar", "--target", help="Target configuration file")
-    subparser.add_argument("-settings", "--settings", help="Tool configuration file")
-    subparser.add_argument(
-        "-defdir", "--defdirectory",
-        help="Path to the definitions, otherwise default (~/.pg/definitions) is used")
-    subparser.add_argument(
-        "-c", "--copy", action="store_true", help="Copy all files to the exported directory")
+        "-i", "--ignore", nargs='+', help="Directories to be ignored", type=str, default=['execbuild', 'projectfiles'])
+    subparser.add_argument("-t", "--target", help="Target specific yaml configuration file")
+    subparser.add_argument("-s", "--settings", help="Platform settings for a development tool")
+    subparser.add_argument("-c", "--copy", action="store_true", help="Copy all files to the exported directory")

@@ -23,18 +23,16 @@ class Generator:
                     # Get the portion of the yaml that is just the project specified
                     records = self.projects_dict['projects'][name]
                     # Load the yamls defined in that section
-                    settings = self._format_settings_dict()
-                    yaml_file = Generator._parse_project_settings(records, settings, name)
+                    settings, yaml_file = self._format_settings_dict(records,name)
                     project_dicts = load_yaml_records([yaml_file])
                     if project_dicts is not None:
                         # Yield this generated project to be dealt with in command scripts
-                        yield Project(project_dicts,settings, name, ignore)
+                        yield Project(project_dicts, settings, name, ignore)
                     else:
                         yield None
             else:  # user hasn't specified, generate all possible projects
                 for name, records in self.projects_dict['projects'].items():
-                    settings = self._format_settings_dict()
-                    yaml_file = Generator._parse_project_settings(records, settings, name)
+                    settings, yaml_file = self._format_settings_dict(records,name)
                     project_dicts = load_yaml_records([yaml_file])
                     if project_dicts is not None:
                         yield Project(project_dicts, settings, name, ignore)
@@ -43,30 +41,31 @@ class Generator:
         else:
             logging.warning("No projects found in the main record file.")
 
-    @staticmethod
-    def _parse_project_settings(project_settings, settings, name):
-        if 'export_dir' in project_settings:
-            settings['settings']['export_dir'] = project_settings['export_dir']
-        if 'root' in project_settings:
-            settings['settings']['root'] = project_settings['root']
-
-        settings['settings']['export_dir'] = os.path.relpath(settings['settings']['export_dir'], settings['settings']['root'])
-        if 'config' not in project_settings:
-            logging.critical("You must specify a configuration file for this project: %s."%name)
-            return None
-        return project_settings['config']
-
-    def _format_settings_dict(self):
+    def _format_settings_dict(self, project_settings, name):
         projects_dict = self.projects_dict
         settings = {'settings':{}}
-        if 'settings' in projects_dict:
-            if 'export_dir' in projects_dict['settings']:
-                settings['settings']['export_dir'] = projects_dict['settings']['export_dir']
+
+        #Check if a project has explicity specified an export dir, this takes precedence
+        if 'export_dir' in project_settings:
+            settings['settings']['export_dir'] = project_settings['export_dir']
+        elif 'settings' in projects_dict and 'export_dir' in projects_dict['settings']:
+            #Else see if there is a general export dir specified in general settings
+            settings['settings']['export_dir'] = projects_dict['settings']['export_dir']
         else:
             settings['settings']['export_dir'] = ''
 
+        #If a project doesn't specify a root, use the current directory
         settings['settings']['root'] = os.getcwd()
-        return settings
+        if 'root' in project_settings:
+            settings['settings']['root'] = project_settings['root']
+
+        #get the relative path from the project file to the source root
+        settings['settings']['export_dir'] = os.path.relpath(settings['settings']['export_dir'],
+                                                             settings['settings']['root'])
+        if 'config' not in project_settings:
+            logging.critical("You must specify a configuration file for this project: %s."%name)
+            return None
+        return settings, project_settings['config']
 
 
 

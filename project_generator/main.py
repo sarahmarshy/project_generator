@@ -56,9 +56,8 @@ def main():
 
     for name, module in subcommands.items():
         subparser = subparsers.add_parser(name, description=help[name])
-
-        module.setup(subparser)
-        subparser.set_defaults(func=module.run)
+        module.setup(subparser)  # calls module's setup function
+        subparser.set_defaults(func=module.run)  # set's func to call module's run function
 
     args = parser.parse_args()
 

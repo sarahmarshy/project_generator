@@ -84,9 +84,12 @@ def create_yaml(directory, project_name, board,output_dir):
     root = os.path.relpath(directory)
     projects_yaml = {
         'projects': {
-            project_name: ['.project.yaml']
+            project_name:{
+                'root': root,
+                'config' : '.project.yaml'
+            }
         },
-        'settings': {'export_dir': os.path.relpath(output_dir,root),'root': root}
+        'settings': {'export_dir': output_dir }
     }
 
     # will be written to .project.yaml

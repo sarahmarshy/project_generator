@@ -27,13 +27,7 @@ class Builder:
             ret_code = None
             ret_code = subprocess.call(args)
         except:
-            if tool_name == "Uvision":
-                sys.stdout.write(
-                    " ERROR whilst calling UV4: '%s'. \nPlease check uvision path in the settings.py file.\n" % tool.env_settings.get_env_settings('uvision'))
-            elif tool_name == "GCC":
-                sys.stdout.write(" ERROR whilst calling make. \nIs it in your PATH?\n")
-            elif tool_name == "IAR":
-                sys.stdout.write(" ERROR whilst calling IarBuild. \nPlease check IARBUILD path in the settings.py file.\n")
+            sys.stdout.write("Failed to call to command: %s \nDid you specify an executable path?"%" ".join(args))
         else:
             if ret_code != tool.SUCCESSVALUE:
                 # Seems like something went wrong.

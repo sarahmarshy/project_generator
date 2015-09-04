@@ -24,7 +24,7 @@ class Generator:
                     records = self.projects_dict['projects'][name]
                     # Load the yamls defined in that section
                     settings = self.format_settings(self.projects_dict)
-                    yaml_file = self.parse_project(records, settings)
+                    yaml_file = self.parse_project(records, settings, name)
                     project_dicts = load_yaml_records([yaml_file])
                     if project_dicts is not None:
                         # Yield this generated project to be dealt with in command scripts
@@ -34,7 +34,7 @@ class Generator:
             else:  # user hasn't specified, generate all possible projects
                 for name, records in self.projects_dict['projects'].items():
                     settings = self.format_settings(self.projects_dict)
-                    yaml_file = self.parse_project(records, settings)
+                    yaml_file = self.parse_project(records, settings, name)
                     project_dicts = load_yaml_records([yaml_file])
                     if project_dicts is not None:
                         yield Project(project_dicts, settings, name, ignore)
@@ -43,13 +43,16 @@ class Generator:
         else:
             logging.warning("No projects found in the main record file.")
 
-    def parse_project(self, project_settings, settings):
+    def parse_project(self, project_settings, settings, name):
         if 'export_dir' in project_settings:
             settings['settings']['export_dir'] = project_settings['export_dir']
         if 'root' in project_settings:
             settings['settings']['root'] = project_settings['root']
 
         settings['settings']['export_dir'] = os.path.relpath(settings['settings']['export_dir'], settings['settings']['root'])
+        if 'config' not in project_settings:
+            logging.critical("You must specify a configuration file for this project: %s."%name)
+            return None
         return project_settings['config']
 
     def format_settings(self, projects_dict):

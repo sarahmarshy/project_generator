@@ -44,6 +44,8 @@ def unicode_available():
 def load_yaml_records(yaml_files):
     dictionaries = []
     for yaml_file in yaml_files:
+        if yaml_file is None:
+            return None
         if os.path.exists(yaml_file):
             f = open(yaml_file, 'rt')
             dictionaries.append(yaml.load(f))

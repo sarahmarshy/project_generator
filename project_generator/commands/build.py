@@ -27,7 +27,7 @@ def run(args):
         root = os.getcwd()
         for project in generator.generate(args.project, ''):
             # build each project for the given tool
-            if project.build(args.dev, normcase(args.exe)) is None:
+            if project is None or project.build(args.dev, normcase(args.exe)) is None:
                 sys.exit(1)
             os.chdir(root)
     else:

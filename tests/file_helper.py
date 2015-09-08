@@ -5,7 +5,7 @@ import stat
 
 #  clone a url into the given folder inside test_workspace
 def clone(url, folder):
-    cmd = ('git', 'clone', url, '.')
+    cmd = ('git', 'clone', url, '.', '--quiet')
     dir = os.path.join('test_workspace', folder)
     if not os.path.exists(dir):
         os.makedirs(dir)

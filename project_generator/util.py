@@ -63,7 +63,7 @@ class PartialFormatter(string.Formatter):
             val = '{' + field_name + '}', first
         return val
 
-def update(force=True, settings=ProjectSettings()):
+def update(settings=ProjectSettings()):
     defdir_exists = True
     if not os.path.exists(settings.paths['definitions']):
         defdir_exists = False
@@ -71,24 +71,13 @@ def update(force=True, settings=ProjectSettings()):
 
     # For default, use up to date repo from github
     if not defdir_exists:
-        # ToDo chage to project_generaror URL before release
+        # ToDo change to project_generaror URL before release
         #  and also make this a command line option
         #  and rethink strategy (git dancing vs tmp clone , rm and rename)
         cmd = ('git', 'clone', '--quiet',
                    'https://github.com/sarahmarshy/pgen_definitions.git', '.')
         subprocess.call(cmd, cwd=settings.paths['definitions'])
-    elif force:
+    else:
             # rebase only if force, otherwise use the current version
         cmd = ('git', 'pull', '--quiet', 'origin', 'master')
         subprocess.call(cmd, cwd=settings.paths['definitions'])
-    else:
-            # check if we are on top of origin/master
-        cmd = ('git', 'fetch', 'origin','master', '--quiet')
-        subprocess.call(cmd, cwd=settings.paths['definitions'])
-        cmd = ('git', 'diff', 'master', 'origin/master', '--quiet')
-        p = subprocess.call(cmd, cwd=settings.paths['definitions'])
-            # any output means we are behind the master, update
-        if p:
-            logging.debug("Definitions are behind the origin/master, rebasing.")
-            cmd = ('git', 'pull', '--rebase', '--quiet', 'origin', 'master')
-            subprocess.call(cmd, cwd=settings.paths['definitions'])

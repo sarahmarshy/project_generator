@@ -38,7 +38,6 @@ help = {
 }
 
 def main():
-    update()
     # Parse Options
     parser = argparse.ArgumentParser(
         description = 'Generate and build project files for many different tools.'
@@ -48,6 +47,8 @@ def main():
                         help='Increase the verbosity of the output (repeat for more verbose output)')
     parser.add_argument('-q', dest='quietness', action='count', default=0,
                         help='Decrease the verbosity of the output (repeat for less verbose output)')
+    parser.add_argument('-u', dest='update', action='store_true',
+                        help='Update pgen\'s mcu definitions')
 
     parser.add_argument("--version", action='version',
                         version=pkg_resources.require("project_generator")[0].version, help="Display version")
@@ -60,6 +61,9 @@ def main():
         subparser.set_defaults(func=module.run)  # set's func to call module's run function
 
     args = parser.parse_args()
+
+    if args.update:
+        update()
 
     # set the verbosity
     verbosity = args.verbosity - args.quietness

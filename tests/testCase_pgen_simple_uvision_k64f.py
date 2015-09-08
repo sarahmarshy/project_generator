@@ -23,6 +23,10 @@ class frdmK64fUvision(TestCase):
         #  where the tools build command is located
         self.build_path = os.path.normpath("C:\\Keil\\UV4\UV4.exe")
 
+        #  output extension type
+        self.build_exe_extension = ".axf"
+        self.proj_file_extension = ".uvproj"
+
     def tearDown(self):
         # remove created directory
         rm_clone()
@@ -48,7 +52,7 @@ class frdmK64fUvision(TestCase):
         subprocess.call(args, cwd=self.project_location)
 
         #  since we generated in the project's root, there should be a project file there
-        file_path = os.path.join(self.project_location, self.proj_name +'.uvproj')
+        file_path = os.path.join(self.project_location, self.proj_name +self.proj_file_extension)
         assert os.path.isfile(file_path)
 
         #############
@@ -61,7 +65,7 @@ class frdmK64fUvision(TestCase):
 
         #  since our project file was in the project root, the build directory should also be there
         #  a successful uvision build will generate a .axf
-        build = os.path.join(self.project_location, 'build', self.proj_name + '.axf')
+        build = os.path.join(self.project_location, 'build', self.proj_name + self.build_exe_extension)
         assert os.path.isfile(build)
 
     # test generating and building project file located outside the root of source directory
@@ -99,7 +103,7 @@ class frdmK64fUvision(TestCase):
         subprocess.call(args, cwd='test_workspace')
 
         #  The project file should be in our specified output_dir
-        file_path = os.path.join('test_workspace',output_dir, self.proj_name+'.uvproj')
+        file_path = os.path.join('test_workspace',output_dir, self.proj_name+self.proj_file_extension)
         assert os.path.isfile(file_path)
 
         #############
@@ -111,7 +115,7 @@ class frdmK64fUvision(TestCase):
         subprocess.call(args, cwd='test_workspace')
 
         #  the build directory should also be in the new output_dir
-        build = os.path.join('test_workspace',output_dir, 'build',  self.proj_name+'.axf')
+        build = os.path.join('test_workspace',output_dir, 'build',  self.proj_name+self.build_exe_extension)
         assert os.path.isfile(build)
 
 

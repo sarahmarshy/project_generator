@@ -29,6 +29,7 @@ class frdmK64fUvision(TestCase):
 
     def tearDown(self):
         # remove created directory
+
         rm_clone()
 
     #  test generating and building a project file in the root of the source directory

@@ -19,7 +19,7 @@ import string
 import subprocess
 import logging
 
-from .settings import ProjectSettings
+from project_generator.settings import ProjectSettings
 
 FILES_EXTENSIONS = {
     'includes': ['h', 'hpp', 'inc'],

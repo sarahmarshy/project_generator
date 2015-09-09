@@ -4,7 +4,7 @@ import logging
 import bisect
 from collections import defaultdict
 
-from .util import FILES_EXTENSIONS
+from project_generator.util import FILES_EXTENSIONS
 
 def _determine_tool(files):
     """Yields tuples in the form of (linker file, tool the file links for"""

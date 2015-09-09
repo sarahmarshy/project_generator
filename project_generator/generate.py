@@ -3,7 +3,7 @@ import yaml
 import os
 
 from project import Project
-from.util import load_yaml_records
+from project_generator.util import load_yaml_records
 
 class Generator:
     def __init__(self, pgen_data):

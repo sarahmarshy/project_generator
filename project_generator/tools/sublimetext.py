@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from .gccarm import MakefileGccArm
+from project_generator.tools.gccarm import MakefileGccArm
 
 
 class SublimeTextMakeGccARM(MakefileGccArm):

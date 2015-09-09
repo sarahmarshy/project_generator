@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from .uvision import *
+from project_generator.tools.uvision import *
 
 class Uvision5(Uvision):
     def __init__(self, project_data):

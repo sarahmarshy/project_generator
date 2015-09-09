@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from .generate import *
+from project_generator.generate import *
 
 def run(args):
     logging.debug("Finding tools.")

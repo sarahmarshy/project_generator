@@ -11,16 +11,14 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-import yaml
-from posixpath import normpath
-
-from .generator import Generator
-from .builder import Builder
-from .gccarm import MakefileGccArm
-from ..util import FILES_EXTENSIONS, SOURCE_KEYS
 import os
 from itertools import chain
 import ntpath
+
+from project_generator.tools.generator import Generator
+from project_generator.tools.builder import Builder
+from project_generator.tools.gccarm import MakefileGccArm
+from project_generator.util import FILES_EXTENSIONS, SOURCE_KEYS
 
 class EclipseGnuARM(Generator, Builder):
     file_types = {}

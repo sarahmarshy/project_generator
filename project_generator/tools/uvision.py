@@ -16,13 +16,13 @@ import os
 import logging
 import xmltodict
 import copy
+import re
 
 from os.path import basename, join
-from .generator import Generator
-from .builder import Builder
-from .extractor import Extractor
-import re
-from ..util import FILES_EXTENSIONS,SOURCE_KEYS
+from project_generator.tools.generator import Generator
+from project_generator.tools.builder import Builder
+from project_generator.tools.extractor import Extractor
+from project_generator.util import FILES_EXTENSIONS,SOURCE_KEYS
 
 class uVisionDefinitions():
     debuggers = {

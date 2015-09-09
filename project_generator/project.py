@@ -20,10 +20,10 @@ import shutil
 import logging
 import os
 
-from .tool import ToolsSupported
-from .util import PartialFormatter, FILES_EXTENSIONS, VALID_EXTENSIONS, FILE_MAP
-from .settings import ProjectSettings
-from .targets import Targets
+from project_generator.tool import ToolsSupported
+from project_generator.util import PartialFormatter, FILES_EXTENSIONS, VALID_EXTENSIONS, FILE_MAP
+from project_generator.settings import ProjectSettings
+from project_generator.targets import Targets
 
 class ProjectTemplate:
 

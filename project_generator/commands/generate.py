@@ -13,8 +13,9 @@
 # limitations under the License.
 import sys
 import os
-from ..generate import Generator
 import logging
+
+from project_generator.generate import Generator
 
 def run(args):
     if os.path.exists(args.file):

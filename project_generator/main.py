@@ -16,8 +16,8 @@ import argparse
 import logging
 import pkg_resources
 
-from .commands import build, generate, create, tools, extract
-from .util import update
+from project_generator.commands import build, generate, create, tools, extract
+from util import update
 
 subcommands = {
     'create': create,

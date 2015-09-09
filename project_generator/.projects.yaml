@@ -1,6 +1,6 @@
 projects:
   project_generator:
-  - .project.yaml
+    config: .project.yaml
+    root: .
 settings:
-  export_dir: .
-  root: .
+  export_dir: C:\Users\sarmar01\Documents\pgen_clean\project_generator\project_generator

@@ -12,15 +12,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import copy
 import os
-from .builder import Builder
-from .generator import Generator
 import logging
 import ntpath
 import shutil
-from ..util import SOURCE_KEYS
 from itertools import chain
+
+from project_generator.util import SOURCE_KEYS
+from project_generator.tools.builder import Builder
+from project_generator.tools.generator import Generator
 
 
 class MakefileGccArm(Generator, Builder):

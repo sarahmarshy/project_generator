@@ -16,10 +16,9 @@ import os
 import logging
 from os.path import join, dirname
 from jinja2 import Template
-
-from ..util import FILES_EXTENSIONS
 from os.path import normpath
 
+from project_generator.util import FILES_EXTENSIONS
 
 class Generator(object):
 

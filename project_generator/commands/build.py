@@ -14,9 +14,9 @@
 import os
 from os.path import normcase
 import logging
-
-from ..generate import Generator
 import sys
+
+from project_generator.generate import Generator
 
 def run(args):
 

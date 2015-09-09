@@ -17,10 +17,10 @@ import logging
 import os
 from os.path import join
 
-from .builder import Builder
-from .generator import Generator
-from .extractor import Extractor
-from ..util import SOURCE_KEYS
+from project_generator.tools.builder import Builder
+from project_generator.tools.generator import Generator
+from project_generator.tools.extractor import Extractor
+from project_generator.util import SOURCE_KEYS
 
 
 class IAREmbeddedWorkbench(Builder, Generator, Extractor):

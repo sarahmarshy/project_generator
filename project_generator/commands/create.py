@@ -14,7 +14,8 @@
 
 import os
 import logging
-from ..create import create_yaml
+
+from project_generator.create import create_yaml
 
 def run(args):
     root = os.getcwd()

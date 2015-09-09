@@ -14,7 +14,7 @@
 
 import sys
 import logging
-from ..tool import ToolsSupported
+from project_generator.tool import ToolsSupported
 import os
 
 def run(args):

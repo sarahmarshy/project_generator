@@ -14,13 +14,12 @@
 
 import logging
 
-from .tools.iar import IAREmbeddedWorkbench
-from .tools.uvision import Uvision
-from .tools.uvision5 import Uvision5
-from .tools.coide import Coide
-from .tools.eclipse import EclipseGnuARM
-from .tools.gccarm import MakefileGccArm
-from .tools.sublimetext import SublimeTextMakeGccARM
+from project_generator.tools.iar import IAREmbeddedWorkbench
+from project_generator.tools.uvision import Uvision
+from project_generator.tools.uvision5 import Uvision5
+from project_generator.tools.eclipse import EclipseGnuARM
+from project_generator.tools.gccarm import MakefileGccArm
+from project_generator.tools.sublimetext import SublimeTextMakeGccARM
 
 class ToolsSupported:
     """ Represents all tools available """
@@ -38,7 +37,6 @@ class ToolsSupported:
         'iar_arm':              IAREmbeddedWorkbench,
         'uvision':              Uvision,
         'uvision5':             Uvision5,
-        'coide':                Coide,
         'make_gcc_arm':         MakefileGccArm,
         'eclipse_make_gcc_arm': EclipseGnuARM,
         'sublime_make_gcc_arm': SublimeTextMakeGccARM

@@ -89,7 +89,7 @@ def create_yaml(directory, project_name, board,output_dir):
                 'config' : '.project.yaml'
             }
         },
-        'settings': {'export_dir': output_dir }
+        'settings': {'export_dir': os.path.relpath(output_dir)}
     }
 
     # will be written to .project.yaml

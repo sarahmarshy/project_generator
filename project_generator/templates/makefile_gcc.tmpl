@@ -57,20 +57,21 @@ else
 endif
 
 FPU = {{fpu}}
-CPU = -mcpu={{core}} -m{{instruction_mode}} -mfloat-abi=$(FLOAT_ABI)
+CPU = -mcpu={{core}} -m{{instruction_mode}}
 {% if fpu %}
+    CPU += -mfloat-abi=$(FLOAT_ABI)
 	CPU += -mfpu=$(FPU)
 {% endif %}
-CC_FLAGS = $(CPU) {% for option in compiler_options %} -{{option}} {% endfor %}
+CC_FLAGS = $(CPU) {% for option in compiler_options %} {{option}} {% endfor %}
 CC_SYMBOLS = {% for symbol in macros %} -D{{symbol}} {% endfor %}
 
 LD_FLAGS = $(CPU) {% for option in linker_options %}{{option}} {% endfor %}-Wl,-Map=$(OBJ_FOLDER)$(PROJECT).map,--cref
 
 
 ifeq ($(DEBUG), 1)
-  CC_FLAGS += -DDEBUG -O0
+  CC_FLAGS += -DDEBUG
 else
-  CC_FLAGS += -DNDEBUG -Os
+  CC_FLAGS += -DNDEBUG
 endif
 
 VPATH := $(SRC_DIRS)

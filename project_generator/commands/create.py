@@ -21,6 +21,11 @@ def run(args):
     root = os.getcwd()
     directory = root if not args.dir else os.path.normpath(os.path.join(root, args.dir))
     output = directory if not args.output else args.output
+    if args.move:
+        os.chdir(directory)
+        directory=os.path.relpath(directory)
+        output=os.path.relpath(output)
+
     logging.info("Generating the yaml records for %s."%directory)
     name = os.path.split(directory)[1] if not args.project else args.project
     create_yaml(os.path.normpath(directory), name, args.mcu.lower(), output)
@@ -35,3 +40,5 @@ def setup(subparser):
         '-d', '--dir', action='store', help='Source directory', default=None)
     subparser.add_argument(
         '-o', '--output', action='store', help='Generated project files directory')
+    subparser.add_argument(
+        '-move', '--move', action='store_true', help='Move created yaml to source')

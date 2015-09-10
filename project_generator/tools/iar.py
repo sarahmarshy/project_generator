@@ -51,7 +51,7 @@ class IAREmbeddedWorkbench(Builder, Generator, Extractor):
     def _parse_specific_options(self, project_data):
         """ Parse all IAR specific settings. """
         for dic in project_data['misc']:
-            # for k,v in dic.items():
+            # for k,  v in dic.items():
             self._set_specific_settings(dic, project_data)
 
     def _set_specific_settings(self, value_list, data):

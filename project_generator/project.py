@@ -20,6 +20,7 @@ import copy
 import yaml
 
 from .tools_supported import ToolsSupported
+from.settings import ProjectSettings
 from .util import merge_recursive, PartialFormatter, FILES_EXTENSIONS, VALID_EXTENSIONS, FILE_MAP, OUTPUT_TYPES, SOURCE_KEYS, fix_paths
 
 logger = logging.getLogger('progen.project')
@@ -198,12 +199,12 @@ class Project:
 
     """ Represents a project, which can be formed of many yaml files """
 
-    def __init__(self, name, project_dicts, settings, workspace_name=None):
+    def __init__(self, name, project_dicts, settings=None, workspace_name=None):
         """ Initialise a project with a yaml file """
 
         assert type(project_dicts) is list, "Project records/dics must be a list" % project_dicts 
 
-        self.settings = settings
+        self.settings = settings or ProjectSettings()
         self.name = name
         self.workspace_name = workspace_name
         self.project = {}
@@ -540,7 +541,7 @@ class Project:
                 shutil.rmtree(path)
         return 0
 
-    def generate(self, tool, copied=False, copy=False):
+    def generate(self, tool, copied=False, copy=False, fill=True, return_text=False):
         """ Generates a project """
 
         tools = self._validate_tools(tool)
@@ -557,8 +558,8 @@ class Project:
                 result = -1
                 logger.debug("Tool: %s was not found" % export_tool)
                 continue
-
-            self._fill_export_dict(export_tool, copied)
+            if fill:
+                self._fill_export_dict(export_tool, copied)
             if copy:
                 logger.debug("Copying sources to the output directory")
                 self._copy_sources_to_generated_destination()
@@ -573,7 +574,9 @@ class Project:
                 logger.addHandler(handler)
                 logger.debug("\n" + yaml.dump(dump_data))
 
-            files = exporter(self.project['export'], self.settings).export_project()
+            files = exporter(self.project['export'], self.settings).export_project(return_text=return_text)
+            if return_text:
+                return files
             generated_files[export_tool] = files
         self.generated_files = generated_files
         return result

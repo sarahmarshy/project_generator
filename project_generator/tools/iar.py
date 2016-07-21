@@ -367,10 +367,10 @@ class IAREmbeddedWorkbench(Tool, Builder, Exporter, IAREmbeddedWorkbenchProject)
         ewd_dic = self.definitions.ewd_file
         return ewp_dic, ewd_dic
 
-    def _export_single_project(self):
+    def _export_single_project(self, return_text=False):
         """ A single project export """
         expanded_dic = self.workspace.copy()
-
+        ret_dict = {}  # dict of project file name to raw xml
         self._fix_paths(expanded_dic)
 
         # generic tool template specified or project
@@ -441,7 +441,12 @@ class IAREmbeddedWorkbench(Tool, Builder, Exporter, IAREmbeddedWorkbenchProject)
             # set eww
             self._eww_set_path_single_project(eww_dic, expanded_dic['name'])
             eww_xml = xmltodict.unparse(eww_dic, pretty=True)
-            project_path, eww = self.gen_file_raw(eww_xml, '%s.eww' % expanded_dic['name'], expanded_dic['output_dir']['path'])
+            if return_text:
+                name = '%s.eww' % expanded_dic['name']
+                ret_dict[name] = eww_xml
+            else:
+                project_path, eww = self.gen_file_raw(eww_xml, '%s.eww' % expanded_dic['name'],
+                                                      expanded_dic['output_dir']['path'])
 
 
         try:
@@ -509,10 +514,21 @@ class IAREmbeddedWorkbench(Tool, Builder, Exporter, IAREmbeddedWorkbenchProject)
 
         # IAR uses ident 2 spaces, encoding iso-8859-1
         ewp_xml = xmltodict.unparse(ewp_dic, encoding='iso-8859-1', pretty=True, indent='  ')
-        project_path, ewp = self.gen_file_raw(ewp_xml, '%s.ewp' % expanded_dic['name'], expanded_dic['output_dir']['path'])
+        if return_text:
+            name = '%s.ewp' % expanded_dic['name']
+            ret_dict[name] = ewp_xml
+        else:
+            project_path, ewp = self.gen_file_raw(ewp_xml, '%s.ewp' % expanded_dic['name'],
+                                                  expanded_dic['output_dir']['path'])
 
         ewd_xml = xmltodict.unparse(ewd_dic, encoding='iso-8859-1', pretty=True, indent='  ')
-        project_path, ewd = self.gen_file_raw(ewd_xml, '%s.ewd' % expanded_dic['name'], expanded_dic['output_dir']['path'])
+        if return_text:
+            name = '%s.ewd' % expanded_dic['name']
+            ret_dict[name] = ewd_xml
+            return None, ret_dict
+        else:
+            project_path, ewd = self.gen_file_raw(ewd_xml, '%s.ewd' % expanded_dic['name'],
+                                                  expanded_dic['output_dir']['path'])
         return project_path, [ewp, eww, ewd]
 
     def _generate_eww_file(self):
@@ -540,9 +556,11 @@ class IAREmbeddedWorkbench(Tool, Builder, Exporter, IAREmbeddedWorkbenchProject)
         path, workspace = self._generate_eww_file()
         return path, [workspace]
 
-    def export_project(self):
+    def export_project(self, return_text=False):
         """ Processes groups and misc options specific for IAR, and run generator """
-        path, files = self._export_single_project()
+        path, files = self._export_single_project(return_text=return_text)
+        if return_text:
+            return files
         generated_projects = copy.deepcopy(self.generated_project)
         generated_projects['path'] = path
         generated_projects['files']['ewp'] = files[0]

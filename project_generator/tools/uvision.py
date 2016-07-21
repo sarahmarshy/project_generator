@@ -377,7 +377,7 @@ class Uvision(Tool, Builder, Exporter):
         except KeyError:
             raise RuntimeError("Debugger %s is not supported" % expanded_dic['debugger'])
 
-    def _export_single_project(self, tool_name):
+    def _export_single_project(self, tool_name, return_text=False):
         expanded_dic = self.workspace.copy()
 
         groups = self._get_groups(self.workspace)
@@ -461,7 +461,15 @@ class Uvision(Tool, Builder, Exporter):
 
         # Project file
         uvproj_xml = xmltodict.unparse(uvproj_dic, pretty=True)
-        project_path, uvproj = self.gen_file_raw(uvproj_xml, '%s.%s' % (expanded_dic['name'], extension), expanded_dic['output_dir']['path'])
+        return_dict = {}
+        if return_text:
+            name = '%s.%s' % (expanded_dic['name'], extension)
+            return_dict[name] = uvproj_xml
+            if tool_name != 'uvision5':
+                return None, return_dict
+        else:
+            project_path, uvproj = self.gen_file_raw(uvproj_xml, '%s.%s' % (expanded_dic['name'], extension),
+                                                     expanded_dic['output_dir']['path'])
 
         uvoptx = None
         if tool_name == 'uvision5':
@@ -476,6 +484,10 @@ class Uvision(Tool, Builder, Exporter):
 
             # Project file
             uvoptx_xml = xmltodict.unparse(uvoptx_dic, pretty=True)
+            if return_text:
+                name = '%s.%s' % (expanded_dic['name'], extension)
+                return_dict[name] = uvoptx_xml
+                return None, return_dict
             project_path, uvoptx = self.gen_file_raw(uvoptx_xml, '%s.%s' % (expanded_dic['name'], extension), expanded_dic['output_dir']['path'])
 
         return project_path, [uvproj, uvoptx]
@@ -484,8 +496,10 @@ class Uvision(Tool, Builder, Exporter):
         path, workspace = self._generate_uvmpw_file()
         return path, [workspace]
 
-    def export_project(self):
-        path, files = self._export_single_project('uvision') #todo: uvision will switch to uv4
+    def export_project(self, return_text=False):
+        path, files = self._export_single_project('uvision', return_text=return_text) #todo: uvision will switch to uv4
+        if return_text:
+            return files
         generated_projects = copy.deepcopy(self.generated_project)
         generated_projects['path'] = path
         generated_projects['files']['uvproj'] = files[0]
@@ -545,8 +559,10 @@ class Uvision5(Uvision):
     def get_toolnames():
         return ['uvision5']
 
-    def export_project(self):
-        path, files = self._export_single_project('uvision5')
+    def export_project(self, return_text=False):
+        path, files = self._export_single_project('uvision5',return_text=return_text)
+        if return_text:
+            return files
         generated_projects = copy.deepcopy(self.generated_project)
         generated_projects['path'] = path
         generated_projects['files']['uvprojx'] = files[0]

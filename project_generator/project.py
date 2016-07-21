@@ -20,6 +20,7 @@ import copy
 import yaml
 
 from .tools_supported import ToolsSupported
+from .settings import ProjectSettings
 from .util import merge_recursive, PartialFormatter, FILES_EXTENSIONS, VALID_EXTENSIONS, FILE_MAP, OUTPUT_TYPES, SOURCE_KEYS, fix_paths
 
 logger = logging.getLogger('progen.project')
@@ -34,7 +35,7 @@ class ProjectWorkspace:
         self.workspace_settings = workspace_settings
         self.generated_files = {}
 
-    def generate(self, tool, copied=False, copy=False):
+    def generate(self, tool, copied=False, copy=False, fill=True):
         """ Generates a workspace """
 
         # copied - already done by external script, copy - do actual copy
@@ -198,12 +199,11 @@ class Project:
 
     """ Represents a project, which can be formed of many yaml files """
 
-    def __init__(self, name, project_dicts, settings, workspace_name=None):
+    def __init__(self, name, project_dicts, settings=None, workspace_name=None):
         """ Initialise a project with a yaml file """
-
         assert type(project_dicts) is list, "Project records/dics must be a list" % project_dicts 
 
-        self.settings = settings
+        self.settings = settings or ProjectSettings()
         self.name = name
         self.workspace_name = workspace_name
         self.project = {}
@@ -339,7 +339,6 @@ class Project:
         else:
             if files:
                 use_sources = [files]
-
         for source_file in use_sources:
             source_file = os.path.normpath(source_file)
             if os.path.isdir(source_file):
@@ -356,9 +355,9 @@ class Project:
                 self.project['export'][source_group][use_group_name] = []
 
             self.project['export'][source_group][use_group_name].append(source_file)
-
             if not os.path.dirname(source_file) in self.project['export']['source_paths']:
                 self.project['export']['source_paths'].append(os.path.normpath(os.path.dirname(source_file)))
+
 
     def _validate_tools(self, tool):
         """ Use tool_supported or tool """
@@ -376,7 +375,6 @@ class Project:
     @staticmethod
     def _generate_output_dir(settings, path):
         """ This is a separate function, so that it can be more easily tested """
-
         relpath = os.path.relpath(settings.root,path)
         count = relpath.count(os.sep) + 1
 
@@ -464,7 +462,7 @@ class Project:
         self.project['export']['macros'] += self._get_tool_data('macros', tool_keywords)
         self.project['export']['template'] = self._get_tool_data('template', tool_keywords)
 
-        fix_paths(self.project['export'], self.project['export']['output_dir']['rel_path'], list(FILES_EXTENSIONS.keys()) + ['include_paths', 'source_paths'])
+        #fix_paths(self.project['export'], self.project['export']['output_dir']['path'], list(FILES_EXTENSIONS.keys()) + ['include_paths', 'source_paths'])
 
         # misc for tools requires dic merge
         misc = self._get_tool_data('misc', tool_keywords)
@@ -540,9 +538,8 @@ class Project:
                 shutil.rmtree(path)
         return 0
 
-    def generate(self, tool, copied=False, copy=False):
+    def generate(self, tool, copied=False, copy=False, fill=True, return_text=False):
         """ Generates a project """
-
         tools = self._validate_tools(tool)
         if tools == -1:
             return -1
@@ -558,7 +555,8 @@ class Project:
                 logger.debug("Tool: %s was not found" % export_tool)
                 continue
 
-            self._fill_export_dict(export_tool, copied)
+            if fill:
+                self._fill_export_dict(export_tool, copied)
             if copy:
                 logger.debug("Copying sources to the output directory")
                 self._copy_sources_to_generated_destination()
@@ -572,8 +570,9 @@ class Project:
                 handler.setLevel(logging.DEBUG)
                 logger.addHandler(handler)
                 logger.debug("\n" + yaml.dump(dump_data))
-
-            files = exporter(self.project['export'], self.settings).export_project()
+            files = exporter(self.project['export'], self.settings).export_project(return_text=return_text)
+            if return_text:
+                return files
             generated_files[export_tool] = files
         self.generated_files = generated_files
         return result
